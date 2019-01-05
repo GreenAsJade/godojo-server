@@ -26,7 +26,8 @@ repositories {
 
 dependencies {
 	implementation(
-		'org.springframework.boot:spring-boot-starter-data-neo4j',
+        'org.springframework.boot:spring-boot-starter-data-neo4j',
+        'org.springframework.boot:spring-boot-starter-data-rest',
 		'org.springframework.boot:spring-boot-starter-thymeleaf',
 		'org.springframework.boot:spring-boot-starter-web')
 	runtimeOnly('org.springframework.boot:spring-boot-devtools')
