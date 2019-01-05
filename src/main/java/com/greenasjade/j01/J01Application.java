@@ -34,7 +34,7 @@ public class J01Application {
 			BoardPosition child = store.findByPlay("root.C1");
 			log.info(child.toString());
 			
-			log.info(rootNode.children.toArray()[0].toString());
+			log.info("Resulting link: " + rootNode.children.toArray()[0].toString());
 		};
 	}
 	

@@ -21,10 +21,10 @@ public class JosekiTreeController {
 	}
 	
     @RequestMapping("/root")
-    public String root() {
+    public BoardPosition root() {
     	BoardPosition retrieved = store.findByPlay("root");
     	logger.info(retrieved.getPlay());
-    	return retrieved.toString();
+    	return retrieved;
     }
 
     @RequestMapping("/node")
