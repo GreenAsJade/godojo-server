@@ -20,12 +20,15 @@ public class J01Application {
 	}
 	
 	@Bean
-	public CommandLineRunner initialise (BoardPositionStore bp_store, JosekiStore j_store) {
+	public CommandLineRunner initialise (
+			BoardPositionStore bp_store, 
+			JosekiStore j_store,
+			MoveStore m_store) {
 		return args -> {
 			log.info("Initialising...");
 			BoardPosition rootNode = bp_store.findByPlay("root");			
-			if (1==1) {//(rootNode == null) {
-				resetDB(bp_store, j_store);
+			if (true) {//(rootNode == null) {
+				resetDB(bp_store, j_store, m_store);
 			}
 			rootNode = bp_store.findByPlay("root");			
 	
@@ -34,34 +37,63 @@ public class J01Application {
 			BoardPosition child = bp_store.findByPlay("root.C1");
 			log.info(child.toString());
 			
-			log.info("Resulting link: " + rootNode.children.toArray()[0].toString());
+			Move the_move = m_store.findByPlacement("C1");
+			log.info("Move direct load: " + the_move.toString());
+			
+			Joseki j = j_store.findByName("Joseki1");
+			log.info(j.toString());
+
 		};
 	}
 	
-	void resetDB(BoardPositionStore bp_store, JosekiStore j_store) {
-		log.info("reloading DB...");
+	void resetDB(
+			BoardPositionStore bp_store, 
+			JosekiStore j_store,
+			MoveStore m_store) {
+		log.info("reseting DB...");
 		bp_store.deleteAll();
+		j_store.deleteAll();
+		m_store.deleteAll();
+		
 		BoardPosition rootNode = new BoardPosition("root");
 		bp_store.save(rootNode);
+		
 		BoardPosition child = rootNode.addMove("C1");
-		log.info("created child: "+ rootNode.toString());		
+		
+		log.info("created child: "+ child.toString());		
 		bp_store.save(rootNode);
-		bp_store.save(child);
 
+ 		Move the_move = rootNode.children.toArray(new Move[0])[0];
+		log.info("After creation, move: " + the_move.toString() );
+		
 		rootNode = bp_store.findByPlay("root");
-		log.info(rootNode.toString());
+		log.info("reloaded root: " + rootNode.toString());
+		
+		child = bp_store.findByPlay("root.C1");
+		log.info("reloaded child: " + child.toString());
+		
+		the_move = rootNode.children.toArray(new Move[0])[0];
+		log.info("After reload, move: " + the_move.toString() );
+		
+		the_move = child.parent;
+		log.info("Child POV, move: " + the_move.toString() );	
+		
+		the_move = m_store.findByPlacement("C1");
+		log.info("Move direct load: " + the_move.toString());
 		
 		Joseki j1 = new Joseki("Joseki1");
-		log.info(j1.toString());
-		j_store.save(j1);
 		
-		Move the_move = rootNode.children.toArray(new Move[0])[0];
-		log.info("The move: " + the_move.toString());
-		
+		the_move = m_store.findByPlacement("C1");
+		log.info("Move direct load: " + the_move.toString());
+	
 		j1.addMove(the_move);
 		j_store.save(j1);
 		
-		log.info(j1.toString());		
+		log.info(j1.toString());
+		
+		the_move = m_store.findByPlacement("C1");
+		log.info("Move direct load: " + the_move.toString());
+			
 		log.info("...done");
 	}	
 }

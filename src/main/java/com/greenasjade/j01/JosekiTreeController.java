@@ -14,11 +14,17 @@ public class JosekiTreeController {
 	 
 	private BoardPositionStore bp_store;
 	private JosekiStore j_store;
+	private MoveStore m_store;
 	private J01Application app;
 	
-	public JosekiTreeController(BoardPositionStore bp_store, JosekiStore j_store, J01Application app) {
+	public JosekiTreeController(
+			BoardPositionStore bp_store, 
+			JosekiStore j_store,
+			MoveStore m_store,
+			J01Application app) {
 		 this.bp_store = bp_store;
 		 this.j_store = j_store;
+		 this.m_store = m_store;
 		 this.app = app;
 	}
 	
@@ -34,11 +40,5 @@ public class JosekiTreeController {
     	BoardPosition node = bp_store.findByPlay(p);
     	logger.info(node.getPlay());
     	return node;
-    }
-    
-    @RequestMapping("/reset")
-    public String reset () {
-    	app.resetDB(this.bp_store, this.j_store);
-    	return "reset done";
     }
 }

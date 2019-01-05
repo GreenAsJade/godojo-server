@@ -31,8 +31,11 @@ public class BoardPosition {
     @Property("count")
     public long child_count = 0;
     
-    @Relationship("CHILD")
+    @Relationship("PARENT")
     public Set<Move> children;
+    
+    @Relationship(type="CHILD", direction=Relationship.INCOMING)
+    public Move parent;
     	
 	public BoardPosition() {
 		// Empty constructor required as of Neo4j API 2.0.5
@@ -42,6 +45,9 @@ public class BoardPosition {
 		this.play = play;
 	}
 	
+	public void setParent(Move parent) {
+		this.parent=parent;
+	}
 	public void setPlay(String play) {
 		this.play=play;
 	}
@@ -51,7 +57,9 @@ public class BoardPosition {
     }
 
     public String toString() {
-    	return this.child_count + " :" + this.play + 
+    	String p = this.parent==null ? "(none)" : this.parent.getPlacement();
+    	
+    	return this.child_count + ": " + p + " -> " + this.play + 
     			" -> " + Optional.ofNullable(this.children).orElse(
 				Collections.emptySet()).stream()
 				.map(Move::getPlacement)
@@ -66,7 +74,8 @@ public class BoardPosition {
 			children = new HashSet<>();
 		}
 		children.add(link);
-		log.info("Added move, now: " + this.toString());
+		log.info("Added move: " + link.toString()); 
+		log.info("now this node: " + this.toString());
 		return child;
 	}
 } 

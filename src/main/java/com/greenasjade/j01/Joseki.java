@@ -5,8 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
@@ -27,8 +25,8 @@ public class Joseki {
 	
 	@Id @GeneratedValue private Long id;
 	
-    @Relationship("moves")
-    public Set<Move> moves;
+    @Relationship("MOVE")
+    public List<Move> moves;
     
     @Property("name")
     public String name;
@@ -41,21 +39,26 @@ public class Joseki {
 		this.name = name;
 	}
 	
+	public String getName() {
+		return this.name;
+	}
+	
 	public void setName(String name) {
 		this.name = name;
 	}
 	
     public String toString() {
     	return this.name + ": " + Optional.ofNullable(this.moves).orElse(
-				Collections.emptySet()).stream()
+				Collections.emptyList()).stream()
 				.map(Move::getPlacement)
 				.collect(Collectors.toList());
     }
     
     public void addMove(Move move) {
 		if (this.moves == null) {
-			this.moves = new HashSet<>();
+			this.moves = new ArrayList<>();
 		}    	
     	this.moves.add(move);
+    	move.addJoseki(this);
     }
 } 
