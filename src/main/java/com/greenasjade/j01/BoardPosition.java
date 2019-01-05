@@ -18,61 +18,54 @@ import org.neo4j.ogm.annotation.Transient;
 
 
 @NodeEntity
-public class MoveNode {
+public class BoardPosition {
 	
 	@Transient 
-	private static final Logger log = LoggerFactory.getLogger(MoveNode.class);
+	private static final Logger log = LoggerFactory.getLogger(BoardPosition.class);
 	
 	@Id @GeneratedValue private Long id;
 	
 	@Property("play")
-	private String play;  // the string of moves to get here (later will be board hash?) 
+		private String play;  // the string of moves to get here 
 	
-	@Property("placement")
-	private String placement;
-	
-	
-	public String getPlacement() {
-		return placement;
-	}
-	
-	public MoveNode() {
+    @Property("count")
+    public long child_count = 0;
+    
+    @Relationship("CHILD")
+    public Set<Move> children;
+    	
+	public BoardPosition() {
 		// Empty constructor required as of Neo4j API 2.0.5
-	};
+	}
 
-	public MoveNode(String placement, String play) {
+	public BoardPosition(String play) {
 		this.play = play;
-		this.placement = placement;
 	}
 	
 	public void setPlay(String play) {
 		this.play=play;
 	}
+	
     public String getPlay() {
         return play;
     }
-    
-    @Property("count")
-    public long child_count =0 ;
-    
-    @Relationship("CHILD")
-    public Set<MoveNode> children;
-    
+
     public String toString() {
     	return this.child_count + " :" + this.play + 
     			" -> " + Optional.ofNullable(this.children).orElse(
 				Collections.emptySet()).stream()
-				.map(MoveNode::getPlacement)
+				.map(Move::getPlacement)
 				.collect(Collectors.toList());
     }
     
-	public MoveNode addMove(String placement) {
+	public BoardPosition addMove(String placement) {
 		this.child_count = this.child_count+1;
-		MoveNode child = new MoveNode(placement, this.play+"."+placement);
+		BoardPosition child = new BoardPosition(this.play + "." + placement);
+		Move link = new Move(this, placement, child);
 		if (children == null) {
 			children = new HashSet<>();
 		}
-		children.add(child);
+		children.add(link);
 		log.info("Added move, now: " + this.toString());
 		return child;
 	}

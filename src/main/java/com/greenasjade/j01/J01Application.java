@@ -20,30 +20,30 @@ public class J01Application {
 	}
 
 	@Bean
-	public CommandLineRunner initialise (MoveNodeStore store) {
+	public CommandLineRunner initialise (BoardPositionStore store) {
 		return args -> {
 			log.info("Initialising...");
-			MoveNode rootNode = store.findByPlay("root");			
-			if (1==1) { //(rootNode == null) {
+			BoardPosition rootNode = store.findByPlay("root");			
+			if (rootNode == null) {
 				resetDB(store);
 			}
 			rootNode = store.findByPlay("root");			
 	
 			log.info(rootNode.toString());
 			
-			MoveNode child = store.findByPlay("root.C1");
+			BoardPosition child = store.findByPlay("root.C1");
 			log.info(child.toString());
 			
 			log.info(rootNode.children.toArray()[0].toString());
 		};
 	}
 	
-	void resetDB(MoveNodeStore store) {
+	void resetDB(BoardPositionStore store) {
 		log.info("reloading DB...");
 		store.deleteAll();
-		MoveNode rootNode = new MoveNode("root", "root");
+		BoardPosition rootNode = new BoardPosition("root");
 		store.save(rootNode);
-		MoveNode child = rootNode.addMove("C1");
+		BoardPosition child = rootNode.addMove("C1");
 		log.info("created child: "+ rootNode.toString());		
 		store.save(rootNode);
 		store.save(child);

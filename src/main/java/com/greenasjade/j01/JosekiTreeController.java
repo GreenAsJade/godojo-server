@@ -12,24 +12,24 @@ public class JosekiTreeController {
 
 	private static final Logger logger = LoggerFactory.getLogger(JosekiTreeController.class);
 	 
-	private MoveNodeStore store;
+	private BoardPositionStore store;
 	private J01Application app;
 	
-	public JosekiTreeController(MoveNodeStore store, J01Application app) {
+	public JosekiTreeController(BoardPositionStore store, J01Application app) {
 		 this.store = store;
 		 this.app = app;
 	}
 	
     @RequestMapping("/root")
     public String root() {
-    	MoveNode retrieved = store.findByPlay("root");
+    	BoardPosition retrieved = store.findByPlay("root");
     	logger.info(retrieved.getPlay());
     	return retrieved.toString();
     }
 
     @RequestMapping("/node")
-    public MoveNode getNodeByCoord(@RequestParam(value="p", defaultValue="root") String p) {
-    	MoveNode node = store.findByPlay(p);
+    public BoardPosition getNodeByCoord(@RequestParam(value="p", defaultValue="root") String p) {
+    	BoardPosition node = store.findByPlay(p);
     	logger.info(node.getPlay());
     	return node;
     }
