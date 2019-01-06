@@ -1,6 +1,6 @@
 /* This is DTO for the /position service */
 
-package com.greenasjade.j01;
+package com.greenasjade.godojo;
 
 import org.springframework.hateoas.ResourceSupport;
 

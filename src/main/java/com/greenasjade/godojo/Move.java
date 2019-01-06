@@ -1,4 +1,4 @@
-package com.greenasjade.j01;
+package com.greenasjade.godojo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
