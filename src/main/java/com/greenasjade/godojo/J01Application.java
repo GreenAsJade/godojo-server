@@ -72,7 +72,7 @@ public class J01Application {
 		child = bp_store.findByPlay("root.C1");
 		log.info("reloaded child: " + child.toString());
 		
-		the_move = rootNode.children.toArray(new Move[0])[0];
+		the_move = rootNode.children.iterator().next();
 		log.info("After reload, move: " + the_move.toString() );
 		
 		the_move = child.parent;

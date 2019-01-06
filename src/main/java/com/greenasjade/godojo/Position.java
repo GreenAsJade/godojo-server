@@ -9,14 +9,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Position extends ResourceSupport {
 
-    private final String content;
+    private final String play;
 
     @JsonCreator
-    public Position(@JsonProperty("content") String content) {
-        this.content = content;
+    public Position(@JsonProperty("play") String play) {
+        this.play = play;
     }
 
-    public String getContent() {
-      return content;
+    public String getPlay() {
+      return play;
     }
 }

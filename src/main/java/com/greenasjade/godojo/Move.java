@@ -24,7 +24,7 @@ public class Move {
 	@Transient 
 	private static final Logger log = LoggerFactory.getLogger(Move.class);
 	
-	@Id @GeneratedValue private Long id;
+	@Id @GeneratedValue Long id;
 	
 	@Property("placement")
 	private String placement;

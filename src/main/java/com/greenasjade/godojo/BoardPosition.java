@@ -23,7 +23,7 @@ public class BoardPosition {
 	@Transient 
 	private static final Logger log = LoggerFactory.getLogger(BoardPosition.class);
 	
-	@Id @GeneratedValue private Long id;
+	@Id @GeneratedValue Long id;
 	
 	@Property("play")
 		private String play;  // the string of moves to get here 
