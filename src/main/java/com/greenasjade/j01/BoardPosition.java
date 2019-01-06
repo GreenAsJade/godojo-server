@@ -27,9 +27,6 @@ public class BoardPosition {
 	
 	@Property("play")
 		private String play;  // the string of moves to get here 
-	
-    @Property("count")
-    public long child_count = 0;
     
     @Relationship("PARENT")
     public Set<Move> children;
@@ -59,7 +56,9 @@ public class BoardPosition {
     public String toString() {
     	String p = this.parent==null ? "(none)" : this.parent.getPlacement();
     	
-    	return this.child_count + ": " + p + " -> " + this.play + 
+    	String i = this.id==null ? "tbd" : this.id.toString();
+    	
+    	return p + " -> " +  "<"+i+">" + this.play + 
     			" -> " + Optional.ofNullable(this.children).orElse(
 				Collections.emptySet()).stream()
 				.map(Move::getPlacement)
@@ -67,7 +66,6 @@ public class BoardPosition {
     }
     
 	public BoardPosition addMove(String placement) {
-		this.child_count = this.child_count+1;
 		BoardPosition child = new BoardPosition(this.play + "." + placement);
 		Move link = new Move(this, placement, child);
 		if (children == null) {

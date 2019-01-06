@@ -1,3 +1,5 @@
+/* Storage definition for a Joseki */
+
 package com.greenasjade.j01;
 
 import org.slf4j.Logger;
@@ -15,7 +17,6 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Transient;
-
 
 @NodeEntity
 public class Joseki {
