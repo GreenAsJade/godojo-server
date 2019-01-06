@@ -32,17 +32,7 @@ public class J01Application {
 			}
 			rootNode = bp_store.findByPlay("root");			
 	
-			log.info(rootNode.toString());
-			
-			BoardPosition child = bp_store.findByPlay("root.C1");
-			log.info(child.toString());
-			
-			Move the_move = m_store.findByPlacement("C1");
-			log.info("Move direct load: " + the_move.toString());
-			
-			Joseki j = j_store.findByName("Joseki1");
-			log.info(j.toString());
-
+			log.info(rootNode.toString());			
 		};
 	}
 	
@@ -51,6 +41,7 @@ public class J01Application {
 			JosekiStore j_store,
 			MoveStore m_store) {
 		log.info("reseting DB...");
+		
 		bp_store.deleteAll();
 		j_store.deleteAll();
 		m_store.deleteAll();
@@ -60,17 +51,25 @@ public class J01Application {
 		
 		BoardPosition child = rootNode.addMove("C1");
 		
-		log.info("created child: "+ child.toString());		
+		log.info("First child: "+ child.toString());
+		
+		child = rootNode.addMove("D2");
+		log.info("Second child: "+ child.toString());
+		
 		bp_store.save(rootNode);
 
+		Move the_move;
+		/* Debugging wierd Neo4j loading issues 
  		Move the_move = rootNode.children.toArray(new Move[0])[0];
 		log.info("After creation, move: " + the_move.toString() );
+		*/
 		
 		rootNode = bp_store.findByPlay("root");
 		log.info("reloaded root: " + rootNode.toString());
 		
+	    /*
 		child = bp_store.findByPlay("root.C1");
-		log.info("reloaded child: " + child.toString());
+		log.info("reloaded after: " + child.toString());
 		
 		the_move = rootNode.children.iterator().next();
 		log.info("After reload, move: " + the_move.toString() );
@@ -80,11 +79,13 @@ public class J01Application {
 		
 		the_move = m_store.findByPlacement("C1");
 		log.info("Move direct load: " + the_move.toString());
+		*/
 		
 		Joseki j1 = new Joseki("Joseki1");
 		
+		// more debug, this to make sure it's actually OK
 		the_move = m_store.findByPlacement("C1");
-		log.info("Move direct load: " + the_move.toString());
+		log.info("First move direct load: " + the_move.toString());
 	
 		j1.addMove(the_move);
 		j_store.save(j1);
@@ -92,8 +93,11 @@ public class J01Application {
 		log.info(j1.toString());
 		
 		the_move = m_store.findByPlacement("C1");
-		log.info("Move direct load: " + the_move.toString());
+		log.info("First move direct load: " + the_move.toString());
 			
-		log.info("...done");
+		the_move = m_store.findByPlacement("D2");
+		log.info("Second move direct load: " + the_move.toString());
+			
+		log.info("...DB reset done");
 	}	
 }

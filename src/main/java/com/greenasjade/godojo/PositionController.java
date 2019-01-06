@@ -55,10 +55,10 @@ public class PositionController {
         if (board_position.children != null) {
         	board_position.children.forEach( (move) -> {   
         		log.info("Adding link for move: " + move.toString());        	
-        		//for some reason the children of a BoardPosion don't get their own child property loaded 
+        		//for some reason the children of a BoardPosion don't get their own after property loaded 
         		Move loaded_move = m_store.findById(move.id).orElse(null);
-        		log.info("target position: " + loaded_move.child.toString());
-        		position.add(linkTo(methodOn(PositionController.class).position(loaded_move.child.id.toString())).withRel("moves").withTitle(move.getPlacement()));
+        		log.info("target position: " + loaded_move.after.toString());
+        		position.add(linkTo(methodOn(PositionController.class).position(loaded_move.after.id.toString())).withRel("moves").withTitle(move.getPlacement()));
         	});
         }
       	

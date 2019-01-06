@@ -30,10 +30,10 @@ public class Move {
 	private String placement;
 	
 	@Relationship(type="PARENT", direction=Relationship.INCOMING)
-	BoardPosition parent;
+	BoardPosition before;
 	
 	@Relationship("CHILD")
-	BoardPosition child;
+	BoardPosition after;
 	
 	@Relationship(type="MOVE", direction=Relationship.INCOMING)
 	private Set<Joseki> joseki;
@@ -47,9 +47,9 @@ public class Move {
 	};
 
 	public Move(BoardPosition parent, String placement, BoardPosition child) {
-		this.parent = parent;
+		this.before = parent;
 		this.placement = placement;
-		this.child = child;
+		this.after = child;
 		child.setParent(this);
 	}
 	    
@@ -61,9 +61,9 @@ public class Move {
     }
     
     public String toString() {
-    	String p = this.parent == null ? "(none)" : this.parent.getPlay();
+    	String p = this.before == null ? "(none)" : this.before.getPlay();
     	String pl = this.placement == null ? "(none)" : this.placement;
-    	String c = this.child == null ? "(none)" : this.child.getPlay();
+    	String c = this.after == null ? "(none)" : this.after.getPlay();
     	List<String> j = Optional.ofNullable(this.joseki).orElse(
 				Collections.emptySet()).stream()
 				.map(Joseki::getName)

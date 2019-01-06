@@ -72,8 +72,8 @@ public class BoardPosition {
 			children = new HashSet<>();
 		}
 		children.add(link);
-		log.info("Added move: " + link.toString()); 
-		log.info("now this node: " + this.toString());
+		//log.info("Added move: " + link.toString()); 
+		//log.info("now this node: " + this.toString());
 		return child;
 	}
 } 
