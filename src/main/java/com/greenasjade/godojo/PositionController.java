@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import org.springframework.hateoas.ResourceSupport;
-import org.springframework.hateoas.Resources;
 import org.springframework.hateoas.Resource;
 
 @RestController
@@ -62,24 +60,24 @@ public class PositionController {
 
         
         // Add a "moves" link for each move on the board_position, so the client
-    	// can navigate to any move from this board_position
+    	// can navigate through any move from this board_position
 	
-        List<Move> ml = m_store.findByParentId(board_position.id);
+        List<Move> move_list = m_store.findByParentId(board_position.id);
         
-        ArrayList<Resource<MoveDTO>> mr = new ArrayList<>(); 
+        ArrayList<Resource<MoveDTO>> resource_list = new ArrayList<>(); 
         
-        if (ml != null) {
-        	ml.forEach( (move) -> {   
+        if (move_list != null) {
+        	move_list.forEach( (move) -> {   
         		log.info("adding link to: " + move.after.toString());
                 MoveDTO dto = new MoveDTO(move.getPlacement());
-                Resource<MoveDTO> r1 = new Resource<>(dto);
-                r1.add(linkTo(methodOn(PositionController.class).  // actual link tbd
+                Resource<MoveDTO> res = new Resource<>(dto);
+                res.add(linkTo(methodOn(PositionController.class).
         						position(move.after.id.toString())).withSelfRel());
-                mr.add(r1);
+                resource_list.add(res);
                 
         	});
+            position.embed("moves", resource_list);
         }        	    
-        position.embed("moves", mr);
         
         return position;
     }
