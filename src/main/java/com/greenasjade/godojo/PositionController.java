@@ -14,8 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestParam;
-
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import org.springframework.hateoas.ResourceSupport;
+import org.springframework.hateoas.Resources;
+import org.springframework.hateoas.Resource;
 
 @RestController
 public class PositionController {
@@ -38,7 +41,7 @@ public class PositionController {
 	@CrossOrigin()
 	@ResponseBody()
     @RequestMapping("/position")
-    public Position position(
+    public PositionDTO position(
             @RequestParam(value = "id", required = false, defaultValue = "root") String id) {
 
     	BoardPosition board_position; 
@@ -54,27 +57,30 @@ public class PositionController {
 
         log.info("which is: " + board_position.toString());
         
-        Position position = new Position(board_position.getPlay());
+        PositionDTO position = new PositionDTO(board_position.getPlay());
         position.add(linkTo(methodOn(PositionController.class).position(id)).withSelfRel());        
 
-       
+        
         // Add a "moves" link for each move on the board_position, so the client
     	// can navigate to any move from this board_position
-    	
+	
         List<Move> ml = m_store.findByParentId(board_position.id);
+        
+        ArrayList<Resource<MoveDTO>> mr = new ArrayList<>(); 
         
         if (ml != null) {
         	ml.forEach( (move) -> {   
         		log.info("adding link to: " + move.after.toString());
-        		position.add(
-        				linkTo(methodOn(PositionController.class).
-        						position(move.after.id.toString())).
-        				withRel("moves").
-        				withTitle(move.getPlacement())
-        		);
+                MoveDTO dto = new MoveDTO(move.getPlacement());
+                Resource<MoveDTO> r1 = new Resource<>(dto);
+                r1.add(linkTo(methodOn(PositionController.class).  // actual link tbd
+        						position(move.after.id.toString())).withSelfRel());
+                mr.add(r1);
+                
         	});
-        }
-      	
+        }        	    
+        position.embed("moves", mr);
+        
         return position;
     }
 }
