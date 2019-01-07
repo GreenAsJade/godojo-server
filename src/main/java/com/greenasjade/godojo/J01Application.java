@@ -59,17 +59,14 @@ public class J01Application {
 		bp_store.save(rootNode);
 
 		Move the_move;
-		/* Debugging wierd Neo4j loading issues 
- 		Move the_move = rootNode.children.toArray(new Move[0])[0];
+		
+		/* Debugging wierd Neo4j loading issues */ 
+ 		the_move = rootNode.children.toArray(new Move[0])[0];
 		log.info("After creation, move: " + the_move.toString() );
-		*/
+		
 		
 		rootNode = bp_store.findByPlay("root");
 		log.info("reloaded root: " + rootNode.toString());
-		
-	    /*
-		child = bp_store.findByPlay("root.C1");
-		log.info("reloaded after: " + child.toString());
 		
 		the_move = rootNode.children.iterator().next();
 		log.info("After reload, move: " + the_move.toString() );
@@ -79,7 +76,7 @@ public class J01Application {
 		
 		the_move = m_store.findByPlacement("C1");
 		log.info("Move direct load: " + the_move.toString());
-		*/
+		
 		
 		Joseki j1 = new Joseki("Joseki1");
 		

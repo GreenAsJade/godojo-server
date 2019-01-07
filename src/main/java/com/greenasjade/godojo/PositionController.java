@@ -7,12 +7,15 @@ import org.slf4j.LoggerFactory;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+//import org.springframework.http.HttpEntity;
+//import org.springframework.http.HttpStatus;
+//import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @RestController
 public class PositionController {
@@ -32,8 +35,10 @@ public class PositionController {
 		 this.m_store = m_store;
 	}
 	
+	@CrossOrigin()
+	@ResponseBody()
     @RequestMapping("/position")
-    public HttpEntity<Position> position(
+    public Position position(
             @RequestParam(value = "id", required = false, defaultValue = "root") String id) {
 
     	BoardPosition board_position; 
@@ -52,16 +57,24 @@ public class PositionController {
         Position position = new Position(board_position.getPlay());
         position.add(linkTo(methodOn(PositionController.class).position(id)).withSelfRel());        
 
-        if (board_position.children != null) {
-        	board_position.children.forEach( (move) -> {   
-        		log.info("Adding link for move: " + move.toString());        	
-        		//for some reason the children of a BoardPosion don't get their own after property loaded 
-        		Move loaded_move = m_store.findById(move.id).orElse(null);
-        		log.info("target position: " + loaded_move.after.toString());
-        		position.add(linkTo(methodOn(PositionController.class).position(loaded_move.after.id.toString())).withRel("moves").withTitle(move.getPlacement()));
+       
+        // Add a "moves" link for each move on the board_position, so the client
+    	// can navigate to any move from this board_position
+    	
+        List<Move> ml = m_store.findByParentId(board_position.id);
+        
+        if (ml != null) {
+        	ml.forEach( (move) -> {   
+        		log.info("adding link to: " + move.after.toString());
+        		position.add(
+        				linkTo(methodOn(PositionController.class).
+        						position(move.after.id.toString())).
+        				withRel("moves").
+        				withTitle(move.getPlacement())
+        		);
         	});
         }
       	
-        return new ResponseEntity<>(position, HttpStatus.OK);
+        return position;
     }
 }

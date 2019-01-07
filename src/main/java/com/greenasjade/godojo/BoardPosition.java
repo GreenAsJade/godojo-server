@@ -31,7 +31,7 @@ public class BoardPosition {
     @Relationship("PARENT")
     public Set<Move> children;
     
-    @Relationship(type="CHILD", direction=Relationship.INCOMING)
+    @Relationship(type="CHILD")
     public Move parent;
     	
 	public BoardPosition() {
@@ -54,7 +54,7 @@ public class BoardPosition {
     }
 
     public String toString() {
-    	String p = this.parent==null ? "(none)" : this.parent.getPlacement();
+    	String p = this.parent==null ? "." : this.parent.getPlacement();
     	
     	String i = this.id==null ? "tbd" : this.id.toString();
     	

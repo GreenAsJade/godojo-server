@@ -29,13 +29,13 @@ public class Move {
 	@Property("placement")
 	private String placement;
 	
-	@Relationship(type="PARENT", direction=Relationship.INCOMING)
+	@Relationship(type="PARENT")
 	BoardPosition before;
 	
 	@Relationship("CHILD")
 	BoardPosition after;
 	
-	@Relationship(type="MOVE", direction=Relationship.INCOMING)
+	@Relationship(type="MOVE")
 	private Set<Joseki> joseki;
 	
 	public String getPlacement() {
