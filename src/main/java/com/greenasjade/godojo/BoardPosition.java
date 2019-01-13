@@ -3,8 +3,6 @@ package com.greenasjade.godojo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
@@ -19,8 +17,6 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Transient;
 
-
-@Data
 @NodeEntity
 public class BoardPosition {
 	
@@ -31,15 +27,18 @@ public class BoardPosition {
 	
 	@Property("play")
 	private String play;  // the string of moves to get here 
-        
+    public String getPlay() {return play;}
+    
 	@Property("Description")
 	private String description;
+	public String getDescription() {return description;}
 	
     @Relationship("PARENT")
     public Set<Move> children;
     
     @Relationship(type="CHILD")
     public Move parent;
+    public void setParent(Move parent) { this.parent = parent;}
     	
 	@Relationship("COMMENT")
     public ArrayList<Comment> commentary;

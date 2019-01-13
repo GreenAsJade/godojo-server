@@ -3,6 +3,7 @@ package com.greenasjade.godojo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -21,7 +22,6 @@ enum MoveCategory {
 	IDEAL, GOOD, MISTAKE, REFUTATION
 }
 
-
 @NodeEntity
 public class Move {
 	
@@ -32,6 +32,11 @@ public class Move {
 	
 	@Property("placement")
 	private String placement;
+	public String getPlacement() {return placement;}
+	
+	@Property("category")
+	private MoveCategory category;
+	public MoveCategory getCategory() {return category;}
 	
 	@Relationship(type="PARENT")
 	BoardPosition before;
@@ -42,18 +47,20 @@ public class Move {
 	@Relationship(type="MOVE")
 	private Set<Joseki> joseki;
 	
-	public String getPlacement() {
-		return placement;
-	}
-	
 	public Move() {
 		// Empty constructor required as of Neo4j API 2.0.5
 	};
 
 	public Move(BoardPosition parent, String placement, BoardPosition child) {
+		this(parent, placement, child, MoveCategory.IDEAL);
+	}
+	
+	public Move(BoardPosition parent, String placement, BoardPosition child, MoveCategory category) {
 		this.before = parent;
 		this.placement = placement;
 		this.after = child;
+		this.category = category;
+		
 		child.setParent(this);
 	}
 	    
@@ -73,6 +80,6 @@ public class Move {
 				.map(Joseki::getName)
 				.collect(Collectors.toList());
     	
-    	return p + " -> " + pl + " -> " + c + " (" + j + ")";
+    	return p + " -> " + pl + "(" + category + ") -> " + c + " (" + j + ")";
     }
 } 
