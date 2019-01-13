@@ -47,20 +47,22 @@ public class J01Application {
 		m_store.deleteAll();
 		
 		BoardPosition rootNode = new BoardPosition("root");
+		rootNode.addComment("test comment");
+		
 		bp_store.save(rootNode);
 		
-		BoardPosition child = rootNode.addMove("C1");
+		BoardPosition child = rootNode.addMove("Q16");
 		
-		log.info("First child: "+ child.toString());
-		
-		child = rootNode.addMove("D2");
-		log.info("Second child: "+ child.toString());
+		child = rootNode.addMove("R16");
+
+		child = rootNode.addMove("R17");
 		
 		bp_store.save(rootNode);
 
 		Move the_move;
 		
 		/* Debugging wierd Neo4j loading issues */ 
+		log.info("Debug view of added childrem...");
  		the_move = rootNode.children.toArray(new Move[0])[0];
 		log.info("After creation, move: " + the_move.toString() );
 		
@@ -74,14 +76,13 @@ public class J01Application {
 		the_move = child.parent;
 		log.info("Child POV, move: " + the_move.toString() );	
 		
-		the_move = m_store.findByPlacement("C1");
+		the_move = m_store.findByPlacement("Q16");
 		log.info("Move direct load: " + the_move.toString());
 		
-		
+		log.info("Adding a joseki...");
 		Joseki j1 = new Joseki("Joseki1");
-		
-		// more debug, this to make sure it's actually OK
-		the_move = m_store.findByPlacement("C1");
+
+		the_move = m_store.findByPlacement("Q16");
 		log.info("First move direct load: " + the_move.toString());
 	
 		j1.addMove(the_move);
@@ -89,12 +90,23 @@ public class J01Application {
 		
 		log.info(j1.toString());
 		
-		the_move = m_store.findByPlacement("C1");
+		the_move = m_store.findByPlacement("Q16");
 		log.info("First move direct load: " + the_move.toString());
 			
-		the_move = m_store.findByPlacement("D2");
+		the_move = m_store.findByPlacement("R16");
 		log.info("Second move direct load: " + the_move.toString());
-			
+
+		log.info("Adding a second level move...");
+		
+		child.addMove("K10");
+		bp_store.save(child);
+		
+		the_move = m_store.findByPlacement("K10");
+		log.info("Second child direct load: " + the_move.toString());
+
+		rootNode.addComment("second comment");
+		bp_store.save(rootNode);
+		
 		log.info("...DB reset done");
 	}	
 }

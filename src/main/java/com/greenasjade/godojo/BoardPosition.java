@@ -3,6 +3,9 @@ package com.greenasjade.godojo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.Data;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
 import java.util.HashSet;
@@ -17,6 +20,7 @@ import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Transient;
 
 
+@Data
 @NodeEntity
 public class BoardPosition {
 	
@@ -26,15 +30,21 @@ public class BoardPosition {
 	@Id @GeneratedValue Long id;
 	
 	@Property("play")
-		private String play;  // the string of moves to get here 
-    
+	private String play;  // the string of moves to get here 
+        
+	@Property("Description")
+	private String description;
+	
     @Relationship("PARENT")
     public Set<Move> children;
     
     @Relationship(type="CHILD")
     public Move parent;
     	
-	public BoardPosition() {
+	@Relationship("COMMENT")
+    public ArrayList<Comment> commentary;
+
+    public BoardPosition() {
 		// Empty constructor required as of Neo4j API 2.0.5
 	}
 
@@ -42,27 +52,28 @@ public class BoardPosition {
 		this.play = play;
 	}
 	
-	public void setParent(Move parent) {
-		this.parent=parent;
+	public void addComment(String text) {
+		Comment new_comment = new Comment(this, text);
+		if (this.commentary == null) {
+			this.commentary = new ArrayList<Comment>();			
+		}
+		this.commentary.add(new_comment);
 	}
-	public void setPlay(String play) {
-		this.play=play;
-	}
-	
-    public String getPlay() {
-        return play;
-    }
 
     public String toString() {
     	String p = this.parent==null ? "." : this.parent.getPlacement();
     	
     	String i = this.id==null ? "tbd" : this.id.toString();
     	
-    	return p + " -> " +  "<"+i+">" + this.play + 
-    			" -> " + Optional.ofNullable(this.children).orElse(
-				Collections.emptySet()).stream()
+    	String c = this.commentary==null ? "''" : this.commentary.toString();
+    	
+    	String child_list = 
+    			Optional.ofNullable(this.children).orElse(Collections.emptySet()).stream()
 				.map(Move::getPlacement)
-				.collect(Collectors.toList());
+				.collect(Collectors.toList()).toString();
+    			
+    	return p + " -> " +  "<" + i +">" + this.play + 
+    			" -> " + child_list + c;
     }
     
 	public BoardPosition addMove(String placement) {

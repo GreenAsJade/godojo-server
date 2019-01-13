@@ -55,11 +55,11 @@ public class PositionController {
 
         log.info("which is: " + board_position.toString());
         
-        PositionDTO position = new PositionDTO(board_position.getPlay());
+        PositionDTO position = new PositionDTO(board_position);
         position.add(linkTo(methodOn(PositionController.class).position(id)).withSelfRel());        
 
         
-        // Add a "moves" link for each move on the board_position, so the client
+        // Add a "moves" link for each move on this board_position, so the client
     	// can navigate through any move from this board_position
 	
         List<Move> move_list = m_store.findByParentId(board_position.id);

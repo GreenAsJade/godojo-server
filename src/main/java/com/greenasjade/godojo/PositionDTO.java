@@ -8,12 +8,13 @@ package com.greenasjade.godojo;
 public class PositionDTO extends HalResource {
 
     private final String play;
+    public String getPlay() {return play;}
+    
+    private final String description;
+    public String getDescription() {return description;}
 
-    public PositionDTO(String play) {
-        this.play = play;
-    }
-
-    public String getPlay() {
-      return play;
+    public PositionDTO(BoardPosition position) {
+        play = position.getPlay();
+        description = position.getDescription();
     }
 }
