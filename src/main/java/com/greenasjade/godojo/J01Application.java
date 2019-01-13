@@ -48,24 +48,31 @@ public class J01Application {
 		
 		BoardPosition rootNode = new BoardPosition("root");
 		rootNode.addComment("test comment");
+		rootNode.setTitle("Empty Board");
+		rootNode.setDescription("Infinite possibilities await!");
 		
 		bp_store.save(rootNode);
 		
-		BoardPosition child = rootNode.addMove("Q16");
-		
+		BoardPosition child; 
+	
 		child = rootNode.addMove("R16");
-
 		child = rootNode.addMove("R17");
+		child.setTitle("San San");
+		child = rootNode.addMove("K10");
+		child.setTitle("Tengen");
+		child.setDescription("Dwyrin's favourite!");
+	
+		child = rootNode.addMove("Q16");
 		
 		bp_store.save(rootNode);
 
 		Move the_move;
 		
 		/* Debugging wierd Neo4j loading issues */ 
-		log.info("Debug view of added childrem...");
- 		the_move = rootNode.children.toArray(new Move[0])[0];
+		log.info("Debug view of added children...");
+ 		
+		the_move = rootNode.children.toArray(new Move[0])[0];
 		log.info("After creation, move: " + the_move.toString() );
-		
 		
 		rootNode = bp_store.findByPlay("root");
 		log.info("reloaded root: " + rootNode.toString());
@@ -101,9 +108,6 @@ public class J01Application {
 		child.addMove("K10");
 		bp_store.save(child);
 		
-		the_move = m_store.findByPlacement("K10");
-		log.info("Second child direct load: " + the_move.toString());
-
 		rootNode.addComment("second comment");
 		bp_store.save(rootNode);
 		

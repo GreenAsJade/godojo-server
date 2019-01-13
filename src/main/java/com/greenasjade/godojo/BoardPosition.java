@@ -29,9 +29,15 @@ public class BoardPosition {
 	private String play;  // the string of moves to get here 
     public String getPlay() {return play;}
     
-	@Property("Description")
+	@Property("title")
+	private String title;  
+    public String getTitle() {return title;}
+    public void setTitle(String text) {title = text;}
+    
+    @Property("Description")
 	private String description;
 	public String getDescription() {return description;}
+	public void setDescription(String text) {description = text;}
 	
     @Relationship("PARENT")
     public Set<Move> children;
@@ -49,6 +55,8 @@ public class BoardPosition {
 
 	public BoardPosition(String play) {
 		this.play = play;
+		this.title = "";  // these get set during editing, after the position is created.
+		this.description = "";
 	}
 	
 	public void addComment(String text) {
