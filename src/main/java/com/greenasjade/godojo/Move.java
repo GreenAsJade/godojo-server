@@ -51,6 +51,7 @@ public class Move {
 		// Empty constructor required as of Neo4j API 2.0.5
 	};
 
+	// Constructor with default category
 	public Move(BoardPosition parent, String placement, BoardPosition child) {
 		this(parent, placement, child, MoveCategory.IDEAL);
 	}

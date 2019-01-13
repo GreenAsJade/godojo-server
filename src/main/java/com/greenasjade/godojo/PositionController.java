@@ -69,7 +69,7 @@ public class PositionController {
         if (move_list != null) {
         	move_list.forEach( (move) -> {   
         		log.info("adding link to: " + move.after.toString());
-                MoveDTO dto = new MoveDTO(move.getPlacement());
+                MoveDTO dto = new MoveDTO(move);
                 Resource<MoveDTO> res = new Resource<>(dto);
                 res.add(linkTo(methodOn(PositionController.class).
         						position(move.after.id.toString())).withSelfRel());
