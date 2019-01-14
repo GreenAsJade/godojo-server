@@ -5,8 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -40,7 +39,7 @@ public class BoardPosition {
 	public void setDescription(String text) {description = text;}
 	
     @Relationship("PARENT")
-    public Set<Move> children;
+    public List<Move> children;
     
     @Relationship(type="CHILD")
     public Move parent;
@@ -75,7 +74,7 @@ public class BoardPosition {
     	String c = this.commentary==null ? "''" : this.commentary.toString();
     	
     	String child_list = 
-    			Optional.ofNullable(this.children).orElse(Collections.emptySet()).stream()
+    			Optional.ofNullable(this.children).orElse(Collections.emptyList()).stream()
 				.map(Move::getPlacement)
 				.collect(Collectors.toList()).toString();
     			
@@ -87,7 +86,7 @@ public class BoardPosition {
 		BoardPosition child = new BoardPosition(this.play + "." + placement);
 		Move link = new Move(this, placement, child);
 		if (children == null) {
-			children = new HashSet<>();
+			children = new ArrayList<>();
 		}
 		children.add(link);
 		//log.info("Added move: " + link.toString()); 

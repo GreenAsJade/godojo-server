@@ -55,14 +55,13 @@ public class J01Application {
 		
 		BoardPosition child; 
 	
+		child = rootNode.addMove("Q16");		
 		child = rootNode.addMove("R16");
 		child = rootNode.addMove("R17");
 		child.setTitle("San San");
 		child = rootNode.addMove("K10");
 		child.setTitle("Tengen");
 		child.setDescription("Dwyrin's favourite!");
-	
-		child = rootNode.addMove("Q16");
 		
 		bp_store.save(rootNode);
 
@@ -103,11 +102,14 @@ public class J01Application {
 		the_move = m_store.findByPlacement("R16");
 		log.info("Second move direct load: " + the_move.toString());
 
-		log.info("Adding a second level move...");
+		log.info("Adding second level moves to a node...");
 		
-		child.addMove("K10");
+		child.addMove("Q16");
+		child.addMove("R16");
+		child.addMove("R17");
 		bp_store.save(child);
 		
+		// Test adding a comment later
 		rootNode.addComment("second comment");
 		bp_store.save(rootNode);
 		
