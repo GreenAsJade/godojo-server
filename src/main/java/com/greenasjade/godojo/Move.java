@@ -30,6 +30,9 @@ public class Move {
 	
 	@Id @GeneratedValue Long id;
 	
+	@Property("seq")
+	public Integer seq;
+	
 	@Property("placement")
 	private String placement;
 	public String getPlacement() {return placement;}
@@ -52,15 +55,16 @@ public class Move {
 	};
 
 	// Constructor with default category
-	public Move(BoardPosition parent, String placement, BoardPosition child) {
-		this(parent, placement, child, MoveCategory.IDEAL);
+	public Move(BoardPosition parent, String placement, BoardPosition child, Integer seq) {
+		this(parent, placement, child, MoveCategory.IDEAL, seq);
 	}
 	
-	public Move(BoardPosition parent, String placement, BoardPosition child, MoveCategory category) {
+	public Move(BoardPosition parent, String placement, BoardPosition child, MoveCategory category, Integer seq) {
 		this.before = parent;
 		this.placement = placement;
 		this.after = child;
 		this.category = category;
+		this.seq = seq;
 		
 		child.setParent(this);
 	}
