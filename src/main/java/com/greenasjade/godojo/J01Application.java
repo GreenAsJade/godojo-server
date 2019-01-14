@@ -53,6 +53,10 @@ public class J01Application {
 		
 		bp_store.save(rootNode);
 		
+		log.info("After save of root: " + rootNode.toString() );
+		
+		Long root_id = rootNode.id;
+		
 		BoardPosition child; 
 	
 		child = rootNode.addMove("Q16");		
@@ -65,25 +69,32 @@ public class J01Application {
 		
 		bp_store.save(rootNode);
 
+		log.info("After save of root with children: " + rootNode.toString() );
+		
 		Move the_move;
 		
-		/* Debugging wierd Neo4j loading issues */ 
-		log.info("Debug view of added children...");
+		/* Figuring out how/when/what Neo4j loads */ 
+		log.info("Loading and looking at child moves...");
  		
 		the_move = rootNode.children.toArray(new Move[0])[0];
-		log.info("After creation, move: " + the_move.toString() );
+		log.info("After creation, move on the root node: " + the_move.toString() );
 		
 		rootNode = bp_store.findByPlay("root");
 		log.info("reloaded root: " + rootNode.toString());
 		
 		the_move = rootNode.children.iterator().next();
-		log.info("After reload, move: " + the_move.toString() );
+		log.info("After reload, move from root: " + the_move.toString() ); // The move doesn't have it's target loaded
 		
 		the_move = child.parent;
 		log.info("Child POV, move: " + the_move.toString() );	
 		
 		the_move = m_store.findByPlacement("Q16");
 		log.info("Move direct load: " + the_move.toString());
+		
+		/* Test reload of a position */
+				
+		rootNode = bp_store.findById(root_id).orElse(null);
+		log.info("After findById: " + rootNode.toString() );
 		
 		log.info("Adding a joseki...");
 		Joseki j1 = new Joseki("Joseki1");

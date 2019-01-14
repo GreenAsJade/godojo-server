@@ -56,6 +56,8 @@ public class BoardPosition {
 		this.play = play;
 		this.title = "";  // these get set during editing, after the position is created.
 		this.description = "";
+		this.children = new ArrayList<>();
+		this.commentary = new ArrayList<>();			
 	}
 	
 	public void addComment(String text) {
@@ -71,7 +73,7 @@ public class BoardPosition {
     	
     	String i = this.id==null ? "tbd" : this.id.toString();
     	
-    	String c = this.commentary==null ? "''" : this.commentary.toString();
+    	String c = this.commentary == null ? "" : this.commentary.toString();
     	
     	String child_list = 
     			Optional.ofNullable(this.children).orElse(Collections.emptyList()).stream()
@@ -84,7 +86,7 @@ public class BoardPosition {
     
 	public BoardPosition addMove(String placement) {
 		BoardPosition child = new BoardPosition(this.play + "." + placement);
-		Move link = new Move(this, placement, child);
+		Move link = new Move(this, placement, child, this.children.size());
 		if (children == null) {
 			children = new ArrayList<>();
 		}
