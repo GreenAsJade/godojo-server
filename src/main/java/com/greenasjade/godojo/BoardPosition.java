@@ -84,12 +84,18 @@ public class BoardPosition {
     			" -> " + child_list + c;
     }
     
-	public BoardPosition addMove(String placement) {
-		BoardPosition child = new BoardPosition(this.play + "." + placement);
-		Move link = new Move(this, placement, child, this.children.size());
-		if (children == null) {
-			children = new ArrayList<>();
+    public BoardPosition addMove(String placement) {
+    	return this.addMove(placement, MoveCategory.IDEAL);
+    }
+    
+	public BoardPosition addMove(String placement, MoveCategory category) {
+		if (this.children == null) {
+			this.children = new ArrayList<>();
 		}
+
+		BoardPosition child = new BoardPosition(this.play + "." + placement);
+		Move link = new Move(this, placement, child, category, this.children.size());
+
 		children.add(link);
 		//log.info("Added move: " + link.toString()); 
 		//log.info("now this node: " + this.toString());

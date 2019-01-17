@@ -11,7 +11,9 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 //import org.springframework.http.HttpStatus;
 //import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -38,7 +40,7 @@ public class PositionController {
 	
 	@CrossOrigin()
 	@ResponseBody()
-    @RequestMapping("/position")
+    @GetMapping("/position" )
     public PositionDTO position(
             @RequestParam(value = "id", required = false, defaultValue = "root") String id) {
 
@@ -48,6 +50,7 @@ public class PositionController {
     	
     	if (id.equals("root")) {    		
     		board_position = this.bp_store.findByPlay("root");
+    		id = board_position.id.toString();
     	} 
     	else {
     		board_position = this.bp_store.findById(Long.valueOf(id)).orElse(null);
@@ -56,8 +59,7 @@ public class PositionController {
         log.info("which is: " + board_position.toString());
         
         PositionDTO position = new PositionDTO(board_position);
-        position.add(linkTo(methodOn(PositionController.class).position(id)).withSelfRel());        
-
+        position.add(linkTo(methodOn(PositionController.class).position(id)).withSelfRel()); 
         
         // Add a "moves" link for each move on this board_position, so the client
     	// can navigate through any move from this board_position
@@ -81,4 +83,20 @@ public class PositionController {
         
         return position;
     }
+	
+	@CrossOrigin()
+	@ResponseBody()
+	@PostMapping("/position")
+	public PositionDTO createPosition(
+			@RequestParam(value="id", required=true) String parent_id,
+			@RequestBody MoveDTO move_details) {
+		
+		BoardPosition parent_position = this.bp_store.findById(Long.valueOf(parent_id)).orElse(null);
+		
+		BoardPosition new_child = parent_position.addMove(move_details.getPlacement(), move_details.getCategory());
+		
+		this.bp_store.save(new_child);
+		
+		return this.position(new_child.id.toString());
+	}	
 }
