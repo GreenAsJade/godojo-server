@@ -11,7 +11,7 @@ public interface MoveStore extends Neo4jRepository<Move, Long> {
 	@Query("MATCH (n:Move)-[rel:CHILD]-(c:BoardPosition) RETURN n, rel, c")
 	public List<Move>findAll();
 	
-	@Query("MATCH (p:BoardPosition)-[prel:PARENT]-(m:Move)-[crel:CHILD]-(c:BoardPosition) WHERE id(p)={ParentID} RETURN m,crel, c")
+	@Query("MATCH (p:BoardPosition)-[prel:PARENT]-(m:Move)-[crel:CHILD]-(c:BoardPosition) WHERE id(p)={ParentID} RETURN m, crel, c ORDER BY m.seq")
 	public List<Move>findByParentId(@Param("ParentID") Long id);
 			
 }

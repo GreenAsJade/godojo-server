@@ -7,7 +7,12 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+
 	}
+}
+
+plugins {
+  id "com.palantir.docker" version "0.21.0"
 }
 
 apply plugin: 'java'
@@ -32,4 +37,17 @@ dependencies {
 	runtimeOnly('org.springframework.boot:spring-boot-devtools')
 	compileOnly('org.projectlombok:lombok')
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
+}
+
+apply plugin: 'com.palantir.docker'
+
+task unpack(type: Copy) {
+    dependsOn bootJar
+    from(zipTree(tasks.bootJar.outputs.files.singleFile))
+    into("build/dependency")
+}
+docker {
+    name "godojo"
+    copySpec.from(tasks.unpack.outputs).into("dependency")
+    buildArgs(['DEPENDENCY': "dependency"])
 }

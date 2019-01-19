@@ -19,7 +19,7 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Transient;
 
 enum MoveCategory {
-	IDEAL, GOOD, MISTAKE, REFUTATION
+	IDEAL, GOOD, MISTAKE, TRICK, QUESTION
 }
 
 @NodeEntity
@@ -29,6 +29,9 @@ public class Move {
 	private static final Logger log = LoggerFactory.getLogger(Move.class);
 	
 	@Id @GeneratedValue Long id;
+	
+	@Property("seq")
+	public Integer seq;
 	
 	@Property("placement")
 	private String placement;
@@ -51,15 +54,17 @@ public class Move {
 		// Empty constructor required as of Neo4j API 2.0.5
 	};
 
-	public Move(BoardPosition parent, String placement, BoardPosition child) {
-		this(parent, placement, child, MoveCategory.IDEAL);
+	// Constructor with default category
+	public Move(BoardPosition parent, String placement, BoardPosition child, Integer seq) {
+		this(parent, placement, child, MoveCategory.IDEAL, seq);
 	}
 	
-	public Move(BoardPosition parent, String placement, BoardPosition child, MoveCategory category) {
+	public Move(BoardPosition parent, String placement, BoardPosition child, MoveCategory category, Integer seq) {
 		this.before = parent;
 		this.placement = placement;
 		this.after = child;
 		this.category = category;
+		this.seq = seq;
 		
 		child.setParent(this);
 	}

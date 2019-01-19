@@ -5,8 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -29,12 +28,18 @@ public class BoardPosition {
 	private String play;  // the string of moves to get here 
     public String getPlay() {return play;}
     
-	@Property("Description")
+	@Property("title")
+	private String title;  
+    public String getTitle() {return title;}
+    public void setTitle(String text) {title = text;}
+    
+    @Property("Description")
 	private String description;
 	public String getDescription() {return description;}
+	public void setDescription(String text) {description = text;}
 	
     @Relationship("PARENT")
-    public Set<Move> children;
+    public List<Move> children;
     
     @Relationship(type="CHILD")
     public Move parent;
@@ -49,6 +54,10 @@ public class BoardPosition {
 
 	public BoardPosition(String play) {
 		this.play = play;
+		this.title = "";  // these get set during editing, after the position is created.
+		this.description = "";
+		this.children = new ArrayList<>();
+		this.commentary = new ArrayList<>();			
 	}
 	
 	public void addComment(String text) {
@@ -64,10 +73,10 @@ public class BoardPosition {
     	
     	String i = this.id==null ? "tbd" : this.id.toString();
     	
-    	String c = this.commentary==null ? "''" : this.commentary.toString();
+    	String c = this.commentary == null ? "" : this.commentary.toString();
     	
     	String child_list = 
-    			Optional.ofNullable(this.children).orElse(Collections.emptySet()).stream()
+    			Optional.ofNullable(this.children).orElse(Collections.emptyList()).stream()
 				.map(Move::getPlacement)
 				.collect(Collectors.toList()).toString();
     			
@@ -75,12 +84,18 @@ public class BoardPosition {
     			" -> " + child_list + c;
     }
     
-	public BoardPosition addMove(String placement) {
-		BoardPosition child = new BoardPosition(this.play + "." + placement);
-		Move link = new Move(this, placement, child);
-		if (children == null) {
-			children = new HashSet<>();
+    public BoardPosition addMove(String placement) {
+    	return this.addMove(placement, MoveCategory.IDEAL);
+    }
+    
+	public BoardPosition addMove(String placement, MoveCategory category) {
+		if (this.children == null) {
+			this.children = new ArrayList<>();
 		}
+
+		BoardPosition child = new BoardPosition(this.play + "." + placement);
+		Move link = new Move(this, placement, child, category, this.children.size());
+
 		children.add(link);
 		//log.info("Added move: " + link.toString()); 
 		//log.info("now this node: " + this.toString());

@@ -3,6 +3,9 @@
 !gradle/wrapper/gradle-wrapper.jar
 /bin/
 
+### VS Code ###
+settings.json
+
 ### STS ###
 .apt_generated
 .classpath
