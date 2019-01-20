@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
+//import org.springframework.beans.factory.annotation.Value;
 
 @SpringBootApplication
 public class J01Application {
@@ -17,7 +18,7 @@ public class J01Application {
 	public static void main(String[] args) {
 		SpringApplication.run(J01Application.class, args);
 	}
-
+	
 	@Bean
 	public CommandLineRunner initialise (
 			BoardPositionStore bp_store,
@@ -25,6 +26,7 @@ public class J01Application {
 			MoveStore m_store) {
 		return args -> {
 			log.info("Initialising...");
+		
 			BoardPosition rootNode = bp_store.findByPlay("root");
 			if (true) { //rootNode == null) {
 				resetDB(bp_store, j_store, m_store);
@@ -62,9 +64,15 @@ public class J01Application {
 		child = rootNode.addMove("R16");
 		child = rootNode.addMove("R17");
 		child.setTitle("San San");
-		child = rootNode.addMove("K10");
+		
+		child = rootNode.addMove("Q15", MoveCategory.GOOD);
+		child = rootNode.addMove("R15", MoveCategory.GOOD);
+		
+		child = rootNode.addMove("K10", MoveCategory.GOOD);
 		child.setTitle("Tengen");
 		child.setDescription("Dwyrin's favourite!");
+		
+		child = rootNode.addMove("S18", MoveCategory.MISTAKE);
 
 		bp_store.save(rootNode);
 

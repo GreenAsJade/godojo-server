@@ -33,7 +33,8 @@ dependencies {
 	implementation(
         'org.springframework.boot:spring-boot-starter-data-neo4j',
 		'org.springframework.boot:spring-boot-starter-thymeleaf',
-		'org.springframework.boot:spring-boot-starter-web')
+		'org.springframework.boot:spring-boot-starter-web',
+		'org.springframework.boot:spring-boot-starter-security')
 	runtimeOnly('org.springframework.boot:spring-boot-devtools')
 	compileOnly('org.projectlombok:lombok')
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
