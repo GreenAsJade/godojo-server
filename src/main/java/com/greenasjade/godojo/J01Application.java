@@ -62,9 +62,15 @@ public class J01Application {
 		child = rootNode.addMove("R16");
 		child = rootNode.addMove("R17");
 		child.setTitle("San San");
-		child = rootNode.addMove("K10");
+		
+		child = rootNode.addMove("Q15", MoveCategory.GOOD);
+		child = rootNode.addMove("R15", MoveCategory.GOOD);
+		
+		child = rootNode.addMove("K10", MoveCategory.GOOD);
 		child.setTitle("Tengen");
 		child.setDescription("Dwyrin's favourite!");
+		
+		child = rootNode.addMove("S18", MoveCategory.MISTAKE);
 
 		bp_store.save(rootNode);
 
