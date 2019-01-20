@@ -1,7 +1,7 @@
 package com.greenasjade.godojo;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -20,7 +20,7 @@ import org.springframework.http.HttpMethod;
 @Order(1)
 public class APISecurityConfig extends WebSecurityConfigurerAdapter {
 
-	private static final Logger log = LoggerFactory.getLogger(APISecurityConfig.class);
+	//private static final Logger log = LoggerFactory.getLogger(APISecurityConfig.class);
 	
     @Value("${godojo.http.auth-token-header-name}")
     private String principalRequestHeader;
@@ -35,11 +35,7 @@ public class APISecurityConfig extends WebSecurityConfigurerAdapter {
         filter.setAuthenticationManager(new AuthenticationManager() {
 
             @Override
-            public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-                log.info("*** SECURITY SETUP ***");
-                log.info(principalRequestHeader);
-                log.info(filter.toString());
-                
+            public Authentication authenticate(Authentication authentication) throws AuthenticationException {                
                 String principal = (String) authentication.getPrincipal();
                 if (!principalRequestValue.equals(principal))
                 {
