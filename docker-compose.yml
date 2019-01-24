@@ -6,7 +6,10 @@ services:
     ports:
       - 7687:7687
       - 7474:7474
+    volumes:
+      - $HOME/neo4j/data:/data
 
+      
   godojo-c:
     image: godojo
     depends_on:

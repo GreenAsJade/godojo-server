@@ -29,3 +29,5 @@ settings.json
 /nbdist/
 /.nb-gradle/
 
+/keys/
+
