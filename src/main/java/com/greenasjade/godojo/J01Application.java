@@ -28,7 +28,7 @@ public class J01Application {
 			log.info("Initialising...");
 		
 			BoardPosition rootNode = bp_store.findByPlay("root");
-			if (rootNode == null) {
+			if (true) { //rootNode == null) {
 				resetDB(bp_store, j_store, m_store);
 			}
 			rootNode = bp_store.findByPlay("root");

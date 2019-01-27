@@ -38,6 +38,7 @@ public class PositionController {
     @CrossOrigin()
     @ResponseBody()
     @GetMapping("/position" )
+    // Return all the information needed to display a position
     public PositionDTO position(
             @RequestParam(value = "id", required = false, defaultValue = "root") String id) {
 
@@ -84,6 +85,7 @@ public class PositionController {
     @CrossOrigin()
     @ResponseBody()
     @PostMapping("/position")
+    // Add a position at the parent node based on the move_details
     public PositionDTO createPosition(
             @RequestParam(value="id", required=true) String parent_id,
             @RequestHeader("X-User-Info") String user_jwt,
@@ -105,7 +107,57 @@ public class PositionController {
 
     @CrossOrigin()
     @ResponseBody()
+    @PostMapping("/positions")
+    // Add a sequence of positions (creating new ones only as necessary)
+    // The sequence is assumed to be based at the root (empty board)
+    // The incoming move DTO describes the category for all new positions/moves that have to be created
+    public PositionDTO createPositions(
+            @RequestHeader("X-User-Info") String user_jwt,
+            @RequestBody SequenceDTO sequence_details) {
+    	
+    	Jwt token = JwtHelper.decodeAndVerify(user_jwt, new RsaVerifier(ogs_key));
+    	
+        String claims = token.getClaims();
+        log.info(claims);
+        
+        // So first we have to find where the first new move is
+                
+        List<String> placements = new ArrayList<>(Arrays.asList(sequence_details.getSequence().split(",")));
+        
+        log.info(placements.toString());
+        
+        BoardPosition current_position = bp_store.findByPlay("root");
+        String play_so_far = "root";    	
+        String next_placement = placements.remove(0);
+    	String next_play = play_so_far +  '.' + next_placement;
+    	BoardPosition next_position = bp_store.findByPlay(next_play);
+    	
+        while (next_position != null && placements.size() > 0) {
+        	current_position = next_position;
+        	next_placement = placements.remove(0);
+        	next_play = play_so_far +  '.' + next_placement;
+        	next_position = bp_store.findByPlay(next_play);
+        }        	
+            
+        // Now "current_position" is an existing position, and next_placement takes us to the first new one to be created
+        // so we add the remaining placements creating new positions as we go
+        
+        MoveCategory new_category = sequence_details.getCategory();
+    	next_position = current_position.addMove(next_placement, new_category);
+    	
+        while (placements.size() > 0) {
+        	next_placement = placements.remove(0);
+        	next_position = next_position.addMove(next_placement, new_category);        	
+        }
+       
+        this.bp_store.save(next_position);
+        return this.position(next_position.id.toString());
+    }
+    
+    @CrossOrigin()
+    @ResponseBody()
     @PutMapping("/position")
+    // Update details about a given position
     public PositionDTO updatePosition(
             @RequestParam(value="id", required=true) String id,
             @RequestBody PositionDTO position_details) {
