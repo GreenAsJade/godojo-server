@@ -124,30 +124,34 @@ public class PositionController {
                 
         List<String> placements = new ArrayList<>(Arrays.asList(sequence_details.getSequence().split(",")));
         
-        log.info(placements.toString());
+        log.info("Adding sequence: " + placements.toString());
         
         BoardPosition current_position = bp_store.findByPlay("root");
-        String play_so_far = "root";    	
         String next_placement = placements.remove(0);
-    	String next_play = play_so_far +  '.' + next_placement;
+    	String next_play = "root." + next_placement;
     	BoardPosition next_position = bp_store.findByPlay(next_play);
     	
         while (next_position != null && placements.size() > 0) {
+        	log.info("found existing next position as: " + next_position);
         	current_position = next_position;
         	next_placement = placements.remove(0);
-        	next_play = play_so_far +  '.' + next_placement;
+        	next_play = next_play +  '.' + next_placement;
+        	log.info("looking for play: " + next_play);
         	next_position = bp_store.findByPlay(next_play);
         }        	
             
         // Now "current_position" is an existing position, and next_placement takes us to the first new one to be created
         // so we add the remaining placements creating new positions as we go
         
+        log.info("Extending at: " + current_position + " with " + next_placement);
+        
         MoveCategory new_category = sequence_details.getCategory();
     	next_position = current_position.addMove(next_placement, new_category);
     	
         while (placements.size() > 0) {
         	next_placement = placements.remove(0);
-        	next_position = next_position.addMove(next_placement, new_category);        	
+            log.info("Extending at: " + next_position + " with " + next_placement);
+            next_position = next_position.addMove(next_placement, new_category);        	
         }
        
         this.bp_store.save(next_position);
