@@ -8,18 +8,18 @@ public class SequenceDTO extends HalResource {
     private final String sequence;
     public String getSequence() {return sequence;}
     
-    private final MoveCategory category;
-    public MoveCategory getCategory() {return category;}
+    private final PlayCategory category;
+    public PlayCategory getCategory() {return category;}
 
     @JsonCreator
     public SequenceDTO(
     		@JsonProperty("sequence") String sequence,
     		@JsonProperty("category") String category) {
     	this.sequence = sequence;
-    	this.category = MoveCategory.valueOf(category.toUpperCase());
+    	this.category = PlayCategory.valueOf(category.toUpperCase());
     }
     
-    public SequenceDTO(Move move) {
+    public SequenceDTO(BoardPosition move) {
         this.sequence = move.getPlacement();
         this.category = move.getCategory();
     }

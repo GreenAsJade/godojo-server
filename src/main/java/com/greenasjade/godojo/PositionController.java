@@ -24,15 +24,13 @@ public class PositionController {
 
     private BoardPositionStore bp_store;
     //private JosekiStore j_store;
-    private MoveStore m_store;
+    //private MoveStore m_store;
 
     public PositionController(
             BoardPositionStore bp_store,
-            JosekiStore j_store,
-            MoveStore m_store) {
+            JosekiStore j_store) {
         this.bp_store = bp_store;
         //this.j_store = j_store;
-        this.m_store = m_store;
     }
 
     @CrossOrigin()
@@ -47,7 +45,7 @@ public class PositionController {
         log.info("Position request for: " + id);
 
         if (id.equals("root")) {
-            board_position = this.bp_store.findByPlay("root");
+            board_position = this.bp_store.findByPlay(".root");
             id = board_position.id.toString();
         }
         else {
@@ -62,17 +60,17 @@ public class PositionController {
         // Add a "moves" link for each move on this board_position, so the client
         // can navigate through any move from this board_position
 
-        List<Move> move_list = m_store.findByParentId(board_position.id);
+        List<BoardPosition> next_move_list = bp_store.findByParentId(board_position.id);
 
         ArrayList<Resource<MoveDTO>> resource_list = new ArrayList<>();
 
-        if (move_list != null) {
-            move_list.forEach( (move) -> {
-                // log.info("adding link to: " + move.after.toString());
+        if (next_move_list != null) {
+            next_move_list.forEach( (move) -> {
+                log.info("adding link to: " + move.toString());
                 MoveDTO dto = new MoveDTO(move);
                 Resource<MoveDTO> res = new Resource<>(dto);
                 res.add(linkTo(methodOn(PositionController.class).
-                        position(move.after.id.toString())).withSelfRel());
+                        position(move.id.toString())).withSelfRel());
                 resource_list.add(res);
 
             });
@@ -126,9 +124,9 @@ public class PositionController {
         
         log.info("Adding sequence: " + placements.toString());
         
-        BoardPosition current_position = bp_store.findByPlay("root");
+        BoardPosition current_position = bp_store.findByPlay(".root");
         String next_placement = placements.remove(0);
-    	String next_play = "root." + next_placement;
+    	String next_play = ".root." + next_placement;
     	BoardPosition next_position = bp_store.findByPlay(next_play);
     	
         while (next_position != null && placements.size() > 0) {
@@ -145,7 +143,7 @@ public class PositionController {
         
         log.info("Extending at: " + current_position + " with " + next_placement);
         
-        MoveCategory new_category = sequence_details.getCategory();
+        PlayCategory new_category = sequence_details.getCategory();
     	next_position = current_position.addMove(next_placement, new_category);
     	
         while (placements.size() > 0) {

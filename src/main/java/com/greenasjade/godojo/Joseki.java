@@ -26,8 +26,8 @@ public class Joseki {
 	
 	@Id @GeneratedValue private Long id;
 	
-    @Relationship("MOVE")
-    public List<Move> moves;
+    @Relationship(type = "JOSEKI_POSITION", direction = Relationship.OUTGOING)
+    public List<BoardPosition> positions;
     
     @Property("name")
     public String name;
@@ -49,17 +49,17 @@ public class Joseki {
 	}
 	
     public String toString() {
-    	return this.name + ": " + Optional.ofNullable(this.moves).orElse(
+    	return this.name + ": " + Optional.ofNullable(this.positions).orElse(
 				Collections.emptyList()).stream()
-				.map(Move::getPlacement)
+				.map(BoardPosition::getPlacement)
 				.collect(Collectors.toList());
     }
     
-    public void addMove(Move move) {
-		if (this.moves == null) {
-			this.moves = new ArrayList<>();
+    public void addPosition(BoardPosition position) {
+		if (this.positions == null) {
+			this.positions = new ArrayList<>();
 		}    	
-    	this.moves.add(move);
-    	move.addJoseki(this);
+    	this.positions.add(position);
+    	position.addJoseki(this);
     }
 } 

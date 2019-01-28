@@ -22,16 +22,15 @@ public class J01Application {
 	@Bean
 	public CommandLineRunner initialise (
 			BoardPositionStore bp_store,
-			JosekiStore j_store,
-			MoveStore m_store) {
+			JosekiStore j_store) {
 		return args -> {
 			log.info("Initialising...");
 		
-			BoardPosition rootNode = bp_store.findByPlay("root");
+			BoardPosition rootNode = bp_store.findByPlay(".root");
 			if (true) { //rootNode == null) {
-				resetDB(bp_store, j_store, m_store);
+				resetDB(bp_store, j_store);
 			}
-			rootNode = bp_store.findByPlay("root");
+			rootNode = bp_store.findByPlay(".root");
 
 			log.info(rootNode.toString());
 		};
@@ -39,15 +38,13 @@ public class J01Application {
 
 	void resetDB(
 			BoardPositionStore bp_store,
-			JosekiStore j_store,
-			MoveStore m_store) {
+			JosekiStore j_store) {
 		log.info("reseting DB...");
 
 		bp_store.deleteAll();
 		j_store.deleteAll();
-		m_store.deleteAll();
-
-		BoardPosition rootNode = new BoardPosition("root");
+		
+		BoardPosition rootNode = new BoardPosition("", "root");
 		rootNode.addComment("test comment");
 		rootNode.setTitle("Empty Board");
 		rootNode.setDescription("Infinite possibilities await!");
@@ -65,38 +62,24 @@ public class J01Application {
 		child = rootNode.addMove("R17");
 		child.setTitle("San San");
 		
-		child = rootNode.addMove("Q15", MoveCategory.GOOD);
-		child = rootNode.addMove("R15", MoveCategory.GOOD);
+		child = rootNode.addMove("Q15", PlayCategory.GOOD);
+		child = rootNode.addMove("R15", PlayCategory.GOOD);
 		
-		child = rootNode.addMove("K10", MoveCategory.GOOD);
+		child = rootNode.addMove("K10", PlayCategory.GOOD);
 		child.setTitle("Tengen");
 		child.setDescription("Dwyrin's favourite!");
 		
-		child = rootNode.addMove("S18", MoveCategory.MISTAKE);
+		child = rootNode.addMove("S18", PlayCategory.MISTAKE);
 
 		bp_store.save(rootNode);
 
 		log.info("After save of root with children: " + rootNode.toString() );
 
-		Move the_move;
-
 		/* Figuring out how/when/what Neo4j loads */
 		log.info("Loading and looking at child moves...");
 
-		the_move = rootNode.children.toArray(new Move[0])[0];
-		log.info("After creation, move on the root node: " + the_move.toString() );
-
-		rootNode = bp_store.findByPlay("root");
-		log.info("reloaded root: " + rootNode.toString());
-
-		the_move = rootNode.children.iterator().next();
-		log.info("After reload, move from root: " + the_move.toString() ); // The move doesn't have it's target loaded
-
-		the_move = child.parent;
-		log.info("Child POV, move: " + the_move.toString() );
-
-		the_move = m_store.findByPlacement("Q16");
-		log.info("Move direct load: " + the_move.toString());
+		rootNode = bp_store.findByPlay(".root");
+		log.info("reloaded root: " + rootNode.toString());  // children are not loaded!
 
 		/* Test reload of a position */
 
@@ -106,20 +89,11 @@ public class J01Application {
 		log.info("Adding a joseki...");
 		Joseki j1 = new Joseki("Joseki1");
 
-		the_move = m_store.findByPlacement("Q16");
-		log.info("First move direct load: " + the_move.toString());
-
-		j1.addMove(the_move);
+		j1.addPosition(child);
 		j_store.save(j1);
 
 		log.info(j1.toString());
-
-		the_move = m_store.findByPlacement("Q16");
-		log.info("First move direct load: " + the_move.toString());
-
-		the_move = m_store.findByPlacement("R16");
-		log.info("Second move direct load: " + the_move.toString());
-
+		
 		log.info("Adding second level moves to a node...");
 
 		child.addMove("Q16");
