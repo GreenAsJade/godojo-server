@@ -27,8 +27,7 @@ public class PositionController {
     //private MoveStore m_store;
 
     public PositionController(
-            BoardPositionStore bp_store,
-            JosekiStore j_store) {
+            BoardPositionStore bp_store) {
         this.bp_store = bp_store;
         //this.j_store = j_store;
     }

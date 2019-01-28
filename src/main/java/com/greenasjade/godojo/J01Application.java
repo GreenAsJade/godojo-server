@@ -20,15 +20,13 @@ public class J01Application {
 	}
 	
 	@Bean
-	public CommandLineRunner initialise (
-			BoardPositionStore bp_store,
-			JosekiStore j_store) {
+	public CommandLineRunner initialise (BoardPositionStore bp_store) {
 		return args -> {
 			log.info("Initialising...");
 		
 			BoardPosition rootNode = bp_store.findByPlay(".root");
 			if (true) { //rootNode == null) {
-				resetDB(bp_store, j_store);
+				resetDB(bp_store);
 			}
 			rootNode = bp_store.findByPlay(".root");
 
@@ -37,12 +35,11 @@ public class J01Application {
 	}
 
 	void resetDB(
-			BoardPositionStore bp_store,
-			JosekiStore j_store) {
+			BoardPositionStore bp_store
+			) {
 		log.info("reseting DB...");
 
 		bp_store.deleteAll();
-		j_store.deleteAll();
 		
 		BoardPosition rootNode = new BoardPosition("", "root");
 		rootNode.addComment("test comment");
@@ -79,20 +76,12 @@ public class J01Application {
 		log.info("Loading and looking at child moves...");
 
 		rootNode = bp_store.findByPlay(".root");
-		log.info("reloaded root: " + rootNode.toString());  // children are not loaded!
+		log.info("reloaded root: " + rootNode.toString());  
 
 		/* Test reload of a position */
 
 		rootNode = bp_store.findById(root_id).orElse(null);
 		log.info("After findById: " + rootNode.toString() );
-
-		log.info("Adding a joseki...");
-		Joseki j1 = new Joseki("Joseki1");
-
-		j1.addPosition(child);
-		j_store.save(j1);
-
-		log.info(j1.toString());
 		
 		log.info("Adding second level moves to a node...");
 

@@ -5,10 +5,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+
 import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.GeneratedValue;
@@ -60,10 +60,7 @@ public class BoardPosition {
     
     @Relationship(type="PARENT", direction = Relationship.OUTGOING)
     public BoardPosition parent;
-    public void setParent(BoardPosition parent) { this.parent = parent;}
-    	
-	@Relationship(type="JOSEKI_POSITION", direction = Relationship.INCOMING)
-	private Set<Joseki> joseki;    
+    public void setParent(BoardPosition parent) { this.parent = parent;}    
     
 	@Relationship("COMMENT")
     public ArrayList<Comment> commentary;
@@ -85,14 +82,7 @@ public class BoardPosition {
 		this.children = new ArrayList<>();
 		this.commentary = new ArrayList<>();			
 	}
-	
-    public void addJoseki(Joseki joseki) {
-		if (this.joseki == null) {
-			this.joseki = new HashSet<>();
-		}    	
-    	this.joseki.add(joseki);
-    }
-    
+
 	public void addComment(String text) {
 		Comment new_comment = new Comment(this, text);
 		if (this.commentary == null) {
