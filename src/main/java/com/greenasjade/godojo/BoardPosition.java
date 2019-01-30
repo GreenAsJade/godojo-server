@@ -44,11 +44,8 @@ public class BoardPosition {
 	@Property("category")
 	private PlayCategory category;
 	public PlayCategory getCategory() {return category;}
-    
-	@Property("title")
-	private String title;  
-    public String getTitle() {return title;}
-    public void setTitle(String text) {title = text;}
+	public void setCategory(PlayCategory category) {this.category = category;}
+
     
     @Property("Description")
 	private String description;
@@ -77,7 +74,7 @@ public class BoardPosition {
 		this.play = parent_play + "." + placement;
 		this.placement = placement;
 		this.category = category;
-		this.title = "";  // these get set during editing, after the position is created.
+
 		this.description = "";
 		this.children = new ArrayList<>();
 		this.commentary = new ArrayList<>();			
@@ -86,7 +83,7 @@ public class BoardPosition {
 	public void addComment(String text) {
 		Comment new_comment = new Comment(this, text);
 		if (this.commentary == null) {
-			this.commentary = new ArrayList<Comment>();			
+			this.commentary = new ArrayList<>();
 		}
 		this.commentary.add(new_comment);
 	}

@@ -162,12 +162,14 @@ public class PositionController {
 
         BoardPosition the_position = this.bp_store.findById(Long.valueOf(id)).orElse(null);
 
-        /* We only support updating the description at the moment */
-
         the_position.setDescription(position_details.getDescription());
+
+        if (position_details.getMoveType() != null) {
+            the_position.setCategory(position_details.getMoveType());
+        }
 
         this.bp_store.save(the_position);
 
-        return this.position(id.toString());
+        return this.position(id);
     }
 }

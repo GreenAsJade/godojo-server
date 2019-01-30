@@ -5,25 +5,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PositionDTO extends HalResource {
 
-    private final String play;
-    public String getPlay() {return play;}
-
     private String description;
     public String getDescription() {return description;}
     public void setDescription(String description) {this.description = description;}
 
-    private final String title;
-    public String getTitle() {return title;}
+    private PlayCategory move_type;
+    public PlayCategory getMoveType() {return move_type;}
 
     @JsonCreator
-    public PositionDTO(@JsonProperty("description") String description) {
+    public PositionDTO(
+            @JsonProperty("description") String description,
+            @JsonProperty("move_type") String move_type) {
         this.description = description;
-        this.title="";
-        this.play="";
+        // empty move_type means "don't change it"
+        this.move_type = move_type.equals("") ? null : PlayCategory.valueOf(move_type);
     }
+
     public PositionDTO(BoardPosition position) {
-        play = position.getPlay();
-        title = position.getTitle();
         description = position.getDescription();
+        move_type = position.getCategory();
     }
 }
