@@ -13,87 +13,85 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class J01Application {
 
-	private static final Logger log = LoggerFactory.getLogger(J01Application.class);
+    private static final Logger log = LoggerFactory.getLogger(J01Application.class);
 
-	public static void main(String[] args) {
-		SpringApplication.run(J01Application.class, args);
-	}
-	
-	@Bean
-	public CommandLineRunner initialise (BoardPositionStore bp_store) {
-		return args -> {
-			log.info("Initialising...");
-		
-			BoardPosition rootNode = bp_store.findByPlay(".root");
-			if (true) { //rootNode == null) {
-				resetDB(bp_store);
-			}
-			rootNode = bp_store.findByPlay(".root");
+    public static void main(String[] args) {
+        SpringApplication.run(J01Application.class, args);
+    }
 
-			log.info(rootNode.toString());
-		};
-	}
+    @Bean
+    public CommandLineRunner initialise (BoardPositionStore bp_store) {
+        return args -> {
+            log.info("Initialising...");
 
-	void resetDB(
-			BoardPositionStore bp_store
-			) {
-		log.info("reseting DB...");
+            BoardPosition rootNode = bp_store.findByPlay(".root");
+            if (true) { //rootNode == null) {
+                resetDB(bp_store);
+            }
+            rootNode = bp_store.findByPlay(".root");
 
-		bp_store.deleteAll();
-		
-		BoardPosition rootNode = new BoardPosition("", "root");
-		rootNode.addComment("test comment");
-		rootNode.setTitle("Empty Board");
-		rootNode.setDescription("Infinite possibilities await!");
+            log.info(rootNode.toString());
+        };
+    }
 
-		bp_store.save(rootNode);
+    void resetDB(
+            BoardPositionStore bp_store
+    ) {
+        log.info("reseting DB...");
 
-		log.info("After save of root: " + rootNode.toString() );
+        bp_store.deleteAll();
 
-		Long root_id = rootNode.id;
+        BoardPosition rootNode = new BoardPosition("", "root");
+        rootNode.addComment("test comment");
+        rootNode.setDescription("## Empty Board\n\nInfinite possibilities await!");
 
-		BoardPosition child;
+        bp_store.save(rootNode);
 
-		child = rootNode.addMove("Q16");
-		child = rootNode.addMove("R16");
-		child = rootNode.addMove("R17");
-		child.setTitle("San San");
-		
-		child = rootNode.addMove("Q15", PlayCategory.GOOD);
-		child = rootNode.addMove("R15", PlayCategory.GOOD);
-		
-		child = rootNode.addMove("K10", PlayCategory.GOOD);
-		child.setTitle("Tengen");
-		child.setDescription("Dwyrin's favourite!");
-		
-		child = rootNode.addMove("S18", PlayCategory.MISTAKE);
+        log.info("After save of root: " + rootNode.toString() );
 
-		bp_store.save(rootNode);
+        Long root_id = rootNode.id;
 
-		log.info("After save of root with children: " + rootNode.toString() );
+        BoardPosition child;
 
-		/* Figuring out how/when/what Neo4j loads */
-		log.info("Loading and looking at child moves...");
+        child = rootNode.addMove("Q16");
+        child = rootNode.addMove("R16");
+        child = rootNode.addMove("R17");
+        child.setDescription("## San San");
 
-		rootNode = bp_store.findByPlay(".root");
-		log.info("reloaded root: " + rootNode.toString());  
+        child = rootNode.addMove("Q15", PlayCategory.GOOD);
+        child = rootNode.addMove("R15", PlayCategory.GOOD);
 
-		/* Test reload of a position */
+        child = rootNode.addMove("K10", PlayCategory.GOOD);
+        child.setDescription("## Tengen\nDwyrin's favourite!");
 
-		rootNode = bp_store.findById(root_id).orElse(null);
-		log.info("After findById: " + rootNode.toString() );
-		
-		log.info("Adding second level moves to a node...");
+        child = rootNode.addMove("S18", PlayCategory.MISTAKE);
 
-		child.addMove("Q16");
-		child.addMove("R16");
-		child.addMove("R17");
-		bp_store.save(child);
+        bp_store.save(rootNode);
 
-		// Test adding a comment later
-		rootNode.addComment("second comment");
-		bp_store.save(rootNode);
+        log.info("After save of root with children: " + rootNode.toString() );
 
-		log.info("...DB reset done");
-	}
+        /* Figuring out how/when/what Neo4j loads */
+        log.info("Loading and looking at child moves...");
+
+        rootNode = bp_store.findByPlay(".root");
+        log.info("reloaded root: " + rootNode.toString());
+
+        /* Test reload of a position */
+
+        rootNode = bp_store.findById(root_id).orElse(null);
+        log.info("After findById: " + rootNode.toString() );
+
+        log.info("Adding second level moves to a node...");
+
+        child.addMove("Q16");
+        child.addMove("R16");
+        child.addMove("R17");
+        bp_store.save(child);
+
+        // Test adding a comment later
+        rootNode.addComment("second comment");
+        bp_store.save(rootNode);
+
+        log.info("...DB reset done");
+    }
 }

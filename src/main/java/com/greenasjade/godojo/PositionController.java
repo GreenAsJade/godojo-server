@@ -23,13 +23,10 @@ public class PositionController {
     private static final Logger log = LoggerFactory.getLogger(PositionController.class);
 
     private BoardPositionStore bp_store;
-    //private JosekiStore j_store;
-    //private MoveStore m_store;
 
     public PositionController(
             BoardPositionStore bp_store) {
         this.bp_store = bp_store;
-        //this.j_store = j_store;
     }
 
     @CrossOrigin()
@@ -154,7 +151,7 @@ public class PositionController {
         this.bp_store.save(next_position);
         return this.position(next_position.id.toString());
     }
-    
+
     @CrossOrigin()
     @ResponseBody()
     @PutMapping("/position")
