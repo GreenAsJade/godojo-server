@@ -53,13 +53,14 @@ public class PositionController {
         PositionDTO position = new PositionDTO(board_position);
         position.add(linkTo(methodOn(PositionController.class).position(id)).withSelfRel());
 
+        // Add the other resources we will supply in the response...
+
+        ArrayList<Resource<MoveDTO>> resource_list = new ArrayList<>();
+
         // Add a "moves" link for each move on this board_position, so the client
         // can navigate through any move from this board_position
 
         List<BoardPosition> next_move_list = bp_store.findByParentId(board_position.id);
-
-        ArrayList<Resource<MoveDTO>> resource_list = new ArrayList<>();
-
         if (next_move_list != null) {
             next_move_list.forEach( (move) -> {
                 log.info("adding link to: " + move.toString());
@@ -72,6 +73,18 @@ public class PositionController {
             });
             position.embed("moves", resource_list);
         }
+
+        // A link to the parent of the node we are telling them about, so they can go back from here
+        BoardPosition parent_position = board_position.getPlay().equals(".root") ?
+                board_position : board_position.parent;
+
+        log.info("adding link parent: " + parent_position.toString());
+
+        MoveDTO dto = new MoveDTO(parent_position);
+        Resource<MoveDTO> res = new Resource<>(dto);
+        res.add(linkTo(methodOn(PositionController.class).
+                position(parent_position.id.toString())).withSelfRel());
+        position.embed("parent", res);
 
         return position;
     }
