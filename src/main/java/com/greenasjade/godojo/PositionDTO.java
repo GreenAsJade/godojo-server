@@ -12,6 +12,9 @@ public class PositionDTO extends HalResource {
     private PlayCategory move_type;
     public PlayCategory getMoveType() {return move_type;}
 
+    private String placement;
+    public String getPlacement() {return placement;}
+
     @JsonCreator
     public PositionDTO(
             @JsonProperty("description") String description,
@@ -24,5 +27,6 @@ public class PositionDTO extends HalResource {
     public PositionDTO(BoardPosition position) {
         description = position.getDescription();
         move_type = position.getCategory();
+        placement = position.getPlacement();
     }
 }
