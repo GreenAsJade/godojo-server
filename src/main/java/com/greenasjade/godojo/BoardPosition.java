@@ -46,11 +46,15 @@ public class BoardPosition {
     public PlayCategory getCategory() {return category;}
     public void setCategory(PlayCategory category) {this.category = category;}
 
-
-    @Property("Description")
+    @Property("description")
     private String description;
     public String getDescription() {return description;}
     public void setDescription(String text) {description = text;}
+
+    @Property("contributor")
+    private Integer contributor_id;
+    public Integer getContributorId(){return contributor_id;}
+    public void setContributorId(Integer id) {contributor_id = id;}
 
     @Relationship(type="PARENT", direction = Relationship.INCOMING)
     public List<BoardPosition> children;
@@ -66,14 +70,15 @@ public class BoardPosition {
         // Empty constructor required as of Neo4j API 2.0.5
     }
 
-    public BoardPosition(String parent_play, String placement) {
-        this(parent_play, placement, PlayCategory.IDEAL);
+    public BoardPosition(String parent_play, String placement, Integer user_id) {
+        this(parent_play, placement, PlayCategory.IDEAL, user_id);
     }
 
-    public BoardPosition(String parent_play, String placement, PlayCategory category) {
+    public BoardPosition(String parent_play, String placement, PlayCategory category, Integer user_id) {
         this.play = parent_play + "." + placement;
         this.placement = placement;
         this.category = category;
+        this.contributor_id = user_id;
 
         this.description = "";
         this.children = new ArrayList<>();
@@ -95,25 +100,27 @@ public class BoardPosition {
 
         String c = this.commentary == null ? "" : this.commentary.toString();
 
+        String u = this.contributor_id.toString();
+
         String child_list =
                 Optional.ofNullable(this.children).orElse(Collections.emptyList()).stream()
                         .map(BoardPosition::getPlacement)
                         .collect(Collectors.toList()).toString();
 
-        return p + " -> " +  "<" + i +">" + this.play +
+        return p + " -> " +  "<"+i+">" + "("+u+")"+ this.play +
                 " -> " + child_list + c;
     }
 
-    public BoardPosition addMove(String placement) {
-        return this.addMove(placement, PlayCategory.IDEAL);
+    public BoardPosition addMove(String placement, Integer user_id) {
+        return this.addMove(placement, PlayCategory.IDEAL, user_id);
     }
 
-    public BoardPosition addMove(String placement, PlayCategory category) {
+    public BoardPosition addMove(String placement, PlayCategory category, Integer user_id) {
         if (this.children == null) {
             this.children = new ArrayList<>();
         }
 
-        BoardPosition child = new BoardPosition(this.play, placement, category);
+        BoardPosition child = new BoardPosition(this.play, placement, category, user_id);
 
         children.add(child);
         child.setParent(this);

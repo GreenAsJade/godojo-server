@@ -14,6 +14,9 @@ import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @RestController
 public class PositionController {
 
@@ -89,6 +92,7 @@ public class PositionController {
         return position;
     }
 
+    /*
     @CrossOrigin()
     @ResponseBody()
     @PostMapping("/position")
@@ -101,8 +105,9 @@ public class PositionController {
     	Jwt token = JwtHelper.decodeAndVerify(user_jwt, new RsaVerifier(ogs_key));
     	
         String claims = token.getClaims();
+
         log.info(claims);
-        
+
         BoardPosition parent_position = this.bp_store.findById(Long.valueOf(parent_id)).orElse(null);
 
         BoardPosition new_child = parent_position.addMove(move_details.getPlacement(), move_details.getCategory());
@@ -111,6 +116,7 @@ public class PositionController {
 
         return this.position(new_child.id.toString());
     }
+*/
 
     @CrossOrigin()
     @ResponseBody()
@@ -121,18 +127,32 @@ public class PositionController {
     public PositionDTO createPositions(
             @RequestHeader("X-User-Info") String user_jwt,
             @RequestBody SequenceDTO sequence_details) {
-    	
+
+        // Grab the user-id off the jwt to store as the "contributor"
+        // (throw and die if it's not valid)
     	Jwt token = JwtHelper.decodeAndVerify(user_jwt, new RsaVerifier(ogs_key));
-    	
+
         String claims = token.getClaims();
-        log.info(claims);
-        
-        // So first we have to find where the first new move is
+
+        JsonNode jwtClaims = null;
+        try {
+            jwtClaims = new ObjectMapper().readTree(claims);
+        } catch (java.io.IOException e) {
+            return null;
+        }
+
+        // log.info("Claims: " + jwtClaims.toString());
+
+        Integer user_id = jwtClaims.get("user_id").asInt();
+
+        log.info("Saving sequence for user: " + user_id.toString());
+
+        // Now, first we have to find where the first new move to be created is in the sequence they gave us
                 
         List<String> placements = new ArrayList<>(Arrays.asList(sequence_details.getSequence().split(",")));
-        
-        log.info("Adding sequence: " + placements.toString());
-        
+
+        log.info("Adding move from sequence: " + placements.toString());
+
         BoardPosition current_position = bp_store.findByPlay(".root");
         String next_placement = placements.remove(0);
     	String next_play = ".root." + next_placement;
@@ -153,12 +173,12 @@ public class PositionController {
         log.info("Extending at: " + current_position + " with " + next_placement);
         
         PlayCategory new_category = sequence_details.getCategory();
-    	next_position = current_position.addMove(next_placement, new_category);
+    	next_position = current_position.addMove(next_placement, new_category, user_id);
     	
         while (placements.size() > 0) {
         	next_placement = placements.remove(0);
             log.info("Extending at: " + next_position + " with " + next_placement);
-            next_position = next_position.addMove(next_placement, new_category);        	
+            next_position = next_position.addMove(next_placement, new_category, user_id);
         }
        
         this.bp_store.save(next_position);
@@ -177,8 +197,8 @@ public class PositionController {
 
         the_position.setDescription(position_details.getDescription());
 
-        if (position_details.getMoveType() != null) {
-            the_position.setCategory(position_details.getMoveType());
+        if (position_details.getCategory() != null) {
+            the_position.setCategory(position_details.getCategory());
         }
 
         this.bp_store.save(the_position);

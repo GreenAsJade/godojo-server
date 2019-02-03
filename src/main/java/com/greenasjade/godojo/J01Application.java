@@ -37,11 +37,13 @@ public class J01Application {
     void resetDB(
             BoardPositionStore bp_store
     ) {
-        log.info("reseting DB...");
+        log.info("resetting DB...");
 
         bp_store.deleteAll();
 
-        BoardPosition rootNode = new BoardPosition("", "root");
+        Integer GajId = 168;  // Initial moves came from GreenAsJade!
+
+        BoardPosition rootNode = new BoardPosition("", "root", GajId);
         rootNode.addComment("test comment");
         rootNode.setDescription("## Empty Board\n\nInfinite possibilities await!");
 
@@ -52,19 +54,19 @@ public class J01Application {
         Long root_id = rootNode.id;
 
         BoardPosition child;
-
-        child = rootNode.addMove("Q16");
-        child = rootNode.addMove("R16");
-        child = rootNode.addMove("R17");
+        
+        child = rootNode.addMove("Q16", GajId);
+        child = rootNode.addMove("R16", GajId);
+        child = rootNode.addMove("R17", GajId);
         child.setDescription("## San San");
 
-        child = rootNode.addMove("Q15", PlayCategory.GOOD);
-        child = rootNode.addMove("R15", PlayCategory.GOOD);
+        child = rootNode.addMove("Q15", PlayCategory.GOOD, GajId);
+        child = rootNode.addMove("R15", PlayCategory.GOOD, GajId);
 
-        child = rootNode.addMove("K10", PlayCategory.GOOD);
+        child = rootNode.addMove("K10", PlayCategory.GOOD, GajId);
         child.setDescription("## Tengen\nDwyrin's favourite!");
 
-        child = rootNode.addMove("S18", PlayCategory.MISTAKE);
+        child = rootNode.addMove("S18", PlayCategory.MISTAKE, GajId);
 
         bp_store.save(rootNode);
 
@@ -83,9 +85,9 @@ public class J01Application {
 
         log.info("Adding second level moves to a node...");
 
-        child.addMove("Q16");
-        child.addMove("R16");
-        child.addMove("R17");
+        child.addMove("Q16", GajId);
+        child.addMove("R16", GajId);
+        child.addMove("R17",GajId);
         bp_store.save(child);
 
         // Test adding a comment later

@@ -9,24 +9,38 @@ public class PositionDTO extends HalResource {
     public String getDescription() {return description;}
     public void setDescription(String description) {this.description = description;}
 
-    private PlayCategory move_type;
-    public PlayCategory getMoveType() {return move_type;}
+    private PlayCategory category;
+    public PlayCategory getCategory() {return category;}
 
     private String placement;
     public String getPlacement() {return placement;}
 
+    private String play;
+    public String getPlay() {return play;}
+
+    private Integer contributor;
+    public Integer getContributor() {return contributor;}
+
+    private Long node_id;
+    public Long getNodeId() {return node_id;}
+
+    // Inbound position information
     @JsonCreator
     public PositionDTO(
             @JsonProperty("description") String description,
-            @JsonProperty("move_type") String move_type) {
+            @JsonProperty("category") String category) {
         this.description = description;
         // empty move_type means "don't change it"
-        this.move_type = move_type.equals("") ? null : PlayCategory.valueOf(move_type);
+        this.category = category.equals("") ? null : PlayCategory.valueOf(category);
     }
 
+    // Outbound position information
     public PositionDTO(BoardPosition position) {
         description = position.getDescription();
-        move_type = position.getCategory();
+        category = position.getCategory();
         placement = position.getPlacement();
+        contributor = position.getContributorId();
+        play = position.getPlay();
+        node_id = position.id;
     }
 }
