@@ -24,6 +24,9 @@ public class PositionDTO extends HalResource {
     private Long node_id;
     public Long getNodeId() {return node_id;}
 
+    private Integer comment_count;
+    public Integer getCommentCount() {return comment_count;}
+
     // Inbound position information
     @JsonCreator
     public PositionDTO(
@@ -42,5 +45,6 @@ public class PositionDTO extends HalResource {
         contributor = position.getContributorId();
         play = position.getPlay();
         node_id = position.id;
+        comment_count = position.getCommentCount();
     }
 }

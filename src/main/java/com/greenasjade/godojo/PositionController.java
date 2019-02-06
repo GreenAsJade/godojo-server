@@ -53,6 +53,7 @@ public class PositionController {
 
         log.info("which is: " + board_position.toString());
 
+        log.info("with comments " + board_position.getCommentCount().toString());
         PositionDTO position = new PositionDTO(board_position);
         position.add(linkTo(methodOn(PositionController.class).position(id)).withSelfRel());
 
@@ -91,32 +92,6 @@ public class PositionController {
 
         return position;
     }
-
-    /*
-    @CrossOrigin()
-    @ResponseBody()
-    @PostMapping("/position")
-    // Add a position at the parent node based on the move_details
-    public PositionDTO createPosition(
-            @RequestParam(value="id", required=true) String parent_id,
-            @RequestHeader("X-User-Info") String user_jwt,
-            @RequestBody MoveDTO move_details) {
-    	
-    	Jwt token = JwtHelper.decodeAndVerify(user_jwt, new RsaVerifier(ogs_key));
-    	
-        String claims = token.getClaims();
-
-        log.info(claims);
-
-        BoardPosition parent_position = this.bp_store.findById(Long.valueOf(parent_id)).orElse(null);
-
-        BoardPosition new_child = parent_position.addMove(move_details.getPlacement(), move_details.getCategory());
-
-        this.bp_store.save(new_child);
-
-        return this.position(new_child.id.toString());
-    }
-*/
 
     @CrossOrigin()
     @ResponseBody()

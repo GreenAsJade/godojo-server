@@ -44,7 +44,7 @@ public class J01Application {
         Integer GajId = 168;  // Initial moves came from GreenAsJade!
 
         BoardPosition rootNode = new BoardPosition("", "root", GajId);
-        rootNode.addComment("test comment");
+        rootNode.addComment("test comment", GajId);
         rootNode.setDescription("## Empty Board\n\nInfinite possibilities await!");
 
         bp_store.save(rootNode);
@@ -91,7 +91,7 @@ public class J01Application {
         bp_store.save(child);
 
         // Test adding a comment later
-        rootNode.addComment("second comment");
+        rootNode.addComment("second comment", GajId);
         bp_store.save(rootNode);
 
         log.info("...DB reset done");

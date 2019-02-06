@@ -66,6 +66,8 @@ public class BoardPosition {
     @Relationship("COMMENT")
     public ArrayList<Comment> commentary;
 
+    public Integer getCommentCount() {return commentary != null ? commentary.size() : 0;}
+
     public BoardPosition() {
         // Empty constructor required as of Neo4j API 2.0.5
     }
@@ -83,10 +85,11 @@ public class BoardPosition {
         this.description = "";
         this.children = new ArrayList<>();
         this.commentary = new ArrayList<>();
+        log.info(placement + " created with " + commentary.size() + " comments");
     }
 
-    public void addComment(String text) {
-        Comment new_comment = new Comment(this, text);
+    public void addComment(String text, Integer user_id) {
+        Comment new_comment = new Comment(this, text, user_id);
         if (this.commentary == null) {
             this.commentary = new ArrayList<>();
         }
