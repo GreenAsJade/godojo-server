@@ -1,7 +1,7 @@
 package com.greenasjade.godojo;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +23,8 @@ public class Comment {
     @Id @GeneratedValue Long id;
 
     @Property
-    private Date date;
-    public Date getDate() {return date;}
+    private Instant date;
+    public Instant getDate() {return date;}
 
     @Property
     private Integer user_id;
@@ -45,7 +45,7 @@ public class Comment {
         this.target = parent;
         this.user_id = user_id;
         this.comment = comment;
-        this.date = new Date();
+        this.date = Instant.now();
     }
 
     public String toString() {
