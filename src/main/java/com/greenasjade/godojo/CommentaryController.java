@@ -64,4 +64,37 @@ public class CommentaryController {
 
         return commentary;
     }
+
+    @CrossOrigin()
+    @ResponseBody()
+    @PostMapping("/comment")
+    // Update details about a given position
+    public CommentaryDTO addComment(
+            @RequestHeader("X-User-Info") String user_jwt,
+            @RequestParam(value="id", required=true) String id,
+            @RequestBody String comment) {
+
+        // Grab the user-id off the jwt to store as the "commenter"
+        // (throw and die if it's not valid)
+        Jwt token = JwtHelper.decodeAndVerify(user_jwt, new RsaVerifier(ogs_key));
+
+        String claims = token.getClaims();
+
+        JsonNode jwtClaims = null;
+        try {
+            jwtClaims = new ObjectMapper().readTree(claims);
+        } catch (java.io.IOException e) {
+            return null;
+        }
+
+        Integer user_id = jwtClaims.get("user_id").asInt();
+
+        BoardPosition the_position = this.bp_store.findById(Long.valueOf(id)).orElse(null);
+
+        the_position.addComment(comment, user_id);
+
+        this.bp_store.save(the_position);
+
+        return new CommentaryDTO(the_position);
+    }
 }

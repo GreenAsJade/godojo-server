@@ -165,8 +165,26 @@ public class PositionController {
     @PutMapping("/position")
     // Update details about a given position
     public PositionDTO updatePosition(
+            @RequestHeader("X-User-Info") String user_jwt,
             @RequestParam(value="id", required=true) String id,
             @RequestBody PositionDTO position_details) {
+
+        // Grab the user-id off the jwt to store as the "editor"
+        // (throw and die if it's not valid)
+        Jwt token = JwtHelper.decodeAndVerify(user_jwt, new RsaVerifier(ogs_key));
+
+        String claims = token.getClaims();
+
+        JsonNode jwtClaims = null;
+        try {
+            jwtClaims = new ObjectMapper().readTree(claims);
+        } catch (java.io.IOException e) {
+            return null;
+        }
+
+        Integer user_id = jwtClaims.get("user_id").asInt();
+
+        // TBD add audit of change
 
         BoardPosition the_position = this.bp_store.findById(Long.valueOf(id)).orElse(null);
 
