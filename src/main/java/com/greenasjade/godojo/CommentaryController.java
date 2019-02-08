@@ -5,18 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.hateoas.Resource;
+
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 @RestController
 public class CommentaryController {
@@ -57,10 +50,6 @@ public class CommentaryController {
         log.info("with comments " + board_position.getCommentCount().toString());
 
         CommentaryDTO commentary = new CommentaryDTO(board_position);
-
-        //log.info("DTO is " + commentary.toString());
-
-        commentary.add(linkTo(methodOn(CommentaryController.class).commentary(id)).withSelfRel());
 
         return commentary;
     }

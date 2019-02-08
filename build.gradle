@@ -30,7 +30,6 @@ repositories {
 
 dependencies {
     implementation(
-            'org.springframework.boot:spring-boot-starter-hateoas',
             'org.springframework.boot:spring-boot-starter-data-neo4j',
             'org.springframework.boot:spring-boot-starter-thymeleaf',
             'org.springframework.boot:spring-boot-starter-web',

@@ -3,7 +3,7 @@ package com.greenasjade.godojo;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class SequenceDTO extends HalResource {
+public class SequenceDTO {
 	
     private final String sequence;
     public String getSequence() {return sequence;}

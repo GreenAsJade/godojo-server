@@ -2,7 +2,7 @@ package com.greenasjade.godojo;
 
 import java.util.ArrayList;
 
-public class CommentaryDTO extends HalResource {
+public class CommentaryDTO {
 
     private ArrayList<Comment> commentary;
     public ArrayList<Comment> getCommentary() {return commentary;}
