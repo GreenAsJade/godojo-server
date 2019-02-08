@@ -13,6 +13,8 @@ buildscript {
 
 plugins {
     id "com.palantir.docker" version "0.21.0"
+    id 'io.franzbecker.gradle-lombok' version '2.0'
+    id 'java'
 }
 
 apply plugin: 'java'
@@ -26,6 +28,11 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+}
+
+lombok {
+    version = '1.18.4'
+    sha256 = ""
 }
 
 dependencies {
