@@ -2,39 +2,31 @@ package com.greenasjade.godojo;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
 public class PositionDTO {
 
     private String description;
-    public String getDescription() {return description;}
-    public void setDescription(String description) {this.description = description;}
 
     private PlayCategory category;
-    public PlayCategory getCategory() {return category;}
 
     private String placement;
-    public String getPlacement() {return placement;}
 
     private String play;
-    public String getPlay() {return play;}
 
     private Integer contributor;
-    public Integer getContributor() {return contributor;}
 
     private Long node_id;
-    public Long getNodeId() {return node_id;}
 
     private Integer comment_count;
-    public Integer getCommentCount() {return comment_count;}
 
     private ArrayList<MoveDTO> next_moves;
-    public ArrayList<MoveDTO> getNextMoves() {return next_moves;}
 
     private MoveDTO parent;
-    public MoveDTO getParent() {return parent;}
 
     // Inbound position information
     @JsonCreator

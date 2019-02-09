@@ -2,17 +2,16 @@ package com.greenasjade.godojo;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
+@Data
 public class MoveDTO {
 	
     private final String placement;
-    public String getPlacement() {return placement;}
     
     private final PlayCategory category;
-    public PlayCategory getCategory() {return category;}
 
     private Long node_id;
-    public Long getNodeId() {return node_id;}
 
     @JsonCreator
     public MoveDTO(

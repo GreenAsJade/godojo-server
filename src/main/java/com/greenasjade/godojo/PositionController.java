@@ -121,6 +121,8 @@ public class PositionController {
         }
        
         this.bp_store.save(next_position);
+
+        // Finally, return the info for the last position created.
         return this.position(next_position.id.toString());
     }
 
