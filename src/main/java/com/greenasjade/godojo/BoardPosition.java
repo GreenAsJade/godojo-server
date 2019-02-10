@@ -56,6 +56,10 @@ public class BoardPosition {
     public Integer getContributorId(){return contributor_id;}
     public void setContributorId(Integer id) {contributor_id = id;}
 
+    @Property("labels")
+    private List<String> labels;
+    public List<String> getLabels() {return labels;}
+
     @Relationship(type="PARENT", direction = Relationship.INCOMING)
     public List<BoardPosition> children;
 
