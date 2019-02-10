@@ -28,6 +28,8 @@ public class PositionDTO {
 
     private MoveDTO parent;
 
+    private List<String> labels;
+
     // Inbound position information
     @JsonCreator
     public PositionDTO(
@@ -64,5 +66,7 @@ public class PositionDTO {
         BoardPosition parent_position = position.getPlay().equals(".root") ?
                 position : position.parent;
         parent = new MoveDTO(parent_position);
+
+        labels = new ArrayList<>();
     }
 }
