@@ -127,7 +127,7 @@ public class BoardPosition {
         // must only have one child of each placement
 
         BoardPosition existing = this.children.stream()
-                .filter( c -> c.getPlacement().equals(placement))
+                .filter( c -> c.getPlacement().equals(placement) )
                 .findFirst().orElse(null);
 
         if (existing == null) {
@@ -141,6 +141,7 @@ public class BoardPosition {
             return child;
         }
         else {
+            log.warn("Attempted to add an existing position.  Updating instead. " + placement);
             existing.category = category;
             return existing;
         }
