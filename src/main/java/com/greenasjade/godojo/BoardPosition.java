@@ -3,11 +3,7 @@ package com.greenasjade.godojo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import java.util.stream.Collectors;
 
@@ -127,13 +123,27 @@ public class BoardPosition {
             this.children = new ArrayList<>();
         }
 
-        BoardPosition child = new BoardPosition(this.play, placement, category, user_id);
+        // Take care not to add a new child if we already have one at this placement
+        // must only have one child of each placement
 
-        children.add(child);
-        child.setParent(this);
-        child.seq = this.children.size();
-        log.info("Added move: " + placement);
-        log.info("now this node: " + this.toString());
-        return child;
+        BoardPosition existing = this.children.stream()
+                .filter( c -> c.getPlacement().equals(placement))
+                .findFirst().orElse(null);
+
+        if (existing == null) {
+            BoardPosition child = new BoardPosition(this.play, placement, category, user_id);
+
+            children.add(child);
+            child.setParent(this);
+            child.seq = this.children.size();
+            log.info("Added move: " + placement);
+            log.info("now this node: " + this.toString());
+            return child;
+        }
+        else {
+            existing.category = category;
+            return existing;
+        }
+
     }
 } 
