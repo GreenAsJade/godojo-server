@@ -82,7 +82,7 @@ public class PositionController {
 
         // log.info("Claims: " + jwtClaims.toString());
 
-        Integer user_id = jwtClaims.get("user_id").asInt();
+        Long user_id = jwtClaims.get("user_id").asLong();
 
         log.info("Saving sequence for user: " + user_id.toString());
 

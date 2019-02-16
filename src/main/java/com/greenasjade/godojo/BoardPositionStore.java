@@ -13,5 +13,8 @@ public interface BoardPositionStore extends Neo4jRepository<BoardPosition, Long>
 	Optional<BoardPosition> findById(Long id);
 	
 	@Query("MATCH (p:BoardPosition)<-[prel:PARENT]-(c:BoardPosition) WHERE id(p)={ParentID} RETURN c, prel ORDER BY c.seq")
-	public List<BoardPosition>findByParentId(@Param("ParentID") Long id);	
+	List<BoardPosition> findByParentId(@Param("ParentID") Long id);
+
+	@Query("MATCH (n) DETACH DELETE n")
+	void deleteEverythingInDB();  //  NOTE THAT THIS DELETES *EVERYTHING* NOT JUST BOARD POSITIONS
 }

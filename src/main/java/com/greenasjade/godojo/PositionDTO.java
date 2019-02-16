@@ -18,7 +18,7 @@ public class PositionDTO {
 
     private String play;
 
-    private Integer contributor;
+    private Long contributor;
 
     private Long node_id;
 

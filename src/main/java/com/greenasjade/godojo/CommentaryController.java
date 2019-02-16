@@ -76,7 +76,7 @@ public class CommentaryController {
             return null;
         }
 
-        Integer user_id = jwtClaims.get("user_id").asInt();
+        Long user_id = jwtClaims.get("user_id").asLong();
 
         BoardPosition the_position = this.bp_store.findById(Long.valueOf(id)).orElse(null);
 

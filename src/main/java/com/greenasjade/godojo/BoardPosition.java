@@ -48,9 +48,9 @@ public class BoardPosition {
     public void setDescription(String text) {description = text;}
 
     @Property("contributor")
-    private Integer contributor_id;
-    public Integer getContributorId(){return contributor_id;}
-    public void setContributorId(Integer id) {contributor_id = id;}
+    private Long contributor_id;
+    public Long getContributorId(){return contributor_id;}
+    public void setContributorId(Long id) {contributor_id = id;}
 
     @Property("labels")
     private List<String> labels;
@@ -66,17 +66,20 @@ public class BoardPosition {
     @Relationship("COMMENT")
     public ArrayList<Comment> commentary;
 
+    @Relationship("SOURCE")
+    public List<JosekiSource> sources;
+
     public Integer getCommentCount() {return commentary != null ? commentary.size() : 0;}
 
     public BoardPosition() {
         // Empty constructor required as of Neo4j API 2.0.5
     }
 
-    public BoardPosition(String parent_play, String placement, Integer user_id) {
+    public BoardPosition(String parent_play, String placement, Long user_id) {
         this(parent_play, placement, PlayCategory.IDEAL, user_id);
     }
 
-    public BoardPosition(String parent_play, String placement, PlayCategory category, Integer user_id) {
+    public BoardPosition(String parent_play, String placement, PlayCategory category, Long user_id) {
         this.play = parent_play + "." + placement;
         this.placement = placement;
         this.category = category;
@@ -88,7 +91,7 @@ public class BoardPosition {
         log.info(placement + " created with " + commentary.size() + " comments");
     }
 
-    public void addComment(String text, Integer user_id) {
+    public void addComment(String text, Long user_id) {
         Comment new_comment = new Comment(this, text, user_id);
         if (this.commentary == null) {
             this.commentary = new ArrayList<>();
@@ -114,11 +117,11 @@ public class BoardPosition {
                 " -> " + child_list + c;
     }
 
-    public BoardPosition addMove(String placement, Integer user_id) {
+    public BoardPosition addMove(String placement, Long user_id) {
         return this.addMove(placement, PlayCategory.IDEAL, user_id);
     }
 
-    public BoardPosition addMove(String placement, PlayCategory category, Integer user_id) {
+    public BoardPosition addMove(String placement, PlayCategory category, Long user_id) {
         if (this.children == null) {
             this.children = new ArrayList<>();
         }

@@ -27,8 +27,8 @@ public class Comment {
     public Instant getDate() {return date;}
 
     @Property
-    private Integer user_id;
-    public Integer getUserId() {return user_id;}
+    private Long user_id;
+    public Long getUserId() {return user_id;}
 
     @Property
     private String comment;
@@ -41,7 +41,7 @@ public class Comment {
         // Empty constructor required as of Neo4j API 2.0.5
     };
 
-    public Comment(BoardPosition parent, String comment, Integer user_id) {
+    public Comment(BoardPosition parent, String comment, Long user_id) {
         this.target = parent;
         this.user_id = user_id;
         this.comment = comment;
