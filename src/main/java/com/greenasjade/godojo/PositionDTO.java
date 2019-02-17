@@ -30,14 +30,22 @@ public class PositionDTO {
 
     private List<String> labels;
 
+    // incoming from client, telling us which one to use
+    public Long joseki_source_id;
+
+    // outgoing telling client all details
+    private JosekiSource joseki_source;
+
     // Inbound position information
     @JsonCreator
     public PositionDTO(
             @JsonProperty("description") String description,
-            @JsonProperty("category") String category) {
+            @JsonProperty("category") String category,
+            @JsonProperty("joseki_source_id") Long joseki_source_id) {
         this.description = description;
         // empty move_type means "don't change it"
         this.category = category.equals("") ? null : PlayCategory.valueOf(category);
+        this.joseki_source_id = joseki_source_id;
     }
 
     // Outbound position information
@@ -59,8 +67,11 @@ public class PositionDTO {
                 MoveDTO dto = new MoveDTO(move);
                 next_moves.add(dto);
             });
-
         }
+
+        joseki_source = position.source;
+
+        joseki_source_id = position.source != null ?  position.source.getId() : 0L;
 
         // A link to the parent of the node we are telling them about, so they can go back from here
         BoardPosition parent_position = position.getPlay().equals(".root") ?

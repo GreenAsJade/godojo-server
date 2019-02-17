@@ -24,10 +24,13 @@ public class PositionController {
     private static final Logger log = LoggerFactory.getLogger(PositionController.class);
 
     private BoardPositionStore bp_store;
+    private JosekiSourceStore js_store;
 
     public PositionController(
-            BoardPositionStore bp_store) {
+            BoardPositionStore bp_store,
+            JosekiSourceStore js_store) {
         this.bp_store = bp_store;
+        this.js_store = js_store;
     }
 
     @CrossOrigin()
@@ -112,12 +115,16 @@ public class PositionController {
         log.info("Extending at: " + current_position + " with " + next_placement);
         
         PlayCategory new_category = sequence_details.getCategory();
+        JosekiSource new_source = js_store.findById(sequence_details.joseki_source_id).orElse(null);
+
     	next_position = current_position.addMove(next_placement, new_category, user_id);
-    	
+        next_position.source = new_source;
+
         while (placements.size() > 0) {
         	next_placement = placements.remove(0);
             log.info("Extending at: " + next_position + " with " + next_placement);
             next_position = next_position.addMove(next_placement, new_category, user_id);
+            next_position.source = new_source;
         }
        
         this.bp_store.save(next_position);
@@ -158,6 +165,10 @@ public class PositionController {
 
         if (position_details.getCategory() != null) {
             the_position.setCategory(position_details.getCategory());
+        }
+
+        if (position_details.joseki_source_id != null) {
+            the_position.source = js_store.findById(position_details.joseki_source_id).orElse(null);
         }
 
         this.bp_store.save(the_position);

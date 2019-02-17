@@ -66,10 +66,11 @@ public class BoardPosition {
     @Relationship("COMMENT")
     public ArrayList<Comment> commentary;
 
-    @Relationship("SOURCE")
-    public List<JosekiSource> sources;
-
     public Integer getCommentCount() {return commentary != null ? commentary.size() : 0;}
+
+    @Relationship("SOURCE")
+    public JosekiSource source;
+    public Long getJosekiSourceId() {return this.source != null ? this.source.id : 0;}
 
     public BoardPosition() {
         // Empty constructor required as of Neo4j API 2.0.5
@@ -89,6 +90,8 @@ public class BoardPosition {
         this.children = new ArrayList<>();
         this.commentary = new ArrayList<>();
         log.info(placement + " created with " + commentary.size() + " comments");
+
+        this.source = null;
     }
 
     public void addComment(String text, Long user_id) {
@@ -148,6 +151,5 @@ public class BoardPosition {
             existing.category = category;
             return existing;
         }
-
     }
 } 
