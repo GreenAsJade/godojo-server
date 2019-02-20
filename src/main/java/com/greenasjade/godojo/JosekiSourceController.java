@@ -69,6 +69,13 @@ public class JosekiSourceController {
 
         log.info("Saving josekisource for user: " + user_id.toString());
 
+        if (source_info == null) {
+            log.warn("WHOA NO SOURCE INFO! (brace for impact)");
+        }
+        else {
+            log.info("Description: "  + source_info.getSource().getDescription());
+            log.info("URL: " + source_info.getSource().getUrl());
+        }
         JosekiSource the_new_source = new JosekiSource(
                 source_info.getSource().getDescription(),
                 source_info.getSource().getUrl(),
