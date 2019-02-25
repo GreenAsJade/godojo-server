@@ -35,7 +35,7 @@ public class PositionController {
 
     @CrossOrigin()
     @ResponseBody()
-    @GetMapping("/position" )
+    @GetMapping("/godojo/position" )
     // Return all the information needed to display a position
     public PositionDTO position(
             @RequestParam(value = "id", required = false, defaultValue = "root") String id) {
@@ -62,7 +62,7 @@ public class PositionController {
 
     @CrossOrigin()
     @ResponseBody()
-    @PostMapping("/positions")
+    @PostMapping("/godojo/positions")
     // Add a sequence of positions (creating new ones only as necessary)
     // The sequence is assumed to be based at the root (empty board)
     // The incoming move DTO describes the category for all new positions/moves that have to be created
@@ -135,7 +135,7 @@ public class PositionController {
 
     @CrossOrigin()
     @ResponseBody()
-    @PutMapping("/position")
+    @PutMapping("/godojo/position")
     // Update details about a given position
     public PositionDTO updatePosition(
             @RequestHeader("X-User-Info") String user_jwt,

@@ -31,7 +31,7 @@ public class JosekiSourceController {
 
     @CrossOrigin()
     @ResponseBody()
-    @GetMapping("/josekisources" )
+    @GetMapping("/godojo/josekisources" )
     // Return the list of all joseki sources
     public JosekiSourcesDTO josekisources() {
 
@@ -42,7 +42,7 @@ public class JosekiSourceController {
 
     @CrossOrigin()
     @ResponseBody()
-    @PostMapping("/josekisources")
+    @PostMapping("/godojo/josekisources")
     // Add a sequence of positions (creating new ones only as necessary)
     // The sequence is assumed to be based at the root (empty board)
     // The incoming move DTO describes the category for all new positions/moves that have to be created

@@ -28,7 +28,7 @@ public class CommentaryController {
 
     @CrossOrigin()
     @ResponseBody()
-    @GetMapping("/commentary" )
+    @GetMapping("/godojo/commentary" )
     // Return all the information needed to display commentary for a position
     public CommentaryDTO commentary(
             @RequestParam(value = "id", required = false, defaultValue = "root") String id) {
@@ -56,7 +56,7 @@ public class CommentaryController {
 
     @CrossOrigin()
     @ResponseBody()
-    @PostMapping("/comment")
+    @PostMapping("/godojo/comment")
     // Update details about a given position
     public CommentaryDTO addComment(
             @RequestHeader("X-User-Info") String user_jwt,
