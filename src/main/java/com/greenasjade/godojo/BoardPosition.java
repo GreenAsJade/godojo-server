@@ -40,12 +40,22 @@ public class BoardPosition {
     @Property("category")
     private PlayCategory category;
     public PlayCategory getCategory() {return category;}
-    public void setCategory(PlayCategory category) {this.category = category;}
+    public void setCategory(PlayCategory category, Long user_id) {
+        if (this.category != category) {
+            this.audits.add(new Audit(this, "category", this.category.toString(), category.toString(), "changed category", user_id));
+            this.category = category;
+        }
+    }
 
     @Property("description")
     private String description;
     public String getDescription() {return description;}
-    public void setDescription(String text) {description = text;}
+    public void setDescription(String text, long user_id) {
+        if (!text.equals(description)) {
+            this.audits.add(new Audit(this, "description", description, text, "changed description", user_id));
+            description = text;
+        }
+    }
 
     @Property("contributor")
     private Long contributor_id;
@@ -72,6 +82,9 @@ public class BoardPosition {
     public JosekiSource source;
     public Long getJosekiSourceId() {return this.source != null ? this.source.id : 0;}
 
+    @Relationship("AUDIT")
+    public ArrayList<Audit> audits;
+
     public BoardPosition() {
         // Empty constructor required as of Neo4j API 2.0.5
     }
@@ -89,9 +102,12 @@ public class BoardPosition {
         this.description = "";
         this.children = new ArrayList<>();
         this.commentary = new ArrayList<>();
-        log.info(placement + " created with " + commentary.size() + " comments");
+        log.info(placement + " created by user " + user_id.toString());
 
         this.source = null;
+
+        this.audits = new ArrayList<>();
+        this.audits.add(new Audit(this, "", "", "", "Created", user_id));
     }
 
     public void addComment(String text, Long user_id) {
@@ -103,11 +119,15 @@ public class BoardPosition {
     }
 
     public String toString() {
+        return this.play;
+    }
+
+    public String getInfo() {
         String p = this.parent==null ? "." : this.parent.getPlacement();
 
         String i = this.id==null ? "tbd" : this.id.toString();
 
-        String c = this.commentary == null ? "" : this.commentary.toString();
+        String c = this.commentary==null ? "" : this.commentary.toString();
 
         String u = this.contributor_id.toString();
 
@@ -129,7 +149,7 @@ public class BoardPosition {
             this.children = new ArrayList<>();
         }
 
-        // Take care not to add a new child if we already have one at this placement
+        // Take care not to add a new child if we already have one at this placement:
         // must only have one child of each placement
 
         BoardPosition existing = this.children.stream()
@@ -139,15 +159,20 @@ public class BoardPosition {
         if (existing == null) {
             BoardPosition child = new BoardPosition(this.play, placement, category, user_id);
 
+            String previous_children = this.children.toString();
+
             children.add(child);
             child.setParent(this);
             child.seq = this.children.size();
             log.info("Added move: " + placement);
             log.info("now this node: " + this.toString());
+            this.audits.add(new Audit(this, "children", previous_children, this.children.toString(), "Added child", user_id));
             return child;
         }
         else {
             log.warn("Attempted to add an existing position.  Updating instead. " + placement);
+            this.audits.add(new Audit(this, "category", existing.category.toString(), category.toString(), "changed category", user_id));
+
             existing.category = category;
             return existing;
         }

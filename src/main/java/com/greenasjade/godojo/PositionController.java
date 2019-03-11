@@ -155,16 +155,14 @@ public class PositionController {
             return null;
         }
 
-        Integer user_id = jwtClaims.get("user_id").asInt();
-
-        // TBD add audit of change
+        Long user_id = jwtClaims.get("user_id").asLong();
 
         BoardPosition the_position = this.bp_store.findById(Long.valueOf(id)).orElse(null);
 
-        the_position.setDescription(position_details.getDescription());
+        the_position.setDescription(position_details.getDescription(), user_id);
 
         if (position_details.getCategory() != null) {
-            the_position.setCategory(position_details.getCategory());
+            the_position.setCategory(position_details.getCategory(), user_id);
         }
 
         if (position_details.joseki_source_id != null) {

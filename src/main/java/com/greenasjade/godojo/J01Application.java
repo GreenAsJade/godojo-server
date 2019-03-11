@@ -33,7 +33,7 @@ public class J01Application {
             }
             rootNode = store_by_bp.findByPlay(".root");
 
-            log.info(rootNode.toString());
+            log.info(rootNode.getInfo());
         };
     }
 
@@ -50,11 +50,11 @@ public class J01Application {
 
         BoardPosition rootNode = new BoardPosition("", "root", GajId);
         rootNode.addComment("test comment", GajId);
-        rootNode.setDescription("## Empty Board\n\nInfinite possibilities await!");
+        rootNode.setDescription("## Empty Board\n\nInfinite possibilities await!", GajId);
 
         store_by_bp.save(rootNode);
 
-        log.info("After save of root: " + rootNode.toString() );
+        log.info("After save of root: " + rootNode.getInfo() );
 
         Long root_id = rootNode.id;
 
@@ -63,30 +63,30 @@ public class J01Application {
         child = rootNode.addMove("Q16", GajId);
         child = rootNode.addMove("R16", GajId);
         child = rootNode.addMove("R17", GajId);
-        child.setDescription("## San San");
+        child.setDescription("## San San", GajId);
 
         child = rootNode.addMove("Q15", PlayCategory.GOOD, GajId);
         child = rootNode.addMove("R15", PlayCategory.GOOD, GajId);
 
         child = rootNode.addMove("K10", PlayCategory.GOOD, GajId);
-        child.setDescription("## Tengen\nDwyrin's favourite!");
+        child.setDescription("## Tengen\nDwyrin's favourite!", GajId);
 
         child = rootNode.addMove("S18", PlayCategory.MISTAKE, GajId);
 
         store_by_bp.save(rootNode);
 
-        log.info("After save of root with children: " + rootNode.toString() );
+        log.info("After save of root with children: " + rootNode.getInfo() );
 
         /* Figuring out how/when/what Neo4j loads */
         log.info("Loading and looking at child moves...");
 
         rootNode = store_by_bp.findByPlay(".root");
-        log.info("reloaded root: " + rootNode.toString());
+        log.info("reloaded root: " + rootNode.getInfo());
 
         /* Test reload of a position */
 
         rootNode = store_by_bp.findById(root_id).orElse(null);
-        log.info("After findById: " + rootNode.toString() );
+        log.info("After findById: " + rootNode.getInfo() );
 
         log.info("Adding second level moves to a node...");
 
