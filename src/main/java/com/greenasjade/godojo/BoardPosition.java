@@ -42,7 +42,7 @@ public class BoardPosition {
     public PlayCategory getCategory() {return category;}
     public void setCategory(PlayCategory category, Long user_id) {
         if (this.category != category) {
-            this.audits.add(new Audit(this, "category", this.category.toString(), category.toString(), "changed category", user_id));
+            this.audits.add(new Audit(this, "category", this.category.toString(), category.toString(), "Changed category to " + category.toString(), user_id));
             this.category = category;
         }
     }
@@ -52,7 +52,7 @@ public class BoardPosition {
     public String getDescription() {return description;}
     public void setDescription(String text, long user_id) {
         if (!text.equals(description)) {
-            this.audits.add(new Audit(this, "description", description, text, "changed description", user_id));
+            this.audits.add(new Audit(this, "description", description, text, "Changed description", user_id));
             description = text;
         }
     }
@@ -166,14 +166,12 @@ public class BoardPosition {
             child.seq = this.children.size();
             log.info("Added move: " + placement);
             log.info("now this node: " + this.toString());
-            this.audits.add(new Audit(this, "children", previous_children, this.children.toString(), "Added child", user_id));
+            this.audits.add(new Audit(this, "children", previous_children, this.children.toString(), "Added child " + placement.toString()  , user_id));
             return child;
         }
         else {
             log.warn("Attempted to add an existing position.  Updating instead. " + placement);
-            this.audits.add(new Audit(this, "category", existing.category.toString(), category.toString(), "changed category", user_id));
-
-            existing.category = category;
+            existing.setCategory(category, user_id);
             return existing;
         }
     }
