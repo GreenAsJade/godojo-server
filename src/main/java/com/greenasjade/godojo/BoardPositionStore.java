@@ -17,4 +17,8 @@ public interface BoardPositionStore extends Neo4jRepository<BoardPosition, Long>
 
 	@Query("MATCH (n) DETACH DELETE n")
 	void deleteEverythingInDB();  //  NOTE THAT THIS DELETES *EVERYTHING* NOT JUST BOARD POSITIONS
+
+	@Query("MATCH (a:Audit)-[ref:AUDIT]->(p:BoardPosition) RETURN a, ref, p")
+	ArrayList<Audit> getAudits();
+
 }

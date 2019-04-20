@@ -57,6 +57,9 @@ public class Audit {
     }
 
     public String toString() {
+        if (this.ref == null) {
+            log.info("** Audit has null ref");
+        }
         if (this.field != "") {
             return String.format("User %s changed %s from %s to %s, %s",
                     this.user_id.toString(),
