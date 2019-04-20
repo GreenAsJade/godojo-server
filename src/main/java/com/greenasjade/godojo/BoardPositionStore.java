@@ -2,13 +2,15 @@ package com.greenasjade.godojo;
 
 import java.util.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.*;
-//import org.springframework.data.neo4j.annotation.Query;
-//import org.springframework.data.repository.query.Param;
+
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 
-public interface BoardPositionStore extends Neo4jRepository<BoardPosition, Long> {
+public interface BoardPositionStore extends PagingAndSortingRepository<BoardPosition, Long> {
 	BoardPosition findByPlay(String play);
 	Optional<BoardPosition> findById(Long id);
 	
@@ -18,7 +20,9 @@ public interface BoardPositionStore extends Neo4jRepository<BoardPosition, Long>
 	@Query("MATCH (n) DETACH DELETE n")
 	void deleteEverythingInDB();  //  NOTE THAT THIS DELETES *EVERYTHING* NOT JUST BOARD POSITIONS
 
-	@Query("MATCH (a:Audit)-[ref:AUDIT]->(p:BoardPosition) RETURN a, ref, p")
-	ArrayList<Audit> getAudits();
+	@Query(
+			value="MATCH (a:Audit)-[ref:AUDIT]->(p:BoardPosition) RETURN a, ref, p",
+			countQuery="MATCH (a:Audit)-[ref:AUDIT]->(p:BoardPosition) RETURN count(a)")
+	Page<Audit> getAudits(PageRequest page);
 
 }
