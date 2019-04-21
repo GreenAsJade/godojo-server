@@ -3,6 +3,10 @@ package com.greenasjade.godojo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -51,13 +55,11 @@ public class AuditsController {
     @ResponseBody()
     @GetMapping("/godojo/changes" )
     // Return recent change information
-    public ChangesDTO changes() {
+    public Page<Audit> changes(Pageable pageable) {
 
         log.info("Change log request");
 
-        ChangesDTO changes = new ChangesDTO(bp_store.getAudits());
-
-        return changes;
+        return bp_store.getAudits(pageable);
     }
 
 }

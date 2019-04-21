@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.*;
 
@@ -23,6 +24,6 @@ public interface BoardPositionStore extends PagingAndSortingRepository<BoardPosi
 	@Query(
 			value="MATCH (a:Audit)-[ref:AUDIT]->(p:BoardPosition) RETURN a, ref, p",
 			countQuery="MATCH (a:Audit)-[ref:AUDIT]->(p:BoardPosition) RETURN count(a)")
-	Page<Audit> getAudits(PageRequest page);
+	Page<Audit> getAudits(Pageable pageable);
 
 }
