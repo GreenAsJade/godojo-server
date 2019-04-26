@@ -27,7 +27,7 @@ public class AuditsController {
     @CrossOrigin()
     @ResponseBody()
     @GetMapping("/godojo/audits" )
-    // Return all the information needed to display audit log for a position
+    // Return all the information needed to display audit log for a single position
     public AuditLogDTO audits(
             @RequestParam(value = "id", required = false, defaultValue = "root") String id) {
 
@@ -55,11 +55,11 @@ public class AuditsController {
     @ResponseBody()
     @GetMapping("/godojo/changes" )
     // Return recent change information
-    public Page<Audit> changes(Pageable pageable) {
+    public Page<AuditDTO> changes(Pageable pageable) {
 
         log.info("Change log request");
 
-        return bp_store.getAudits(pageable);
+        return bp_store.getAudits(pageable).map(audit -> new AuditDTO(audit));
     }
 
 }

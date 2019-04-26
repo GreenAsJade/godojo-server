@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+// This is a DTO carrying information about a change to a position with all required context.
+
 @Data
 public class AuditDTO {
 

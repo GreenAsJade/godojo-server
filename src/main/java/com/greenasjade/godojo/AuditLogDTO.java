@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
+// This is a DTO for the audit information about a single position, designed to be
+// displayed in the context of that position already established.
+// So it doesn't carry information about the ref of each audit entry.
+
 @Data
 public class AuditLogDTO {
 
