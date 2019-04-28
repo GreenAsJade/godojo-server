@@ -11,6 +11,9 @@ import java.time.Instant;
 public class Audit {
 
     @Transient
+    private static Long audit_count = 0L;
+
+    @Transient
     private static final Logger log = LoggerFactory.getLogger(Audit.class);
 
     @Id @GeneratedValue Long id;
@@ -39,6 +42,11 @@ public class Audit {
     private String new_value;
     public String getNewValue() {return new_value;}
 
+    @Property
+    // a number guaranteed to be in order of audit creation, used implicitly in pageable audit query
+    private Long seq;
+    public Long getSeq() {return seq;}
+
     @Relationship("AUDIT")
     BoardPosition ref;
 
@@ -54,6 +62,8 @@ public class Audit {
         this.new_value = to;
         this.comment = comment;
         this.date = Instant.now();
+        this.seq = audit_count;
+        audit_count = audit_count + 1;
     }
 
     public String toString() {
