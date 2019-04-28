@@ -22,7 +22,7 @@ public interface BoardPositionStore extends PagingAndSortingRepository<BoardPosi
     void deleteEverythingInDB();  //  NOTE THAT THIS DELETES *EVERYTHING* NOT JUST BOARD POSITIONS
 
     @Query(
-            value="MATCH (a:Audit)-[ref:AUDIT]->(p:BoardPosition) RETURN a, ref, p",
+            value="MATCH (a:Audit)-[ref:AUDIT]->(p:BoardPosition) RETURN a, ref, p ORDER BY a.seq DESC",
             countQuery="MATCH (a:Audit)-[ref:AUDIT]->(p:BoardPosition) RETURN count(a)")
     Page<Audit> getAudits(Pageable pageable);
 
