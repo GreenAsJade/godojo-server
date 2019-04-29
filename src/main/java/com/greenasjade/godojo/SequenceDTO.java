@@ -8,7 +8,7 @@ import lombok.Data;
 public class SequenceDTO {
 	
     private final String sequence;
-    
+
     private final PlayCategory category;
 
     public final Long joseki_source_id;
