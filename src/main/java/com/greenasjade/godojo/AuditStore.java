@@ -12,7 +12,7 @@ public interface AuditStore extends PagingAndSortingRepository<Audit, Long> {
     Optional<Audit> findById(Long id);
 
     // Audits for a node sorted in forward time order for individual node history display
-    @Query("MATCH (a:Audit) -[ref:AUDIT]->(p:BoardPosition) WHERE id(p)={node_id} RETURN a ORDER BY a.seq ASC")
+    @Query("MATCH (a:Audit) -[ref:AUDIT]->(p:BoardPosition) WHERE id(p)={node_id} RETURN a,ref,p ORDER BY a.seq ASC")
     ArrayList<Audit> findByNodeId(@Param("node_id") Long node_id);
 
     // Utility to find root

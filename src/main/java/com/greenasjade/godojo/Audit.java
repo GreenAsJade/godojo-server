@@ -6,6 +6,13 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 
+enum ChangeType {
+    CREATED,
+    CATEGORY_CHANGE,
+    DESCRIPTION_CHANGE,
+    SOURCE_CHANGE,
+    ADD_CHILD
+}
 
 @NodeEntity
 public class Audit {
@@ -25,6 +32,10 @@ public class Audit {
     @Property
     private Long user_id;
     public Long getUserId() {return user_id;}
+
+    @Property
+    private ChangeType type;
+    public ChangeType getType() {return type;}
 
     @Property
     private String comment;
@@ -54,12 +65,13 @@ public class Audit {
         // Empty constructor required as of Neo4j API 2.0.5
     };
 
-    public Audit(BoardPosition ref, String field, String from, String to, String comment, Long user_id) {
+    public Audit(BoardPosition ref, String field, String from, String to, ChangeType type, String comment, Long user_id) {
         this.ref = ref;
         this.user_id = user_id;
         this.field = field;
         this.original_value = from;
         this.new_value = to;
+        this.type = type;
         this.comment = comment;
         this.date = Instant.now();
         this.seq = audit_count;
@@ -68,9 +80,10 @@ public class Audit {
 
     public String toString() {
         if (this.ref == null) {
+            // Note this can legitimately happen if this Audit was not fully loaded from Neo4j
             log.info("** Audit has null ref");
         }
-        if (this.field != "") {
+        if (!this.field.equals("")) {
             return String.format("User %s changed %s from %s to %s, %s",
                     this.user_id.toString(),
                     this.field,

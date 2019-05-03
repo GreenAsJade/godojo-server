@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class RevertRequestDTO {
 
-    private final Long audit_id;
+    final Long audit_id;
 
     @JsonCreator
     public RevertRequestDTO(

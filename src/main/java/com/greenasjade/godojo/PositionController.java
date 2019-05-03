@@ -6,20 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Value;
-
-import org.springframework.security.jwt.Jwt;
-import org.springframework.security.jwt.JwtHelper;
-import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 public class PositionController {
-
-	@Value("${godojo.http.ogs-key}")
-	private String ogs_key;
 	  
     private static final Logger log = LoggerFactory.getLogger(PositionController.class);
 
@@ -70,22 +62,11 @@ public class PositionController {
             @RequestHeader("X-User-Info") String user_jwt,
             @RequestBody SequenceDTO sequence_details) {
 
-        // Grab the user-id off the jwt to store as the "contributor"
-        // (throw and die if it's not valid)
-    	Jwt token = JwtHelper.decodeAndVerify(user_jwt, new RsaVerifier(ogs_key));
+        User the_user = new User(user_jwt);
 
-        String claims = token.getClaims();
+        Long user_id = the_user.getId();
 
-        JsonNode jwtClaims = null;
-        try {
-            jwtClaims = new ObjectMapper().readTree(claims);
-        } catch (java.io.IOException e) {
-            return null;
-        }
-
-        // log.info("Claims: " + jwtClaims.toString());
-
-        Long user_id = jwtClaims.get("user_id").asLong();
+        // TBD *** check permissions of user to do this!
 
         log.info("Saving sequence for user: " + user_id.toString());
 
@@ -142,20 +123,11 @@ public class PositionController {
             @RequestParam(value="id", required=true) String id,
             @RequestBody PositionDTO position_details) {
 
-        // Grab the user-id off the jwt to store as the "editor"
-        // (throw and die if it's not valid)
-        Jwt token = JwtHelper.decodeAndVerify(user_jwt, new RsaVerifier(ogs_key));
+        User the_user = new User(user_jwt);
 
-        String claims = token.getClaims();
+        Long user_id = the_user.getId();
 
-        JsonNode jwtClaims = null;
-        try {
-            jwtClaims = new ObjectMapper().readTree(claims);
-        } catch (java.io.IOException e) {
-            return null;
-        }
-
-        Long user_id = jwtClaims.get("user_id").asLong();
+        // ** TBD Check permissions to do this!
 
         BoardPosition the_position = this.bp_store.findById(Long.valueOf(id)).orElse(null);
 

@@ -99,6 +99,10 @@ public class J01Application {
         rootNode.addComment("second comment", GajId);
         store_by_bp.save(rootNode);
 
+        // Test changing a category
+        child.setCategory(PlayCategory.QUESTION, GajId);
+        store_by_bp.save(child);
+
         log.info("...DB reset done");
     }
 }
