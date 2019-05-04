@@ -14,14 +14,14 @@ public class AuditsController {
 
     private static final Logger log = LoggerFactory.getLogger(AuditsController.class);
 
-    private AuditStore audit_store;
-    private BoardPositionStore bp_store;
+    private Audits audit_store;
+    private BoardPositions bp_access;
 
     public AuditsController(
-            AuditStore audit_store,
-            BoardPositionStore bp_store) {
+            Audits audit_store,
+            BoardPositionsNative bp_access) {
         this.audit_store = audit_store;
-        this.bp_store = bp_store;
+        this.bp_access = new BoardPositions(bp_access);
     }
 
     @CrossOrigin()
@@ -54,7 +54,7 @@ public class AuditsController {
         if (target.ref.getCategory().toString().equals(target.getNewValue())) {
             log.info("proceeding with revert on " + target.ref);
             target.ref.setCategory(PlayCategory.valueOf(target.getOriginalValue()), user_id);
-            this.bp_store.save(target.ref);
+            this.bp_access.save(target.ref);
             return "done.";
         }
         else {
@@ -66,7 +66,7 @@ public class AuditsController {
         if (target.ref.getDescription().equals(target.getNewValue())) {
             log.info("proceeding with revert on " + target.ref);
             target.ref.setDescription(target.getOriginalValue(), user_id);
-            this.bp_store.save(target.ref);
+            this.bp_access.save(target.ref);
             return "done.";
         }
         else {
@@ -83,7 +83,7 @@ public class AuditsController {
         if (target_child.children != null) {
             for (BoardPosition grand_child : target_child.children) {
                 // get the new child fully loaded from neo
-                grand_child = bp_store.findById(grand_child.id).orElse(null);
+                grand_child = bp_access.findById(grand_child.id);
                 String grand_child_removal_result = RemoveAddedPosition(grand_child, created_by_id);
                 if (!grand_child_removal_result.equals("done.")) {
                     // couldn't remove the grand child, so we can't proceed to remove this node
@@ -109,7 +109,7 @@ public class AuditsController {
         log.info("target child " + target.getNewValue());
         log.info("created by " + target.getUserId().toString());
 
-        BoardPosition target_child = bp_store.findByPlay(target.getNewValue());
+        BoardPosition target_child = bp_access.findActiveByPlay(target.getNewValue());
 
         return RemoveAddedPosition(target_child, target.getUserId());
     }
@@ -141,24 +141,26 @@ public class AuditsController {
         /* TBD make sure user is authorised before proceeding.
          */
 
-        Audit target = audit_store.findById(request.audit_id).orElse(null);
+        Audit target_audit = audit_store.findById(request.audit_id).orElse(null);
 
-        if (target == null) {
+        if (target_audit == null) {
             return new RevertResultDTO("invalid audit!");
         }
 
-        log.info("which is " + target + " pointing to " + target.ref);
+        log.info("which is " + target_audit + " pointing to " + target_audit.ref);
 
         // load all the child info of the board position (we need the audits array)
-        target.ref = bp_store.findById(target.ref.id).orElse(null);
+        target_audit.ref = bp_access.findById(target_audit.ref.id);
+
+        log.info("After load, the target node has children " + target_audit.ref.children);
 
         String result;
 
-        switch (target.getType()) {
-            case CREATED: result = CheckAddChildReversionDone(target); break;
-            case ADD_CHILD: result = RevertAddChild(target, user_id); break;
-            case CATEGORY_CHANGE: result = RevertCategoryChange(target, user_id); break;
-            case DESCRIPTION_CHANGE: result = RevertDescriptionChange(target, user_id); break;
+        switch (target_audit.getType()) {
+            case CREATED: result = CheckAddChildReversionDone(target_audit); break;
+            case ADD_CHILD: result = RevertAddChild(target_audit, user_id); break;
+            case CATEGORY_CHANGE: result = RevertCategoryChange(target_audit, user_id); break;
+            case DESCRIPTION_CHANGE: result = RevertDescriptionChange(target_audit, user_id); break;
             case SOURCE_CHANGE: result = "not done: reverting source change not supported"; break;
             default: result = "not done: unrecognised audit type in reversion request";
         }

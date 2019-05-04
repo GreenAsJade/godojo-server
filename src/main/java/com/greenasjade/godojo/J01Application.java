@@ -8,7 +8,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
-//import org.springframework.beans.factory.annotation.Value;
 
 @SpringBootApplication
 public class J01Application {
@@ -21,8 +20,8 @@ public class J01Application {
 
     @Bean
     public CommandLineRunner initialise (
-            BoardPositionStore store_by_bp,
-            JosekiSourceStore store_by_js
+            BoardPositionsNative store_by_bp,
+            JosekiSources store_by_js
     ) {
         return args -> {
             log.info("Initialising...");
@@ -38,8 +37,8 @@ public class J01Application {
     }
 
     void resetDB(
-            BoardPositionStore store_by_bp,
-            JosekiSourceStore store_by_js) {
+            BoardPositionsNative store_by_bp,
+            JosekiSources store_by_js) {
         log.info("resetting DB...");
 
         store_by_bp.deleteEverythingInDB();

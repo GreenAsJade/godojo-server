@@ -10,10 +10,6 @@ import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 @RestController
 public class JosekiSourceController {
 
@@ -22,10 +18,10 @@ public class JosekiSourceController {
 
     private static final Logger log = LoggerFactory.getLogger(JosekiSourceController.class);
 
-    private JosekiSourceStore store;
+    private JosekiSources store;
 
     public JosekiSourceController(
-            JosekiSourceStore store) {
+            JosekiSources store) {
         this.store = store;
     }
 

@@ -7,22 +7,20 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.web.bind.annotation.*;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 public class PositionController {
 	  
     private static final Logger log = LoggerFactory.getLogger(PositionController.class);
 
-    private BoardPositionStore bp_store;
-    private JosekiSourceStore js_store;
+    private BoardPositions bp_access;
+    private JosekiSources js_access;
 
     public PositionController(
-            BoardPositionStore bp_store,
-            JosekiSourceStore js_store) {
-        this.bp_store = bp_store;
-        this.js_store = js_store;
+            BoardPositionsNative bp_native_access,
+            JosekiSources js_access) {
+        this.bp_access = new BoardPositions(bp_native_access);
+        this.js_access = js_access;
     }
 
     @CrossOrigin()
@@ -37,17 +35,17 @@ public class PositionController {
         log.info("Position request for: " + id);
 
         if (id.equals("root")) {
-            board_position = this.bp_store.findByPlay(".root");
+            board_position = this.bp_access.findByPlay(".root");
             id = board_position.id.toString();
         }
         else {
-            board_position = this.bp_store.findById(Long.valueOf(id)).orElse(null);
+            board_position = this.bp_access.findById(Long.valueOf(id));
         }
 
         log.info("which is: " + board_position.toString());
         log.info("with comments " + board_position.getCommentCount().toString());
 
-        PositionDTO position = new PositionDTO(board_position, bp_store);
+        PositionDTO position = new PositionDTO(board_position, bp_access);
 
         return position;
     }
@@ -56,7 +54,7 @@ public class PositionController {
     @ResponseBody()
     @PostMapping("/godojo/positions")
     // Add a sequence of positions (creating new ones only as necessary)
-    // The sequence is assumed to be based at the root (empty board)
+    // The supplied sequence is assumed to be based at the root (empty board)
     // The incoming move DTO describes the category for all new positions/moves that have to be created
     public PositionDTO createPositions(
             @RequestHeader("X-User-Info") String user_jwt,
@@ -68,18 +66,20 @@ public class PositionController {
 
         // TBD *** check permissions of user to do this!
 
-        log.info("Saving sequence for user: " + user_id.toString());
-
-        // Now, first we have to find where the first new move to be created is in the sequence they gave us
+        log.info("Saving new move sequence from user: " + user_id.toString());
                 
         List<String> placements = new ArrayList<>(Arrays.asList(sequence_details.getSequence().split(",")));
 
         log.info("Adding move from sequence: " + placements.toString());
 
-        BoardPosition current_position = bp_store.findByPlay(".root");
+        // Now, first we have to find where the first new move to be created is, in the sequence they gave us
+        // So we start from "root" and see if each move in the sequence exists...
+
+        BoardPosition current_position = bp_access.findActiveByPlay(".root");
+
         String next_placement = placements.remove(0);
     	String next_play = ".root." + next_placement;
-    	BoardPosition next_position = bp_store.findByPlay(next_play);
+    	BoardPosition next_position = bp_access.findActiveByPlay(next_play);
     	
         while (next_position != null && placements.size() > 0) {
         	log.info("found existing next position as: " + next_position);
@@ -87,7 +87,7 @@ public class PositionController {
         	next_placement = placements.remove(0);
         	next_play = next_play +  '.' + next_placement;
         	log.info("looking for play: " + next_play);
-        	next_position = bp_store.findByPlay(next_play);
+        	next_position = bp_access.findActiveByPlay(next_play);
         }        	
             
         // Now "current_position" is an existing position, and next_placement takes us to the first new one to be created
@@ -96,7 +96,7 @@ public class PositionController {
         log.info("Extending at: " + current_position + " with " + next_placement);
         
         PlayCategory new_category = sequence_details.getCategory();
-        JosekiSource new_source = js_store.findById(sequence_details.joseki_source_id).orElse(null);
+        JosekiSource new_source = js_access.findById(sequence_details.joseki_source_id).orElse(null);
 
     	next_position = current_position.addMove(next_placement, new_category, user_id);
         next_position.source = new_source;
@@ -108,7 +108,7 @@ public class PositionController {
             next_position.source = new_source;
         }
        
-        this.bp_store.save(next_position);
+        this.bp_access.save(next_position);
 
         // Finally, return the info for the last position created.
         return this.position(next_position.id.toString());
@@ -120,7 +120,7 @@ public class PositionController {
     // Update details about a given position
     public PositionDTO updatePosition(
             @RequestHeader("X-User-Info") String user_jwt,
-            @RequestParam(value="id", required=true) String id,
+            @RequestParam(value="id") String id,
             @RequestBody PositionDTO position_details) {
 
         User the_user = new User(user_jwt);
@@ -129,7 +129,7 @@ public class PositionController {
 
         // ** TBD Check permissions to do this!
 
-        BoardPosition the_position = this.bp_store.findById(Long.valueOf(id)).orElse(null);
+        BoardPosition the_position = this.bp_access.findById(Long.valueOf(id));
 
         the_position.setDescription(position_details.getDescription(), user_id);
 
@@ -138,10 +138,10 @@ public class PositionController {
         }
 
         if (position_details.joseki_source_id != null) {
-            the_position.source = js_store.findById(position_details.joseki_source_id).orElse(null);
+            the_position.source = js_access.findById(position_details.joseki_source_id).orElse(null);
         }
 
-        this.bp_store.save(the_position);
+        this.bp_access.save(the_position);
 
         return this.position(id);
     }

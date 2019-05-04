@@ -49,7 +49,7 @@ public class PositionDTO {
     }
 
     // Outbound position information
-    public PositionDTO(BoardPosition position, BoardPositionStore bp_store) {
+    public PositionDTO(BoardPosition position, BoardPositions bp_access) {
         description = position.getDescription();
         category = position.getCategory();
         placement = position.getPlacement();
@@ -59,7 +59,7 @@ public class PositionDTO {
         comment_count = position.getCommentCount();
 
         // The list of next moves from this position - have to get that from the DB
-        List<BoardPosition> next_move_list = bp_store.findByParentId(position.id);
+        List<BoardPosition> next_move_list = bp_access.findByParentId(position.id);
 
         next_moves = new ArrayList<>();
         if (next_move_list != null) {

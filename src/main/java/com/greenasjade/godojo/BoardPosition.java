@@ -159,7 +159,7 @@ public class BoardPosition {
         if (existing != null) {
             // Really this shouldn't be happening: we shouldn't be trying to add a new placement when there's already one
             // But behave as best we can in this case.
-            log.warn("Attempted to add an existing position.  Updating instead. " + placement);
+            log.warn("addMove attempted to add an existing position.  Updating instead. " + placement);
             existing.setCategory(category, user_id);
             return existing;
         } else {

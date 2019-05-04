@@ -8,7 +8,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import java.util.Optional;
 import java.util.ArrayList;
 
-public interface AuditStore extends PagingAndSortingRepository<Audit, Long> {
+public interface Audits extends PagingAndSortingRepository<Audit, Long> {
     Optional<Audit> findById(Long id);
 
     // Audits for a node sorted in forward time order for individual node history display

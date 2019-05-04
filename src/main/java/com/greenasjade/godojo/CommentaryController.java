@@ -19,11 +19,11 @@ public class CommentaryController {
 
     private static final Logger log = LoggerFactory.getLogger(CommentaryController.class);
 
-    private BoardPositionStore bp_store;
+    private BoardPositions bp_access;
 
     public CommentaryController(
-            BoardPositionStore bp_store) {
-        this.bp_store = bp_store;
+            BoardPositionsNative bp_access) {
+        this.bp_access = new BoardPositions(bp_access);
     }
 
     @CrossOrigin()
@@ -38,11 +38,11 @@ public class CommentaryController {
         log.info("Commentary request for: " + id);
 
         if (id.equals("root")) {
-            board_position = this.bp_store.findByPlay(".root");
+            board_position = this.bp_access.findByPlay(".root");
             id = board_position.id.toString();
         }
         else {
-            board_position = this.bp_store.findById(Long.valueOf(id)).orElse(null);
+            board_position = this.bp_access.findById(Long.valueOf(id));
         }
 
         log.info("which is: " + board_position.toString());
@@ -78,11 +78,11 @@ public class CommentaryController {
 
         Long user_id = jwtClaims.get("user_id").asLong();
 
-        BoardPosition the_position = this.bp_store.findById(Long.valueOf(id)).orElse(null);
+        BoardPosition the_position = this.bp_access.findById(Long.valueOf(id));
 
         the_position.addComment(comment, user_id);
 
-        this.bp_store.save(the_position);
+        this.bp_access.save(the_position);
 
         return new CommentaryDTO(the_position);
     }
