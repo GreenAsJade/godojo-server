@@ -83,13 +83,18 @@ public class AuditsController {
 
         bp_access.removeParent(target.id);
 
-        target.audits.add(new Audit(target, ChangeType.DEACTIVATE, losing_parent.id.toString(),"", "Removed", user_id));
-        bp_access.save(target);
+        // We audit the parent first, so that when reversing the sequence the child DEACTIVATE is the one that is done first,
+        // so we don't have to reverse a REMOVE_CHILD.  Reversing child DEACTIVATE is easier.
 
+        // To be honest, I don't understand why we don't have to explicitly load these,
+        // so it won't surprise me if at some point they appear empty and needing loading here.
         log.info("losing parent audits: " + losing_parent + " "  + losing_parent.id + " " + losing_parent.audits);
 
-        losing_parent.audits.add(new Audit(losing_parent, ChangeType.REMOVE_CHILD, "", "", "Removed " + target.getPlay(), user_id));
+        losing_parent.audits.add(new Audit(losing_parent, ChangeType.REMOVE_CHILD, target.id.toString(), "", "Removed child " + target.getPlacement(), user_id));
         bp_access.save(losing_parent);
+
+        target.audits.add(new Audit(target, ChangeType.DEACTIVATE, losing_parent.id.toString(),"", "Removed (deactivated)", user_id));
+        bp_access.save(target);
     }
 
     private String RemoveAddedPosition(BoardPosition target_child, BoardPosition from, Long created_by_id, Long user_id) {
@@ -129,25 +134,62 @@ public class AuditsController {
         log.info("target child " + target.getNewValue());
         log.info("created by " + target.getUserId().toString());
 
-        // We need these two nodes fully loaded from neo (for audit etc)
+        // We need the target and it's parent fully loaded from neo (for audit etc)
+
         BoardPosition target_child = bp_access.findActiveByPlay(target.getNewValue());
+
+        if (target_child == null) {
+            return "not done.  It looks like this child is already removed.";
+        }
+
+        if (target_child.getPlay().equals(".root")) {
+            return "You can't undo the empty board, silly!";
+        }
+
         BoardPosition targets_parent = bp_access.findById(target_child.parent.id);
 
-        String result = RemoveAddedPosition(target_child, targets_parent, target.getUserId(), user_id);
-
-        bp_access.save(targets_parent);
-        return result;
+        return RemoveAddedPosition(target_child, targets_parent, target.getUserId(), user_id);
     }
 
-    private String CheckAddChildReversionDone(Audit target) {
+    private String RevertDeactivate(Audit target, Long user_id) {
+        Long target_parent_id = Long.parseLong(target.getOriginalValue());
+        BoardPosition target_parent = bp_access.findById(target_parent_id);
+
+        if (target_parent.parent == null) {
+            return "can't re-activate " + target.ref.getPlacement() + " on to " + target_parent + "because that node is not active";
+        }
+
+        target.ref.parent = target_parent;
+        target.ref.audits.add(new Audit(target.ref, ChangeType.REACTIVATE, "Reactivated onto " + target_parent.getPlay(), user_id));
+        target_parent.audits.add(new Audit(target_parent, ChangeType.REACTIVATE, "Reactivated child " + target.ref.getPlacement(), user_id));
+
+        bp_access.save(target.ref);
+
+        return "done.";
+    }
+
+    private String CheckNodeCreationReversionDone(Audit target) {
         // When we are asked to revert a "CREATE" audit, we simply check that the
         // previous required "ADD_CHILD" reversion was done, which will have taken care of removing the node
 
-        if (target.ref == null) {
-            return "checks OK: the node does not exist";
+        log.info("Checking add child reversal for " + target);
+
+        if (target.ref.parent == null) {
+            return "checks OK: the node does not exist or is not active";
         }
         else {
-            return "not done: the node still exists, you need to revert the 'ADD_CHILD' for this node";
+            return "not done: the node still is still active, you need to revert the 'ADD_CHILD' that added this node";
+        }
+    }
+
+    private String CheckDeactivateReversionDone(Audit target) {
+        log.info("Checking deactivation reversal done for target");
+
+        if (bp_access.findById(Long.parseLong(target.getOriginalValue())).parent != null) {
+            return "checks OK: the child node is active";
+        }
+        else {
+            return "not done: the child node seems to be still inactive, you need to revert the DEACTIVATE";
         }
     }
 
@@ -183,13 +225,14 @@ public class AuditsController {
         String result;
 
         switch (target_audit.getType()) {
-            case CREATED: result = CheckAddChildReversionDone(target_audit); break;
+            case CREATED: result = CheckNodeCreationReversionDone(target_audit); break;
             case ADD_CHILD: result = RevertAddChild(target_audit, user_id); break;
             case CATEGORY_CHANGE: result = RevertCategoryChange(target_audit, user_id); break;
             case DESCRIPTION_CHANGE: result = RevertDescriptionChange(target_audit, user_id); break;
             case SOURCE_CHANGE: result = "not done: reverting source change not supported"; break;
-            case DEACTIVATE: result = "not done: reverting deactivate not supported"; break;
-            case REMOVE_CHILD: result = "not done: reverting remove child not supported"; break;
+            case DEACTIVATE: result = RevertDeactivate(target_audit, user_id); break;
+            case REMOVE_CHILD: result = CheckDeactivateReversionDone(target_audit); break;
+            case REACTIVATE: result = "not done, just redo the deactivate instead!"; break;
             default: result = "not done: unrecognised audit type in reversion request";
         }
 

@@ -47,7 +47,6 @@ public class BoardPositions {
     // Note that the results here are by definition active
     List<BoardPosition> findByParentId(Long id) { return bp_access.findByParentId(id); }
 
-
     void removeParent(Long id) {  bp_access.removeParent(id); }
 
     // Database Utility function

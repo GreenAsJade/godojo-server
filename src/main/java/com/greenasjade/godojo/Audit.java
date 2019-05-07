@@ -13,7 +13,8 @@ enum ChangeType {
     SOURCE_CHANGE,
     ADD_CHILD,
     REMOVE_CHILD,
-    DEACTIVATE
+    DEACTIVATE,
+    REACTIVATE
 }
 
 @NodeEntity
@@ -89,6 +90,6 @@ public class Audit {
     }
 
     public String toString() {
-        return String.format("User %s %s: %s", this.user_id.toString(), this.getType(), this.comment);
+        return String.format("User %s %s: (%s -> %s) %s", this.user_id.toString(), this.getType(), this.original_value, this.new_value, this.comment);
     }
 } 

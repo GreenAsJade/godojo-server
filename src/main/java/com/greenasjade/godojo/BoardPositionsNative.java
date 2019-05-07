@@ -17,10 +17,9 @@ public interface BoardPositionsNative extends PagingAndSortingRepository<BoardPo
     // Inactive nodes have no parent.   Except "root" which is defined to be active.
 
     List<BoardPosition> findByPlay(String play);  // There can be more than one due to old deactivated ones.
-
     Optional<BoardPosition> findById(Long id);
 
-    // note: by definition the result is "active", since it has a parent.
+    // note: by definition the result of this is "active", since it has a parent.
     @Query("MATCH (p:BoardPosition)<-[prel:PARENT]-(c:BoardPosition) WHERE id(p)={ParentID} RETURN c, prel ORDER BY c.seq")
     List<BoardPosition> findByParentId(@Param("ParentID") Long id);
 
