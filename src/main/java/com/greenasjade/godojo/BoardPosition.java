@@ -42,7 +42,7 @@ public class BoardPosition {
     public PlayCategory getCategory() {return category;}
     public void setCategory(PlayCategory category, Long user_id) {
         if (this.category != category) {
-            this.audits.add(new Audit(this, "category", this.category.toString(), category.toString(), ChangeType.CATEGORY_CHANGE,"Changed category to " + category.toString(), user_id));
+            this.audits.add(new Audit(this, ChangeType.CATEGORY_CHANGE,  this.category.toString(), category.toString(),"Changed category to " + category.toString(), user_id));
             this.category = category;
         }
     }
@@ -52,7 +52,7 @@ public class BoardPosition {
     public String getDescription() {return description;}
     public void setDescription(String text, long user_id) {
         if (!text.equals(description)) {
-            this.audits.add(new Audit(this, "description", description, text, ChangeType.DESCRIPTION_CHANGE,"Changed description", user_id));
+            this.audits.add(new Audit(this, ChangeType.DESCRIPTION_CHANGE, description, text, "Changed description", user_id));
             description = text;
         }
     }
@@ -107,7 +107,7 @@ public class BoardPosition {
         this.source = null;
 
         this.audits = new ArrayList<>();
-        this.audits.add(new Audit(this, "", "", "", ChangeType.CREATED,"Created", user_id));
+        this.audits.add(new Audit(this, ChangeType.CREATED,"Created", user_id));
     }
 
     public void addComment(String text, Long user_id) {
@@ -163,6 +163,8 @@ public class BoardPosition {
             existing.setCategory(category, user_id);
             return existing;
         } else {
+            // TBD possibly we should check if there is an inactive/deleted node and bring it back
+            // instead of creating a new one in that case.
             BoardPosition child = new BoardPosition(this.play, placement, category, user_id);
 
             String previous_children = this.children.toString();
@@ -172,8 +174,8 @@ public class BoardPosition {
             child.seq = this.children.size();
             log.info("Added move: " + placement);
             log.info("now this node: " + this.toString());
-            this.audits.add(new Audit(this, "children", previous_children, child.getPlay(), ChangeType.ADD_CHILD,"Added child " + placement, user_id));
+            this.audits.add(new Audit(this, ChangeType.ADD_CHILD, previous_children, child.getPlay(),"Added child " + placement, user_id));
             return child;
         }
     }
-} 
+}

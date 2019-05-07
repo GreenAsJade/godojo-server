@@ -5,8 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -74,17 +76,35 @@ public class AuditsController {
         }
     }
 
-    void DeleteBoardPosition(BoardPosition target) {
-        log.info("DELETE " + target.getPlacement());
+    private void DeleteBoardPosition(BoardPosition target, Long user_id) {
+        log.info("'DELETING' " + target.getPlacement());
+
+        BoardPosition losing_parent = target.parent;
+
+        bp_access.removeParent(target.id);
+
+        target.audits.add(new Audit(target, ChangeType.DEACTIVATE, losing_parent.id.toString(),"", "Removed", user_id));
+        bp_access.save(target);
+
+        log.info("losing parent audits: " + losing_parent + " "  + losing_parent.id + " " + losing_parent.audits);
+
+        losing_parent.audits.add(new Audit(losing_parent, ChangeType.REMOVE_CHILD, "", "", "Removed " + target.getPlay(), user_id));
+        bp_access.save(losing_parent);
     }
 
-    private String RemoveAddedPosition(BoardPosition target_child, Long created_by_id) {
-        log.info("RemoveAddedPosition: " + target_child.getPlacement());
+    private String RemoveAddedPosition(BoardPosition target_child, BoardPosition from, Long created_by_id, Long user_id) {
+        log.info("RemoveAddedPosition: " + target_child.getPlacement() + " from " + from);
+        log.info("initial children: " + from.children);
+
         if (target_child.children != null) {
-            for (BoardPosition grand_child : target_child.children) {
-                // get the new child fully loaded from neo
-                grand_child = bp_access.findById(grand_child.id);
-                String grand_child_removal_result = RemoveAddedPosition(grand_child, created_by_id);
+            // Take a copy of the children list, so we can remove children from the actual children list as we go.
+            List<BoardPosition> targets_children = target_child.children;
+            for (BoardPosition grand_child : targets_children) {
+
+                grand_child = bp_access.findById(grand_child.id); // get the new child fully loaded from neo
+
+                String grand_child_removal_result = RemoveAddedPosition(grand_child, target_child, created_by_id, user_id);
+
                 if (!grand_child_removal_result.equals("done.")) {
                     // couldn't remove the grand child, so we can't proceed to remove this node
                     return grand_child_removal_result;
@@ -95,7 +115,7 @@ public class AuditsController {
             log.info("(no children)");
         }
         if (target_child.getContributorId().equals(created_by_id)) {
-            DeleteBoardPosition(target_child);
+            DeleteBoardPosition(target_child, user_id);
             return "done.";
         }
         else {
@@ -109,9 +129,14 @@ public class AuditsController {
         log.info("target child " + target.getNewValue());
         log.info("created by " + target.getUserId().toString());
 
+        // We need these two nodes fully loaded from neo (for audit etc)
         BoardPosition target_child = bp_access.findActiveByPlay(target.getNewValue());
+        BoardPosition targets_parent = bp_access.findById(target_child.parent.id);
 
-        return RemoveAddedPosition(target_child, target.getUserId());
+        String result = RemoveAddedPosition(target_child, targets_parent, target.getUserId(), user_id);
+
+        bp_access.save(targets_parent);
+        return result;
     }
 
     private String CheckAddChildReversionDone(Audit target) {
@@ -126,6 +151,7 @@ public class AuditsController {
         }
     }
 
+    @Transactional
     @CrossOrigin()
     @ResponseBody()
     @PostMapping("/godojo/revert")
@@ -162,6 +188,8 @@ public class AuditsController {
             case CATEGORY_CHANGE: result = RevertCategoryChange(target_audit, user_id); break;
             case DESCRIPTION_CHANGE: result = RevertDescriptionChange(target_audit, user_id); break;
             case SOURCE_CHANGE: result = "not done: reverting source change not supported"; break;
+            case DEACTIVATE: result = "not done: reverting deactivate not supported"; break;
+            case REMOVE_CHILD: result = "not done: reverting remove child not supported"; break;
             default: result = "not done: unrecognised audit type in reversion request";
         }
 

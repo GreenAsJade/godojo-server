@@ -18,6 +18,9 @@ public class J01Application {
         SpringApplication.run(J01Application.class, args);
     }
 
+    private BoardPositions bp_access;
+    private JosekiSources store_by_js;
+
     @Bean
     public CommandLineRunner initialise (
             BoardPositionsNative store_by_bp,
@@ -26,22 +29,24 @@ public class J01Application {
         return args -> {
             log.info("Initialising...");
 
-            BoardPosition rootNode = store_by_bp.findByPlay(".root");
+            this.bp_access = new BoardPositions(store_by_bp);
+            this.store_by_js = store_by_js;
+
+            BoardPosition rootNode = bp_access.findActiveByPlay(".root");
+
             if (true) { //rootNode == null) {
-                resetDB(store_by_bp, store_by_js);
+                resetDB();
             }
-            rootNode = store_by_bp.findByPlay(".root");
+            rootNode = bp_access.findActiveByPlay(".root");
 
             log.info(rootNode.getInfo());
         };
     }
 
-    void resetDB(
-            BoardPositionsNative store_by_bp,
-            JosekiSources store_by_js) {
+    void resetDB() {
         log.info("resetting DB...");
 
-        store_by_bp.deleteEverythingInDB();
+        bp_access.deleteEverythingInDB();
 
         Long GajId = 168L;  // Initial moves came from GreenAsJade!
 
@@ -51,7 +56,7 @@ public class J01Application {
         rootNode.addComment("test comment", GajId);
         rootNode.setDescription("## Empty Board\n\nInfinite possibilities await!", GajId);
 
-        store_by_bp.save(rootNode);
+        bp_access.save(rootNode);
 
         log.info("After save of root: " + rootNode.getInfo() );
 
@@ -72,19 +77,19 @@ public class J01Application {
 
         child = rootNode.addMove("S18", PlayCategory.MISTAKE, GajId);
 
-        store_by_bp.save(rootNode);
+        bp_access.save(rootNode);
 
         log.info("After save of root with children: " + rootNode.getInfo() );
 
         /* Figuring out how/when/what Neo4j loads */
         log.info("Loading and looking at child moves...");
 
-        rootNode = store_by_bp.findByPlay(".root");
+        rootNode = bp_access.findActiveByPlay(".root");
         log.info("reloaded root: " + rootNode.getInfo());
 
         /* Test reload of a position */
 
-        rootNode = store_by_bp.findById(root_id).orElse(null);
+        rootNode = bp_access.findById(root_id);
         log.info("After findById: " + rootNode.getInfo() );
 
         log.info("Adding second level moves to a node...");
@@ -92,15 +97,15 @@ public class J01Application {
         child.addMove("Q16", GajId);
         child.addMove("R16", GajId);
         child.addMove("R17",GajId);
-        store_by_bp.save(child);
+        bp_access.save(child);
 
         // Test adding a comment later
         rootNode.addComment("second comment", GajId);
-        store_by_bp.save(rootNode);
+        bp_access.save(rootNode);
 
         // Test changing a category
         child.setCategory(PlayCategory.QUESTION, GajId);
-        store_by_bp.save(child);
+        bp_access.save(child);
 
         log.info("...DB reset done");
     }

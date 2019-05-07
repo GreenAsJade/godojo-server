@@ -11,7 +11,9 @@ enum ChangeType {
     CATEGORY_CHANGE,
     DESCRIPTION_CHANGE,
     SOURCE_CHANGE,
-    ADD_CHILD
+    ADD_CHILD,
+    REMOVE_CHILD,
+    DEACTIVATE
 }
 
 @NodeEntity
@@ -42,10 +44,6 @@ public class Audit {
     public String getComment() {return comment;}
 
     @Property
-    private String field;
-    public String getField() {return field;}
-
-    @Property
     private String original_value;
     public String getOriginalValue() {return original_value;}
 
@@ -65,10 +63,9 @@ public class Audit {
         // Empty constructor required as of Neo4j API 2.0.5
     };
 
-    public Audit(BoardPosition ref, String field, String from, String to, ChangeType type, String comment, Long user_id) {
+    public Audit(BoardPosition ref, ChangeType type, String from, String to, String comment, Long user_id) {
         this.ref = ref;
         this.user_id = user_id;
-        this.field = field;
         this.original_value = from;
         this.new_value = to;
         this.type = type;
@@ -78,21 +75,20 @@ public class Audit {
         audit_count = audit_count + 1;
     }
 
+
+    public Audit(BoardPosition ref, ChangeType type, String comment, Long user_id) {
+        this.ref = ref;
+        this.user_id = user_id;
+        this.original_value = "";
+        this.new_value = "";
+        this.type = type;
+        this.comment = comment;
+        this.date = Instant.now();
+        this.seq = audit_count;
+        audit_count = audit_count + 1;
+    }
+
     public String toString() {
-        if (this.ref == null) {
-            // Note this can legitimately happen if this Audit was not fully loaded from Neo4j
-            log.info("** Audit has null ref");
-        }
-        if (!this.field.equals("")) {
-            return String.format("User %s changed %s from %s to %s, %s",
-                    this.user_id.toString(),
-                    this.field,
-                    this.original_value,
-                    this.new_value,
-                    this.comment);
-        }
-        else {
-            return String.format("User %s %s", this.user_id.toString(), this.comment);
-        }
+        return String.format("User %s %s: %s", this.user_id.toString(), this.getType(), this.comment);
     }
 } 

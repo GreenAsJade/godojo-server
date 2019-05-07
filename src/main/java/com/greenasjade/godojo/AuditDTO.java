@@ -22,8 +22,6 @@ public class AuditDTO {
 
     private String comment;
 
-    private String field;
-
     private String original_value;
 
     private String new_value;
@@ -37,7 +35,6 @@ public class AuditDTO {
         this.node_id = a.ref.id;
         this.user_id = a.getUserId();
         this.comment = a.getComment();
-        this.field = a.getField();
         this.original_value = a.getOriginalValue();
         this.new_value = a.getNewValue();
     }

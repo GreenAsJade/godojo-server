@@ -35,7 +35,7 @@ public class PositionController {
         log.info("Position request for: " + id);
 
         if (id.equals("root")) {
-            board_position = this.bp_access.findByPlay(".root");
+            board_position = this.bp_access.findActiveByPlay(".root");
             id = board_position.id.toString();
         }
         else {
