@@ -7,8 +7,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-//import org.springframework.data.neo4j.annotation.Query;
-//import org.springframework.data.repository.query.Param;
 
 public interface JosekiSources extends Neo4jRepository<JosekiSource, Long> {
 	@Query("MATCH (s:JosekiSource) RETURN s")

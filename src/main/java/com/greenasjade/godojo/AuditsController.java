@@ -19,11 +19,15 @@ public class AuditsController {
     private Audits audit_store;
     private BoardPositions bp_access;
 
+    private UserFactory user_factory;
+
     public AuditsController(
             Audits audit_store,
-            BoardPositionsNative bp_access) {
+            BoardPositionsNative bp_access,
+            UserFactory user_factory) {
         this.audit_store = audit_store;
         this.bp_access = new BoardPositions(bp_access);
+        this.user_factory = user_factory;
     }
 
     @CrossOrigin()
@@ -202,9 +206,9 @@ public class AuditsController {
             @RequestBody RevertRequestDTO request) {
         log.info("revert request " + request);
 
-        User the_user = new User(user_jwt);
+        User the_user = this.user_factory.createUser(user_jwt);
 
-        Long user_id = the_user.getId();
+        Long user_id = the_user.getUserId();
 
         /* TBD make sure user is authorised before proceeding.
          */

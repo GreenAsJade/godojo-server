@@ -16,11 +16,15 @@ public class PositionController {
     private BoardPositions bp_access;
     private JosekiSources js_access;
 
+    private UserFactory user_factory;
+
     public PositionController(
             BoardPositionsNative bp_native_access,
-            JosekiSources js_access) {
+            JosekiSources js_access,
+            UserFactory user_factory) {
         this.bp_access = new BoardPositions(bp_native_access);
         this.js_access = js_access;
+        this.user_factory = user_factory;
     }
 
     @CrossOrigin()
@@ -60,9 +64,9 @@ public class PositionController {
             @RequestHeader("X-User-Info") String user_jwt,
             @RequestBody SequenceDTO sequence_details) {
 
-        User the_user = new User(user_jwt);
+        User the_user = this.user_factory.createUser(user_jwt);
 
-        Long user_id = the_user.getId();
+        Long user_id = the_user.getUserId();
 
         // TBD *** check permissions of user to do this!
 
@@ -123,9 +127,9 @@ public class PositionController {
             @RequestParam(value="id") String id,
             @RequestBody PositionDTO position_details) {
 
-        User the_user = new User(user_jwt);
+        User the_user = this.user_factory.createUser(user_jwt);
 
-        Long user_id = the_user.getId();
+        Long user_id = the_user.getUserId();
 
         // ** TBD Check permissions to do this!
 

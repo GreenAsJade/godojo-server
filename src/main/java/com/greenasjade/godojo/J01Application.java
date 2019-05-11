@@ -19,18 +19,23 @@ public class J01Application {
     }
 
     private BoardPositions bp_access;
-    private JosekiSources store_by_js;
+    private JosekiSources js_access;
+    private BoardPositionsNative bpn;
+    private Users user_access;
 
     @Bean
     public CommandLineRunner initialise (
             BoardPositionsNative store_by_bp,
-            JosekiSources store_by_js
+            JosekiSources js_access,
+            Users user_access
     ) {
         return args -> {
             log.info("Initialising...");
 
+            this.bpn = store_by_bp;
             this.bp_access = new BoardPositions(store_by_bp);
-            this.store_by_js = store_by_js;
+            this.js_access = js_access;
+            this.user_access = user_access;
 
             BoardPosition rootNode = bp_access.findActiveByPlay(".root");
 
@@ -50,7 +55,23 @@ public class J01Application {
 
         Long GajId = 168L;  // Initial moves came from GreenAsJade!
 
-        store_by_js.save(new JosekiSource("Dwyrin", "http://dwyrin.com", GajId));
+        // Give GaJ all da powaz...
+
+        User gaj = new User(GajId);
+        gaj.setCanEdit(true);
+        gaj.setAdministrator(true);
+
+        user_access.save(gaj);
+
+        User check = user_access.findByUserId(168L);
+
+        log.info(check.toString());
+
+        // Set up some basic content...
+
+        js_access.save(new JosekiSource("Dwyrin", "http://dwyrin.com", GajId));
+        js_access.save(new JosekiSource("Traditional", "", GajId));
+
 
         BoardPosition rootNode = new BoardPosition("", "root", GajId);
         rootNode.addComment("test comment", GajId);

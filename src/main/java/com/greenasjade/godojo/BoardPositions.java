@@ -1,7 +1,5 @@
 package com.greenasjade.godojo;
 
-import org.springframework.data.repository.query.Param;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
