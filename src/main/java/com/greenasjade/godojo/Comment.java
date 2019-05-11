@@ -1,6 +1,5 @@
 package com.greenasjade.godojo;
 
-import java.io.Serializable;
 import java.time.Instant;
 
 import org.slf4j.Logger;

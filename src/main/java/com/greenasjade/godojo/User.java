@@ -24,7 +24,12 @@ public class User {
     @Property
     private Boolean administrator;
     public Boolean isAdministrator() { return this.administrator; }
-    public void setAdministrator(Boolean val) { this.administrator =  val; }
+    public void setAdministrator(Boolean val) { this.administrator = val; }
+
+    @Property
+    private Boolean can_comment;
+    Boolean canComment() { return this.can_comment; }
+    void setCanComment(Boolean val) { this.can_comment = val; }
 
     public User() {
         // Empty constructor required as of Neo4j API 2.0.5
@@ -34,9 +39,14 @@ public class User {
         this.user_id = user_id;
         this.can_edit = false;
         this.administrator = false;
+        this.can_comment = false;
     }
 
     public String toString() {
-        return ("User: " + this.user_id.toString() + " " + this.can_edit + " " + this.administrator);
+        return (String.format("User: %s edit %s admin %s comment %s",
+                this.user_id.toString(),
+                this.can_edit,
+                this.administrator,
+                this.can_comment));
     }
 }

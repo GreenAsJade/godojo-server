@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
@@ -14,16 +13,16 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class CommentaryController {
 
-	@Value("${godojo.http.ogs-key}")
-	private String ogs_key;
-
     private static final Logger log = LoggerFactory.getLogger(CommentaryController.class);
 
     private BoardPositions bp_access;
+    private UserFactory user_factory;
 
     public CommentaryController(
-            BoardPositionsNative bp_access) {
+            BoardPositionsNative bp_access,
+            UserFactory user_factory) {
         this.bp_access = new BoardPositions(bp_access);
+        this.user_factory = user_factory;
     }
 
     @CrossOrigin()
@@ -57,32 +56,21 @@ public class CommentaryController {
     @CrossOrigin()
     @ResponseBody()
     @PostMapping("/godojo/comment")
-    // Update details about a given position
+    // Add a comment  about a given position
     public CommentaryDTO addComment(
             @RequestHeader("X-User-Info") String user_jwt,
-            @RequestParam(value="id", required=true) String id,
+            @RequestParam(value="id") String id,
             @RequestBody String comment) {
-
-        // Grab the user-id off the jwt to store as the "commenter"
-        // (throw and die if it's not valid)
-        Jwt token = JwtHelper.decodeAndVerify(user_jwt, new RsaVerifier(ogs_key));
-
-        String claims = token.getClaims();
-
-        JsonNode jwtClaims = null;
-        try {
-            jwtClaims = new ObjectMapper().readTree(claims);
-        } catch (java.io.IOException e) {
-            return null;
-        }
-
-        Long user_id = jwtClaims.get("user_id").asLong();
 
         BoardPosition the_position = this.bp_access.findById(Long.valueOf(id));
 
-        the_position.addComment(comment, user_id);
+        User the_commenter = this.user_factory.createUser(user_jwt);
 
-        this.bp_access.save(the_position);
+        if (the_commenter.canComment()) {
+            the_position.addComment(comment, the_commenter.getUserId());
+
+            this.bp_access.save(the_position);
+        }
 
         return new CommentaryDTO(the_position);
     }

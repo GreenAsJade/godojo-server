@@ -60,6 +60,7 @@ public class J01Application {
         User gaj = new User(GajId);
         gaj.setCanEdit(true);
         gaj.setAdministrator(true);
+        gaj.setCanComment(true);
 
         user_access.save(gaj);
 
