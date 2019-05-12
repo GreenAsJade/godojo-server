@@ -5,7 +5,9 @@ import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 
 @RestController
@@ -68,7 +70,11 @@ public class PositionController {
 
         Long user_id = the_user.getUserId();
 
-        // TBD *** check permissions of user to do this!
+        if (!the_user.canEdit()) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, String.format("User %s does not have edit permissions", user_id.toString())
+            );
+        }
 
         log.info("Saving new move sequence from user: " + user_id.toString());
                 
@@ -131,7 +137,11 @@ public class PositionController {
 
         Long user_id = the_user.getUserId();
 
-        // ** TBD Check permissions to do this!
+        if (!the_user.canEdit()) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, String.format("User %s does not have edit permissions", user_id.toString())
+            );
+        }
 
         BoardPosition the_position = this.bp_access.findById(Long.valueOf(id));
 

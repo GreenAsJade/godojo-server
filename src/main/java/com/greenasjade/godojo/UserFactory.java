@@ -35,7 +35,7 @@ public class UserFactory {
     User createUser(String jwt) {
         // First grab the user-id off the jwt
 
-        log.info("User constructor: " + jwt + " " + ogs_key);
+        log.info("Create user...");
         Jwt token = JwtHelper.decodeAndVerify(jwt, new RsaVerifier(ogs_key));
 
         String claims = token.getClaims();
