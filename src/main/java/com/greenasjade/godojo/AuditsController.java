@@ -8,8 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 public class AuditsController {
@@ -228,8 +230,11 @@ public class AuditsController {
 
         Long user_id = the_user.getUserId();
 
-        /* TBD make sure user is authorised before proceeding.
-         */
+        if (!the_user.isAdministrator()) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, String.format("User %s does not have admin permissions", user_id.toString())
+            );
+        }
 
         Audit target_audit = audit_store.findById(request.audit_id).orElse(null);
 
