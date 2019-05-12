@@ -197,6 +197,24 @@ public class AuditsController {
         }
     }
 
+    private String RevertAddComment(Audit target, Long user_id) {
+        int target_comment = Integer.parseInt(target.getOriginalValue()) -1;
+
+        log.info(String.format("Reverting comment %s from %s", target_comment, target.ref.getInfo()));
+
+        Long target_comment_id = target.ref.commentary.get(target_comment).id;
+        String target_comment_remark = target.ref.commentary.get(target_comment).getComment();
+
+        target.ref.commentary.remove(target_comment);
+
+        target.ref.audits.add(new Audit(target.ref, ChangeType.REMOVE_COMMENT,
+                        target_comment_id.toString(), target_comment_remark,
+                        "Removed comment", user_id));
+
+        bp_access.save(target.ref);
+        return "done.";
+    }
+
     @Transactional
     @CrossOrigin()
     @ResponseBody()
@@ -233,10 +251,11 @@ public class AuditsController {
             case ADD_CHILD: result = RevertAddChild(target_audit, user_id); break;
             case CATEGORY_CHANGE: result = RevertCategoryChange(target_audit, user_id); break;
             case DESCRIPTION_CHANGE: result = RevertDescriptionChange(target_audit, user_id); break;
-            case SOURCE_CHANGE: result = "not done: reverting source change not supported"; break;
             case DEACTIVATE: result = RevertDeactivate(target_audit, user_id); break;
             case REMOVE_CHILD: result = CheckDeactivateReversionDone(target_audit); break;
+            case ADD_COMMENT: result = RevertAddComment(target_audit, user_id); break;
             case REACTIVATE: result = "not done, just redo the deactivate instead!"; break;
+            case SOURCE_CHANGE: result = "not done: reverting source change not supported"; break;
             default: result = "not done: unrecognised audit type in reversion request";
         }
 

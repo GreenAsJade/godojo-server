@@ -9,6 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 
+import java.util.Arrays;
+
 @SpringBootApplication
 public class J01Application {
 
@@ -53,20 +55,24 @@ public class J01Application {
 
         bp_access.deleteEverythingInDB();
 
-        Long GajId = 168L;  // Initial moves came from GreenAsJade!
+        Long GajId = 168L;  // Initial moves came from GreenAsJade!  This is GaJ Beta ID.
 
-        // Give GaJ all da powaz...
+        Long AnoekId = 1L;  // He get da powaz too
 
-        User gaj = new User(GajId);
-        gaj.setCanEdit(true);
-        gaj.setAdministrator(true);
-        gaj.setCanComment(true);
+        // Give'm all da powaz...
 
-        user_access.save(gaj);
+        for (Long admin_id: Arrays.asList(GajId, AnoekId)) {
+            User admin = new User(admin_id);
+            admin.setCanEdit(true);
+            admin.setAdministrator(true);
+            admin.setCanComment(true);
 
-        User check = user_access.findByUserId(168L);
+            user_access.save(admin);
 
-        log.info(check.toString());
+            User check = user_access.findByUserId(admin_id);
+
+            log.info(check.toString());
+        }
 
         // Set up some basic content...
 
@@ -75,7 +81,7 @@ public class J01Application {
 
 
         BoardPosition rootNode = new BoardPosition("", "root", GajId);
-        rootNode.addComment("test comment", GajId);
+        rootNode.addComment("Let's do this thing...", GajId);
         rootNode.setDescription("## Empty Board\n\nInfinite possibilities await!", GajId);
 
         bp_access.save(rootNode);
@@ -122,7 +128,7 @@ public class J01Application {
         bp_access.save(child);
 
         // Test adding a comment later
-        rootNode.addComment("second comment", GajId);
+        rootNode.addComment("... initial setup in place!", GajId);
         bp_access.save(rootNode);
 
         // Test changing a category

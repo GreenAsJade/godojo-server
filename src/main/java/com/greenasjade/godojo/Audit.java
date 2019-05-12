@@ -13,6 +13,8 @@ enum ChangeType {
     SOURCE_CHANGE,
     ADD_CHILD,
     REMOVE_CHILD,
+    ADD_COMMENT,
+    REMOVE_COMMENT,
     DEACTIVATE,
     REACTIVATE
 }
