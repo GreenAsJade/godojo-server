@@ -21,6 +21,9 @@ curl -H "Content-Type: application/json" -X POST -d '{"password":"secret"}' -u n
 ```
 fires up the server and loads some initial data if there is none.
 
+Note: before production deployment, `application.properties` needs to get the neo credentials from
+the environment.
+
 ## Docker
 
 ```
@@ -35,6 +38,7 @@ To run a specific prebuilt version:
 docker run -d -p 8081:8081 greenasjade/godojo:0.8.0
 ```
 
-
+Note: for production deployment, you need to pass in the neo credentials as a command line
+environment variable, once that is implemented (see above)
 
 
