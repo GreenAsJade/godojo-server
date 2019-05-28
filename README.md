@@ -14,6 +14,41 @@ curl -H "Content-Type: application/json" -X POST -d '{"password":"secret"}' -u n
 
 `application.properties` holds the credentials for godojo to connect to the Neo4j server.
 
+### Versions
+
+```
+$ $JAVA_HOME/bin/java -version
+java version "1.8.0_144"
+Java(TM) SE Runtime Environment (build 1.8.0_144-b01)
+Java HotSpot(TM) 64-Bit Server VM (build 25.144-b01, mixed mode)
+
+$ gradle --version
+
+------------------------------------------------------------
+Gradle 5.0
+------------------------------------------------------------
+
+Build time:   2018-11-26 11:48:43 UTC
+Revision:     7fc6e5abf2fc5fe0824aec8a0f5462664dbcd987
+
+Kotlin DSL:   1.0.4
+Kotlin:       1.3.10
+Groovy:       2.5.4
+Ant:          Apache Ant(TM) version 1.9.13 compiled on July 10 2018
+JVM:          1.8.0_144 (Oracle Corporation 25.144-b01)
+OS:           Mac OS X 10.14.4 x86_64
+
+```
+
+## Building
+
+```
+./gradlew build
+```
+
+Note that the sanity build testcase requires a neo4j server running.
+
+
 ## Running
 
 ```
