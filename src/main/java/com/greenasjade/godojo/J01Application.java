@@ -41,7 +41,7 @@ public class J01Application {
 
             BoardPosition rootNode = bp_access.findActiveByPlay(".root");
 
-            if (true) { //rootNode == null) {
+            if (rootNode == null) {
                 resetDB();
             }
             rootNode = bp_access.findActiveByPlay(".root");
