@@ -22,7 +22,7 @@ enum ChangeType {
 @NodeEntity
 public class Audit {
 
-    @Transient
+    @Transient  //  << note transient - not saved in DB.
     private static Long audit_count = 0L;
 
     @Transient
@@ -88,7 +88,7 @@ public class Audit {
         this.comment = comment;
         this.date = Instant.now();
         this.seq = audit_count;
-        audit_count = audit_count + 1;
+        audit_count = audit_count + 1; // used to sequence audits created with the same date
     }
 
     public String toString() {

@@ -21,7 +21,7 @@ public interface Audits extends PagingAndSortingRepository<Audit, Long> {
 
     // All audits, in reverse time order, for audit management.
     @Query(
-            value="MATCH (a:Audit)-[ref:AUDIT]->(p:BoardPosition) RETURN a, ref, p ORDER BY a.seq DESC",
+            value="MATCH (a:Audit)-[ref:AUDIT]->(p:BoardPosition) RETURN a, ref, p ORDER BY a.date DESC, a.seq DESC",
             countQuery="MATCH (a:Audit)-[ref:AUDIT]->(p:BoardPosition) RETURN count(a)")
     Page<Audit> getAudits(Pageable pageable);
 }

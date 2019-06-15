@@ -63,7 +63,7 @@ public class UserFactory {
                 the_user.setCanComment(true);
 
                 LocalDate joined_date = LocalDate.parse(jwtClaims.get("registration_date").asText(),
-                        DateTimeFormatter.ofPattern("yyyy-MM-DD HH:mm:ss.SSSSSSxxxxx"));
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSxxxxx"));
                 log.info("User joined: " + joined_date.toString());
 
                 LocalDate cutoff = LocalDate.parse("2019-01-01");
