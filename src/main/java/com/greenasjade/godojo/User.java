@@ -37,16 +37,16 @@ public class User {
 
     User(Long user_id) {
         this.user_id = user_id;
+        this.can_comment = true; // at the beginning, registered users can comment
         this.can_edit = false;
         this.administrator = false;
-        this.can_comment = false;
     }
 
     public String toString() {
-        return (String.format("User: %s edit %s admin %s comment %s",
+        return (String.format("User: %s comment %s edit %s admin %s",
                 this.user_id.toString(),
+                this.can_comment,
                 this.can_edit,
-                this.administrator,
-                this.can_comment));
+                this.administrator));
     }
 }

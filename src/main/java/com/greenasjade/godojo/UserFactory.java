@@ -32,10 +32,27 @@ public class UserFactory {
         this.user_access = user_access;
     }
 
-    User createUser(String jwt) {
-        // First grab the user-id off the jwt
+    /*
+       These "Create" methods create User objects, with info from the database if available.
+       They don't create user instances in the database.
+     */
 
-        log.info("Create user...");
+    User createUser(Long id) {
+        User the_user = user_access.findByUserId(id);
+
+        if (the_user == null) {
+            the_user = new User(id);
+        }
+
+        log.info(the_user.toString());
+
+        return the_user;
+    }
+
+    User createUser(String jwt) {
+        log.info("Produce user from jwt...");
+
+        // First grab the user-id off the jwt
         Jwt token = JwtHelper.decodeAndVerify(jwt, new RsaVerifier(ogs_key));
 
         String claims = token.getClaims();
@@ -60,8 +77,8 @@ public class UserFactory {
         if (the_user == null) {
             if (!jwtClaims.get("anonymous").asBoolean()) {
                 the_user = new User(id);
-                the_user.setCanComment(true);
 
+                /* Example code to give permissions based on a rule...
                 LocalDate joined_date = LocalDate.parse(jwtClaims.get("registration_date").asText(),
                         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSxxxxx"));
                 log.info("User joined: " + joined_date.toString());
@@ -71,14 +88,27 @@ public class UserFactory {
                 if (joined_date.compareTo(cutoff) < 0) {
                     the_user.setCanEdit(true);
                 }
+                */
+
             } else {
                 log.info("anonymous visitor");
                 the_user = new User(0L);
+                the_user.setCanComment(false);  // anonymous can't comment
             }
         }
 
         log.info(the_user.toString());
 
         return the_user;
+    }
+
+    // This creates/updates a user entity in the database
+
+    void updatePermissions(User target_user, PermissionsDTO permissions) {
+        target_user.setCanComment(permissions.getCan_comment());
+        target_user.setCanEdit((permissions.getCan_edit()));
+        target_user.setAdministrator(permissions.getIs_admin());
+
+        user_access.save(target_user);
     }
 }
