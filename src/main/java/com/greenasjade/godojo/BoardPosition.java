@@ -34,7 +34,13 @@ public class BoardPosition {
     private String placement; // the move played to get here.  Easier than stripping it off the play.
     public String getPlacement() {return placement;}
 
+    @Property("variation_label")
+    private Character variation_label;
+    public Character getVariationLabel() {return variation_label;}
+    public void setVariationLabel(Character label) { variation_label = label; }
+
     @Property("seq")
+    // deprecated, replaced by variation_label
     public Integer seq; // what order to display this one in relative to others
 
     @Property("category")
@@ -173,7 +179,8 @@ public class BoardPosition {
 
             children.add(child);
             child.setParent(this);
-            child.seq = this.children.size();
+            BoardPosition child1 = child;
+            child.variation_label = '_';
             log.info("Added move: " + placement);
             log.info("now this node: " + this.toString());
             this.audits.add(new Audit(this, ChangeType.ADD_CHILD, previous_children, child.getPlay(),"Added child " + placement, user_id));

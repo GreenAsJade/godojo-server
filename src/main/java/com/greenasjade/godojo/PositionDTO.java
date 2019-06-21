@@ -3,6 +3,8 @@ package com.greenasjade.godojo;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +12,11 @@ import java.util.List;
 @Data
 public class PositionDTO {
 
+    private static final Logger log = LoggerFactory.getLogger(PositionDTO.class);
+
     private String description;
+
+    private Character variation_label;
 
     private PlayCategory category;
 
@@ -28,7 +34,7 @@ public class PositionDTO {
 
     private MoveDTO parent;
 
-    private List<String> labels;
+    private List<String> tags;
 
     // incoming from client, telling us which one to use
     public Long joseki_source_id;
@@ -40,17 +46,20 @@ public class PositionDTO {
     @JsonCreator
     public PositionDTO(
             @JsonProperty("description") String description,
+            @JsonProperty("variation_label") Character variation_label,
             @JsonProperty("category") String category,
             @JsonProperty("joseki_source_id") Long joseki_source_id) {
         this.description = description;
-        // empty move_type means "don't change it"
-        this.category = category.equals("") ? null : PlayCategory.valueOf(category);
+        this.variation_label = variation_label;
+        // empty category means "don't change it"
+        this.category = category == null ? null : PlayCategory.valueOf(category);
         this.joseki_source_id = joseki_source_id;
     }
 
     // Outbound position information
     public PositionDTO(BoardPosition position, BoardPositions bp_access) {
         description = position.getDescription();
+        variation_label = position.getVariationLabel();
         category = position.getCategory();
         placement = position.getPlacement();
         contributor = position.getContributorId();
@@ -78,6 +87,6 @@ public class PositionDTO {
                 position : position.parent;
         parent = new MoveDTO(parent_position);
 
-        labels = new ArrayList<>();
+        tags = new ArrayList<>();
     }
 }

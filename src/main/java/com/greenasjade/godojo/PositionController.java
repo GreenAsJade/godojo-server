@@ -61,7 +61,7 @@ public class PositionController {
     @PostMapping("/godojo/positions")
     // Add a sequence of positions (creating new ones only as necessary)
     // The supplied sequence is assumed to be based at the root (empty board)
-    // The incoming move DTO describes the category for all new positions/moves that have to be created
+    // The incoming Sequence DTO describes the category for all new positions/moves that have to be created
     public PositionDTO createPositions(
             @RequestHeader("X-User-Info") String user_jwt,
             @RequestBody SequenceDTO sequence_details) {
@@ -106,16 +106,13 @@ public class PositionController {
         log.info("Extending at: " + current_position + " with " + next_placement);
         
         PlayCategory new_category = sequence_details.getCategory();
-        JosekiSource new_source = js_access.findById(sequence_details.joseki_source_id).orElse(null);
 
     	next_position = current_position.addMove(next_placement, new_category, user_id);
-        next_position.source = new_source;
 
         while (placements.size() > 0) {
         	next_placement = placements.remove(0);
             log.info("Extending at: " + next_position + " with " + next_placement);
             next_position = next_position.addMove(next_placement, new_category, user_id);
-            next_position.source = new_source;
         }
        
         this.bp_access.save(next_position);
@@ -146,6 +143,8 @@ public class PositionController {
         BoardPosition the_position = this.bp_access.findById(Long.valueOf(id));
 
         the_position.setDescription(position_details.getDescription(), user_id);
+
+        the_position.setVariationLabel(position_details.getVariation_label());
 
         if (position_details.getCategory() != null) {
             the_position.setCategory(position_details.getCategory(), user_id);

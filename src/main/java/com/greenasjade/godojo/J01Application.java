@@ -24,12 +24,14 @@ public class J01Application {
     private JosekiSources js_access;
     private BoardPositionsNative bpn;
     private Users user_access;
+    private AppInfos app_info_access;
 
     @Bean
     public CommandLineRunner initialise (
             BoardPositionsNative store_by_bp,
             JosekiSources js_access,
-            Users user_access
+            Users user_access,
+            AppInfos app_info_access
     ) {
         return args -> {
             log.info("Initialising...");
@@ -38,6 +40,18 @@ public class J01Application {
             this.bp_access = new BoardPositions(store_by_bp);
             this.js_access = js_access;
             this.user_access = user_access;
+            this.app_info_access = app_info_access;
+
+            // note: there should only be one (or zero) app_info in app_infos!
+            Iterable<AppInfo> app_info = app_info_access.findAll();
+
+            // First introduction of schema id
+            if (!app_info.iterator().hasNext()) {
+                AppInfo new_info = new AppInfo();
+                new_info.setSchema_id(1);
+                migrateToSchema(1);
+                app_info_access.save(new_info);
+            }
 
             BoardPosition rootNode = bp_access.findActiveByPlay(".root");
 
@@ -48,6 +62,24 @@ public class J01Application {
 
             log.info(rootNode.getInfo());
         };
+    }
+
+    void migrateToSchema(Integer schema_id){
+        switch (schema_id) {
+            case 1:
+                // This is the introduction of BoardPosition.variation_label
+                // and deprecation of BoardPosition.seq
+                log.info("Migrating to schema 1...");
+
+                // lets just reset the DB for this
+                resetDB();
+
+                return;
+            default:
+                // should maybe throw here I guess
+                log.error("Unrecognised schema ID! " + schema_id);
+        }
+
     }
 
     void resetDB() {
@@ -93,8 +125,11 @@ public class J01Application {
         BoardPosition child;
         
         child = rootNode.addMove("Q16", GajId);
+        child.setVariationLabel('A');
         child = rootNode.addMove("R16", GajId);
+        child.setVariationLabel('B');
         child = rootNode.addMove("R17", GajId);
+        child.setVariationLabel('C');
         child.setDescription("## San San", GajId);
 
         child = rootNode.addMove("Q15", PlayCategory.GOOD, GajId);
