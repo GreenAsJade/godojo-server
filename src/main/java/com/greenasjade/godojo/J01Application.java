@@ -22,23 +22,25 @@ public class J01Application {
 
     private BoardPositions bp_access;
     private JosekiSources js_access;
-    private BoardPositionsNative bpn;
+    private Tags tags_access;
     private Users user_access;
     private AppInfos app_info_access;
+
 
     @Bean
     public CommandLineRunner initialise (
             BoardPositionsNative store_by_bp,
             JosekiSources js_access,
+            Tags tags_access,
             Users user_access,
             AppInfos app_info_access
     ) {
         return args -> {
             log.info("Initialising...");
 
-            this.bpn = store_by_bp;
             this.bp_access = new BoardPositions(store_by_bp);
             this.js_access = js_access;
+            this.tags_access = tags_access;
             this.user_access = user_access;
             this.app_info_access = app_info_access;
 
@@ -50,7 +52,7 @@ public class J01Application {
                 AppInfo new_info = new AppInfo();
                 new_info.setSchema_id(1);
                 migrateToSchema(1);
-                app_info_access.save(new_info);
+                //app_info_access.save(new_info);
             }
 
             BoardPosition rootNode = bp_access.findActiveByPlay(".root");
@@ -68,7 +70,8 @@ public class J01Application {
         switch (schema_id) {
             case 1:
                 // This is the introduction of BoardPosition.variation_label
-                // and deprecation of BoardPosition.seq
+                // with the deprecation of BoardPosition.seq,
+                // plus introducing tags
                 log.info("Migrating to schema 1...");
 
                 // lets just reset the DB for this
@@ -106,11 +109,12 @@ public class J01Application {
             log.info(check.toString());
         }
 
-        // Set up some basic content...
+        // Set up the basic content...
 
-        js_access.save(new JosekiSource("Dwyrin", "http://dwyrin.com", GajId));
+        js_access.save(new JosekiSource("Dwyrin", "https://www.patreon.com/dwyrin", GajId));
         js_access.save(new JosekiSource("Traditional", "", GajId));
 
+        tags_access.save(new Tag("Position is settled"));
 
         BoardPosition rootNode = new BoardPosition("", "root", GajId);
         rootNode.addComment("Let's do this thing...", GajId);

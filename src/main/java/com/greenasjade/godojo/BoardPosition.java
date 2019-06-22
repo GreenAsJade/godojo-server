@@ -39,10 +39,6 @@ public class BoardPosition {
     public Character getVariationLabel() {return variation_label;}
     public void setVariationLabel(Character label) { variation_label = label; }
 
-    @Property("seq")
-    // deprecated, replaced by variation_label
-    public Integer seq; // what order to display this one in relative to others
-
     @Property("category")
     private PlayCategory category;
     public PlayCategory getCategory() {return category;}
@@ -68,10 +64,6 @@ public class BoardPosition {
     public Long getContributorId(){return contributor_id;}
     public void setContributorId(Long id) {contributor_id = id;}
 
-    @Property("labels")
-    private List<String> labels;
-    public List<String> getLabels() {return labels;}
-
     @Relationship(type="PARENT", direction = Relationship.INCOMING)
     public List<BoardPosition> children;
 
@@ -87,6 +79,9 @@ public class BoardPosition {
     @Relationship("SOURCE")
     public JosekiSource source;
     public Long getJosekiSourceId() {return this.source != null ? this.source.id : 0;}
+
+    @Relationship("TAGS")
+    public ArrayList<Tag> tags;
 
     @Relationship("AUDIT")
     public ArrayList<Audit> audits;
@@ -108,6 +103,8 @@ public class BoardPosition {
         this.description = "";
         this.children = new ArrayList<>();
         this.commentary = new ArrayList<>();
+        this.tags = new ArrayList<>();
+
         log.info(placement + " created by user " + user_id.toString());
 
         this.source = null;
@@ -179,12 +176,17 @@ public class BoardPosition {
 
             children.add(child);
             child.setParent(this);
-            BoardPosition child1 = child;
             child.variation_label = '_';
             log.info("Added move: " + placement);
             log.info("now this node: " + this.toString());
             this.audits.add(new Audit(this, ChangeType.ADD_CHILD, previous_children, child.getPlay(),"Added child " + placement, user_id));
             return child;
         }
+    }
+
+    public void setTags(List<Tag> tags) {
+        log.info("Setting tags " + tags.toString());
+        this.tags = new ArrayList<>();
+        this.tags.addAll(tags);
     }
 }

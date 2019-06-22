@@ -1,6 +1,7 @@
 package com.greenasjade.godojo;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,15 +18,17 @@ public class PositionController {
 
     private BoardPositions bp_access;
     private JosekiSources js_access;
-
+    private Tags tag_access;
     private UserFactory user_factory;
 
     public PositionController(
             BoardPositionsNative bp_native_access,
             JosekiSources js_access,
+            Tags tag_access,
             UserFactory user_factory) {
         this.bp_access = new BoardPositions(bp_native_access);
         this.js_access = js_access;
+        this.tag_access = tag_access;
         this.user_factory = user_factory;
     }
 
@@ -62,6 +65,8 @@ public class PositionController {
     // Add a sequence of positions (creating new ones only as necessary)
     // The supplied sequence is assumed to be based at the root (empty board)
     // The incoming Sequence DTO describes the category for all new positions/moves that have to be created
+    // Only the category is set for all created positions - other parameters need a separate call
+    // (to updatePosition) to set them.
     public PositionDTO createPositions(
             @RequestHeader("X-User-Info") String user_jwt,
             @RequestBody SequenceDTO sequence_details) {
@@ -130,6 +135,8 @@ public class PositionController {
             @RequestParam(value="id") String id,
             @RequestBody PositionDTO position_details) {
 
+        log.info("updatePosition: " + position_details.toString());
+
         User the_user = this.user_factory.createUser(user_jwt);
 
         Long user_id = the_user.getUserId();
@@ -152,6 +159,14 @@ public class PositionController {
 
         if (position_details.joseki_source_id != null) {
             the_position.source = js_access.findById(position_details.joseki_source_id).orElse(null);
+        }
+
+        if (position_details.tag_ids != null) {
+            the_position.setTags(position_details.tag_ids
+                    .stream()
+                    .map(tag_id -> tag_access.findById(tag_id).orElse(null))
+                    .filter(t -> t != null)
+                    .collect(Collectors.toList()));
         }
 
         this.bp_access.save(the_position);

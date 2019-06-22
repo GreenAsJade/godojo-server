@@ -11,15 +11,11 @@ public class SequenceDTO {
 
     private final PlayCategory category;
 
-    public final Long joseki_source_id;
-
     @JsonCreator
     public SequenceDTO(
     		@JsonProperty("sequence") String sequence,
-    		@JsonProperty("category") String category,
-            @JsonProperty("josekisource") Long source) {
+    		@JsonProperty("category") String category) {
     	this.sequence = sequence;
     	this.category = PlayCategory.valueOf(category.toUpperCase());
-    	this.joseki_source_id = source != null ? source : 0L;
     }
 }

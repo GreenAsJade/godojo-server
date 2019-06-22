@@ -50,8 +50,6 @@ public class UserFactory {
     }
 
     User createUser(String jwt) {
-        log.info("Produce user from jwt...");
-
         // First grab the user-id off the jwt
         Jwt token = JwtHelper.decodeAndVerify(jwt, new RsaVerifier(ogs_key));
 
@@ -68,7 +66,7 @@ public class UserFactory {
             return null;  // urk should have a better solution TBD
         }
 
-        log.info("Claims: " + jwtClaims.toString());
+        log.info("User Claims: " + jwtClaims.toString());
 
         id = jwtClaims.get("id").asLong();
 

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 public class PositionDTO {
@@ -34,7 +35,11 @@ public class PositionDTO {
 
     private MoveDTO parent;
 
-    private List<String> tags;
+    // incoming
+    public List<Long> tag_ids;
+
+    // outgoing
+    private List<Tag> tags;
 
     // incoming from client, telling us which one to use
     public Long joseki_source_id;
@@ -48,12 +53,14 @@ public class PositionDTO {
             @JsonProperty("description") String description,
             @JsonProperty("variation_label") Character variation_label,
             @JsonProperty("category") String category,
-            @JsonProperty("joseki_source_id") Long joseki_source_id) {
+            @JsonProperty("joseki_source_id") Long joseki_source_id,
+            @JsonProperty("tags") ArrayList<Long> tags) {
         this.description = description;
         this.variation_label = variation_label;
         // empty category means "don't change it"
         this.category = category == null ? null : PlayCategory.valueOf(category);
         this.joseki_source_id = joseki_source_id;
+        this.tag_ids = tags;
     }
 
     // Outbound position information
@@ -80,13 +87,11 @@ public class PositionDTO {
 
         joseki_source = position.source;
 
-        joseki_source_id = position.source != null ?  position.source.getId() : 0L;
-
         // A link to the parent of the node we are telling them about, so they can go back from here
         BoardPosition parent_position = position.getPlay().equals(".root") ?
                 position : position.parent;
         parent = new MoveDTO(parent_position);
 
-        tags = new ArrayList<>();
+        tags = position.tags;
     }
 }
