@@ -19,6 +19,8 @@ public class BoardPositions {
 
     void save(BoardPosition position) { bp_access.save(position); }
 
+    void removeParent(Long id) {  bp_access.removeParent(id); }
+
     // NOTE:  This finds _all_ nodes, including inactive ("deleted") ones
     // Inactive nodes have no parent.   Except "root" which is defined to be active.
 
@@ -45,7 +47,9 @@ public class BoardPositions {
     // Note that the results here are by definition active
     List<BoardPosition> findByParentId(Long id) { return bp_access.findByParentId(id); }
 
-    void removeParent(Long id) {  bp_access.removeParent(id); }
+    List<BoardPosition> findRoutesOfContributor(Long targetId, Long contributorId) {
+        return bp_access.findRoutesOfContributor(targetId, contributorId);
+    }
 
     // Database Utility function
     //  NOTE THAT THIS DELETES *EVERYTHING* NOT JUST BOARD POSITIONS

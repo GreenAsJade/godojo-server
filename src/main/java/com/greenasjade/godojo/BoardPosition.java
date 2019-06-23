@@ -189,4 +189,12 @@ public class BoardPosition {
         this.tags = new ArrayList<>();
         this.tags.addAll(tags);
     }
+
+    public void setTag(Tag tag) {
+        log.info("Setting tag " + tag.toString() );
+        if (this.tags == null) {
+            this.tags = new ArrayList<>();
+        }
+        this.tags.add(tag);
+    }
 }

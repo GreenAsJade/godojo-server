@@ -12,16 +12,16 @@ import org.springframework.web.server.ResponseStatusException;
 
 
 @RestController
-public class PositionController {
+public class BoardPositionController {
 	  
-    private static final Logger log = LoggerFactory.getLogger(PositionController.class);
+    private static final Logger log = LoggerFactory.getLogger(BoardPositionController.class);
 
     private BoardPositions bp_access;
     private JosekiSources js_access;
     private Tags tag_access;
     private UserFactory user_factory;
 
-    public PositionController(
+    public BoardPositionController(
             BoardPositionsNative bp_native_access,
             JosekiSources js_access,
             Tags tag_access,
@@ -36,8 +36,10 @@ public class PositionController {
     @ResponseBody()
     @GetMapping("/godojo/position" )
     // Return all the information needed to display a position
-    public PositionDTO position(
-            @RequestParam(value = "id", required = false, defaultValue = "root") String id) {
+    // Filter out variations by contributor if contributor filter id is supplied
+    public BoardPositionDTO position(
+            @RequestParam(value = "id", required = false, defaultValue = "root") String id,
+            @RequestParam(value="cfilterid", required = false) Long variation_contributor) {
 
         BoardPosition board_position;
 
@@ -51,10 +53,22 @@ public class PositionController {
             board_position = this.bp_access.findById(Long.valueOf(id));
         }
 
-        log.info("which is: " + board_position.toString());
-        log.info("with comments " + board_position.getCommentCount().toString());
+        log.info("which is: " + board_position.getInfo());
 
-        PositionDTO position = new PositionDTO(board_position, bp_access);
+        List<BoardPosition> next_positions;
+
+        if (variation_contributor != null && variation_contributor != 0L) {
+            log.info("filtering for variations by " + variation_contributor.toString());
+            next_positions = bp_access.findRoutesOfContributor(board_position.id, variation_contributor);
+            log.info("next positions: " + next_positions.toString());
+        }
+        else {
+            // We have to read them here in case the incoming BoardPosition does not have them
+            // already read from the DB
+            next_positions = bp_access.findByParentId(board_position.id);
+        }
+
+        BoardPositionDTO position = new BoardPositionDTO(board_position, next_positions);
 
         return position;
     }
@@ -67,7 +81,7 @@ public class PositionController {
     // The incoming Sequence DTO describes the category for all new positions/moves that have to be created
     // Only the category is set for all created positions - other parameters need a separate call
     // (to updatePosition) to set them.
-    public PositionDTO createPositions(
+    public BoardPositionDTO createPositions(
             @RequestHeader("X-User-Info") String user_jwt,
             @RequestBody SequenceDTO sequence_details) {
 
@@ -123,17 +137,17 @@ public class PositionController {
         this.bp_access.save(next_position);
 
         // Finally, return the info for the last position created.
-        return this.position(next_position.id.toString());
+        return this.position(next_position.id.toString(), null);
     }
 
     @CrossOrigin()
     @ResponseBody()
     @PutMapping("/godojo/position")
     // Update details about a given position
-    public PositionDTO updatePosition(
+    public BoardPositionDTO updatePosition(
             @RequestHeader("X-User-Info") String user_jwt,
             @RequestParam(value="id") String id,
-            @RequestBody PositionDTO position_details) {
+            @RequestBody BoardPositionDTO position_details) {
 
         log.info("updatePosition: " + position_details.toString());
 
@@ -171,6 +185,6 @@ public class PositionController {
 
         this.bp_access.save(the_position);
 
-        return this.position(id);
+        return this.position(id, null);
     }
 }

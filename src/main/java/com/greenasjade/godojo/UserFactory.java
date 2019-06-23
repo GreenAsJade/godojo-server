@@ -14,8 +14,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+/* This "factory" implements the logic to find out whether a user needs to be created
+   in the DB or just returned as a new object from an existing user in the DB.
+
+   It's an "object factory" not a DB-entity creation thingo.
+ */
 
 @Component
 public class UserFactory {

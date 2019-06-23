@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 @SpringBootApplication
@@ -52,7 +53,7 @@ public class J01Application {
                 AppInfo new_info = new AppInfo();
                 new_info.setSchema_id(1);
                 migrateToSchema(1);
-                //app_info_access.save(new_info);
+                app_info_access.save(new_info);
             }
 
             BoardPosition rootNode = bp_access.findActiveByPlay(".root");
@@ -109,12 +110,24 @@ public class J01Application {
             log.info(check.toString());
         }
 
+        // Lets make another contributor, to test filtering
+
+        Long DevGajId = 645L;
+
+        User devgaj = new User(DevGajId);
+        devgaj.setCanEdit(true);
+        user_access.save(devgaj);
+
         // Set up the basic content...
 
         js_access.save(new JosekiSource("Dwyrin", "https://www.patreon.com/dwyrin", GajId));
         js_access.save(new JosekiSource("Traditional", "", GajId));
 
-        tags_access.save(new Tag("Position is settled"));
+        Tag joseki_tag = new Tag("Joseki: Position is settled");
+        Tag fuseki_tag = new Tag("Fuseki: Done");
+
+        tags_access.save(joseki_tag);
+        tags_access.save(fuseki_tag);
 
         BoardPosition rootNode = new BoardPosition("", "root", GajId);
         rootNode.addComment("Let's do this thing...", GajId);
@@ -130,14 +143,56 @@ public class J01Application {
         
         child = rootNode.addMove("Q16", GajId);
         child.setVariationLabel('A');
+
+        // First basic joseki
+
+        child = child.addMove("R14", GajId);
+        child = child.addMove("O17", GajId);
+        child = child.addMove("S16", GajId);
+        child = child.addMove("R17", GajId);
+        child = child.addMove("R11", GajId);
+        child.setTag(joseki_tag);
+        child.setDescription("## Joseki", GajId);
+
+        bp_access.save(child);
+
+        // Some more nodes
         child = rootNode.addMove("R16", GajId);
         child.setVariationLabel('B');
-        child = rootNode.addMove("R17", GajId);
+        child = rootNode.addMove("R17", DevGajId);
         child.setVariationLabel('C');
         child.setDescription("## San San", GajId);
 
-        child = rootNode.addMove("Q15", PlayCategory.GOOD, GajId);
-        child = rootNode.addMove("R15", PlayCategory.GOOD, GajId);
+        // A joseki by someone else
+
+        child = bp_access.findActiveByPlay(".root.Q16");
+        child = child.addMove("R17", DevGajId);
+        child = child.addMove("R16", DevGajId);
+        child = child.addMove("Q17", DevGajId);
+        child = child.addMove("P17", DevGajId);
+        child = child.addMove("P18", DevGajId);
+        child = child.addMove("O17", DevGajId);
+        child = child.addMove("O18", DevGajId);
+        child = child.addMove("N17", DevGajId);
+
+        child.setTag(joseki_tag);
+        child.setDescription("## Joseki", DevGajId);
+
+        bp_access.save(child);
+
+        // Some more other nodes
+
+        // another contributor that is not me
+
+        Long MikeId = 913L;
+
+        User mike = new User(MikeId);
+        mike.setCanEdit(true);
+        user_access.save(mike);
+
+
+        child = rootNode.addMove("Q15", PlayCategory.GOOD, MikeId);
+        child = rootNode.addMove("R15", PlayCategory.GOOD, MikeId);
 
         child = rootNode.addMove("K10", PlayCategory.GOOD, GajId);
         child.setDescription("## Tengen\nDwyrin's favourite!", GajId);
@@ -161,10 +216,6 @@ public class J01Application {
 
         log.info("Adding second level moves to a node...");
 
-        child.addMove("Q16", GajId);
-        child.addMove("R16", GajId);
-        child.addMove("R17",GajId);
-        bp_access.save(child);
 
         // Test adding a comment later
         rootNode.addComment("... initial setup in place!", GajId);

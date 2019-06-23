@@ -28,6 +28,16 @@ public interface BoardPositionsNative extends PagingAndSortingRepository<BoardPo
     @Query("MATCH (parent:BoardPosition)<-[link:PARENT]-(target:BoardPosition) WHERE id(target)={TargetID} DELETE link")
     void removeParent(@Param("TargetID") Long id);
 
+    @Query("MATCH (p:BoardPosition)<-[:PARENT]-(n:BoardPosition)<-[:PARENT*0..]-(c:BoardPosition)-->(t:Tag)  WHERE id(p)={TargetID} AND id(t)={TagID} RETURN n")
+    List<BoardPosition> findRoutesToTag(@Param("TargetID") Long targetId,
+                                        @Param("TagID") Long tagId);
+
+
+    @Query("MATCH (p:BoardPosition)<-[:PARENT]-(n:BoardPosition)<-[:PARENT*0..]-(c:BoardPosition) where id(p)={TargetID} and c.contributor={ContributorID} RETURN n")
+    List<BoardPosition> findRoutesOfContributor(@Param("TargetID") Long targetId,
+                                                @Param("ContributorID") Long contributorId);
+
+    /* No real home for this, plonked it here... */
     // Database Utility function
     //  NOTE THAT THIS DELETES *EVERYTHING* NOT JUST BOARD POSITIONS
     @Query("MATCH (n) DETACH DELETE n")

@@ -8,12 +8,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
-public class PositionDTO {
+public class BoardPositionDTO {
 
-    private static final Logger log = LoggerFactory.getLogger(PositionDTO.class);
+    private static final Logger log = LoggerFactory.getLogger(BoardPositionDTO.class);
 
     private String description;
 
@@ -49,7 +48,7 @@ public class PositionDTO {
 
     // Inbound position information
     @JsonCreator
-    public PositionDTO(
+    public BoardPositionDTO(
             @JsonProperty("description") String description,
             @JsonProperty("variation_label") Character variation_label,
             @JsonProperty("category") String category,
@@ -64,7 +63,10 @@ public class PositionDTO {
     }
 
     // Outbound position information
-    public PositionDTO(BoardPosition position, BoardPositions bp_access) {
+
+
+    public BoardPositionDTO(BoardPosition position, List<BoardPosition> next_positions) {
+
         description = position.getDescription();
         variation_label = position.getVariationLabel();
         category = position.getCategory();
@@ -74,12 +76,10 @@ public class PositionDTO {
         node_id = position.id;
         comment_count = position.getCommentCount();
 
-        // The list of next moves from this position - have to get that from the DB
-        List<BoardPosition> next_move_list = bp_access.findByParentId(position.id);
-
+        // We need a list of Move DTOs for the variations
         next_moves = new ArrayList<>();
-        if (next_move_list != null) {
-            next_move_list.forEach( (move) -> {
+        if (next_positions != null) {
+            next_positions.forEach( (move) -> {
                 MoveDTO dto = new MoveDTO(move);
                 next_moves.add(dto);
             });

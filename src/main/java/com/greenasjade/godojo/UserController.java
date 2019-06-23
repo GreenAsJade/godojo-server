@@ -17,13 +17,25 @@ public class UserController {
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
+    private Users user_access;
     private UserFactory user_factory;
 
     public UserController(
+            Users user_access,
             UserFactory user_factory) {
+        this.user_access = user_access;
         this.user_factory = user_factory;
     }
 
+    @CrossOrigin()
+    @ResponseBody()
+    @GetMapping("/godojo/contributors" )
+    public List<Long> contributors(
+            @RequestHeader("X-User-Info") String user_jwt) {
+        return user_access.findContributors();
+    }
+
+    /* This one is for getting the permissions of the browser user */
     @CrossOrigin()
     @ResponseBody()
     @GetMapping("/godojo/user-permissions" )  // user id param not needed because we have user jwt anyhow
@@ -35,6 +47,7 @@ public class UserController {
         return new PermissionsDTO(the_user);
     }
 
+    /* This one is for getting the permissions of any user by id */
     @CrossOrigin()
     @ResponseBody()
     @GetMapping("/godojo/permissions" )
