@@ -47,9 +47,13 @@ public class BoardPositions {
     // Note that the results here are by definition active
     List<BoardPosition> findByParentId(Long id) { return bp_access.findByParentId(id); }
 
-    List<BoardPosition> findRoutesOfContributor(Long targetId, Long contributorId) {
-        return bp_access.findRoutesOfContributor(targetId, contributorId);
+    List<BoardPosition> findFilteredVariations(Long targetId,
+                                               Long contributorId,
+                                               Long tagId,
+                                               Long sourceId) {
+        return bp_access.findFilteredVariations(targetId, contributorId, tagId, sourceId);
     }
+
 
     // Database Utility function
     //  NOTE THAT THIS DELETES *EVERYTHING* NOT JUST BOARD POSITIONS

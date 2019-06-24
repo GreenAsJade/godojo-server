@@ -36,10 +36,12 @@ public class BoardPositionController {
     @ResponseBody()
     @GetMapping("/godojo/position" )
     // Return all the information needed to display a position
-    // Filter out variations by contributor if contributor filter id is supplied
+    // Filter out variations as specified by params
     public BoardPositionDTO position(
             @RequestParam(value = "id", required = false, defaultValue = "root") String id,
-            @RequestParam(value="cfilterid", required = false) Long variation_contributor) {
+            @RequestParam(value="cfilterid", required = false, defaultValue = "0") Long variation_contributor,
+            @RequestParam(value="tfilterid", required = false, defaultValue = "0") Long variation_tag,
+            @RequestParam(value="sfilterid", required = false, defaultValue = "0") Long variation_source) {
 
         BoardPosition board_position;
 
@@ -57,12 +59,16 @@ public class BoardPositionController {
 
         List<BoardPosition> next_positions;
 
-        if (variation_contributor != null && variation_contributor != 0L) {
-            log.info("filtering for variations by " + variation_contributor.toString());
-            next_positions = bp_access.findRoutesOfContributor(board_position.id, variation_contributor);
+       if (variation_contributor != 0L || variation_tag != 0L || variation_source != 0L) {
+            log.info("filtering for variations by contributor " +
+                    variation_contributor.toString() + ", tag " +
+                    variation_tag.toString() + ", source " +
+                    variation_source.toString());
+            next_positions = bp_access.findFilteredVariations(board_position.id, variation_contributor, variation_tag, variation_source);
             log.info("next positions: " + next_positions.toString());
         }
         else {
+            // Optimisation: if we don't have to as the DB to do the big filter thing, then don't.
             // We have to read them here in case the incoming BoardPosition does not have them
             // already read from the DB
             next_positions = bp_access.findByParentId(board_position.id);
@@ -71,6 +77,11 @@ public class BoardPositionController {
         BoardPositionDTO position = new BoardPositionDTO(board_position, next_positions);
 
         return position;
+    }
+
+    // an alias when we don't want to filter, used below.
+    BoardPositionDTO position(String id) {
+        return this.position(id, 0L, 0L, 0L);
     }
 
     @CrossOrigin()
@@ -137,7 +148,7 @@ public class BoardPositionController {
         this.bp_access.save(next_position);
 
         // Finally, return the info for the last position created.
-        return this.position(next_position.id.toString(), null);
+        return this.position(next_position.id.toString());
     }
 
     @CrossOrigin()
@@ -185,6 +196,6 @@ public class BoardPositionController {
 
         this.bp_access.save(the_position);
 
-        return this.position(id, null);
+        return this.position(id);
     }
 }

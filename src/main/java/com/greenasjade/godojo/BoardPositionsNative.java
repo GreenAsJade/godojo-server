@@ -28,14 +28,31 @@ public interface BoardPositionsNative extends PagingAndSortingRepository<BoardPo
     @Query("MATCH (parent:BoardPosition)<-[link:PARENT]-(target:BoardPosition) WHERE id(target)={TargetID} DELETE link")
     void removeParent(@Param("TargetID") Long id);
 
+
+    // Find variations
+
+    @Query("MATCH (p:BoardPosition)<-[:PARENT]-(n:BoardPosition)<-[:PARENT*0..]-(c:BoardPosition), " +
+            "(t:Tag), (s:JosekiSource) WHERE " +
+            "id(p)={TargetID} AND " +
+            "({ContributorID} = 0 or c.contributor = {ContributorID}) AND " +
+            "({TagID} = 0 or ((c)-->(t) AND id(t) = {TagID}) ) AND " +
+            "({SourceID} = 0 or ((c)-->(s) AND id(s) = {SourceID}) ) " +
+            "RETURN DISTINCT n")
+
+    List<BoardPosition> findFilteredVariations(@Param("TargetID") Long targetId,
+                                               @Param("ContributorID") Long contributorId,
+                                               @Param("TagID") Long tagId,
+                                               @Param("SourceID") Long sourceId);
+
+
     @Query("MATCH (p:BoardPosition)<-[:PARENT]-(n:BoardPosition)<-[:PARENT*0..]-(c:BoardPosition)-->(t:Tag)  WHERE id(p)={TargetID} AND id(t)={TagID} RETURN n")
-    List<BoardPosition> findRoutesToTag(@Param("TargetID") Long targetId,
-                                        @Param("TagID") Long tagId);
+    List<BoardPosition> findVariationsToTag(@Param("TargetID") Long targetId,
+                                            @Param("TagID") Long tagId);
 
 
     @Query("MATCH (p:BoardPosition)<-[:PARENT]-(n:BoardPosition)<-[:PARENT*0..]-(c:BoardPosition) where id(p)={TargetID} and c.contributor={ContributorID} RETURN n")
-    List<BoardPosition> findRoutesOfContributor(@Param("TargetID") Long targetId,
-                                                @Param("ContributorID") Long contributorId);
+    List<BoardPosition> findVariationsOfContributor(@Param("TargetID") Long targetId,
+                                                    @Param("ContributorID") Long contributorId);
 
     /* No real home for this, plonked it here... */
     // Database Utility function

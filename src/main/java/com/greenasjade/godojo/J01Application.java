@@ -110,7 +110,8 @@ public class J01Application {
             log.info(check.toString());
         }
 
-        // Lets make another contributor, to test filtering
+        // Lets make another couple of contributors, to test filtering
+        // One that is me.
 
         Long DevGajId = 645L;
 
@@ -118,10 +119,25 @@ public class J01Application {
         devgaj.setCanEdit(true);
         user_access.save(devgaj);
 
+        // One contributor that is not me
+
+        Long MikeId = 913L;
+
+        User mike = new User(MikeId);
+        mike.setCanEdit(true);
+        user_access.save(mike);
+
         // Set up the basic content...
 
-        js_access.save(new JosekiSource("Dwyrin", "https://www.patreon.com/dwyrin", GajId));
-        js_access.save(new JosekiSource("Traditional", "", GajId));
+        JosekiSource dwyrin = new JosekiSource("Dwyrin", "https://www.patreon.com/dwyrin", GajId);
+        JosekiSource traditional = new JosekiSource("Traditional", "", GajId);
+        JosekiSource mark5000 =  new JosekiSource("Mark5000", "https://online-go.com/player/64817/", GajId);
+        JosekiSource senseis = new JosekiSource("Sensei's Library", "https://senseis.xmp.net", GajId);
+
+        js_access.save(dwyrin);
+        js_access.save(traditional);
+        js_access.save(mark5000);
+        js_access.save(senseis);
 
         Tag joseki_tag = new Tag("Joseki: Position is settled");
         Tag fuseki_tag = new Tag("Fuseki: Done");
@@ -153,6 +169,7 @@ public class J01Application {
         child = child.addMove("R11", GajId);
         child.setTag(joseki_tag);
         child.setDescription("## Joseki", GajId);
+        child.source = traditional;
 
         bp_access.save(child);
 
@@ -163,7 +180,7 @@ public class J01Application {
         child.setVariationLabel('C');
         child.setDescription("## San San", GajId);
 
-        // A joseki by someone else
+        // A joseki by contributed someone else
 
         child = bp_access.findActiveByPlay(".root.Q16");
         child = child.addMove("R17", DevGajId);
@@ -174,28 +191,33 @@ public class J01Application {
         child = child.addMove("O17", DevGajId);
         child = child.addMove("O18", DevGajId);
         child = child.addMove("N17", DevGajId);
-
+        child.setDescription("Black can tenuki", DevGajId);
+        child.source = mark5000;
+        child = child.addMove("N18", DevGajId);
+        child = child.addMove("M17", DevGajId);
+        child.source = mark5000;
         child.setTag(joseki_tag);
-        child.setDescription("## Joseki", DevGajId);
+        child.setDescription("## Joseki\n\n[4-4 Alpha Go Joseki](https://online-go.com/puzzle/8671)", DevGajId);
 
         bp_access.save(child);
 
         // Some more other nodes
 
-        // another contributor that is not me
-
-        Long MikeId = 913L;
-
-        User mike = new User(MikeId);
-        mike.setCanEdit(true);
-        user_access.save(mike);
-
-
         child = rootNode.addMove("Q15", PlayCategory.GOOD, MikeId);
         child = rootNode.addMove("R15", PlayCategory.GOOD, MikeId);
 
         child = rootNode.addMove("K10", PlayCategory.GOOD, GajId);
-        child.setDescription("## Tengen\nDwyrin's favourite!", GajId);
+        child.setDescription("## Tengen\nDwyrin's favourite!\n\nhttp://www.dwyrin.tv/park-jungwhan-takes-on-tengen/", GajId);
+        child.source = dwyrin;
+        child.addComment("OK, it's not really his favourite :D", GajId);
+
+        child=child.addMove("Q16", PlayCategory.GOOD, GajId);
+        child=child.addMove("D16", PlayCategory.GOOD, GajId);
+        child=child.addMove("Q4", PlayCategory.GOOD, GajId);
+        child=child.addMove("D4", PlayCategory.GOOD, GajId);
+        child.setDescription("## Tengen Sanrensei\n\nhttps://senseis.xmp.net/?TengenFuseki", GajId);
+        child.source = senseis;
+        child.setTag(fuseki_tag);
 
         child = rootNode.addMove("S18", PlayCategory.MISTAKE, GajId);
 
@@ -215,7 +237,6 @@ public class J01Application {
         log.info("After findById: " + rootNode.getInfo() );
 
         log.info("Adding second level moves to a node...");
-
 
         // Test adding a comment later
         rootNode.addComment("... initial setup in place!", GajId);
