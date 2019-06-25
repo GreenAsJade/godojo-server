@@ -39,9 +39,9 @@ public class BoardPositionController {
     // Filter out variations as specified by params
     public BoardPositionDTO position(
             @RequestParam(value = "id", required = false, defaultValue = "root") String id,
-            @RequestParam(value="cfilterid", required = false, defaultValue = "0") Long variation_contributor,
-            @RequestParam(value="tfilterid", required = false, defaultValue = "0") Long variation_tag,
-            @RequestParam(value="sfilterid", required = false, defaultValue = "0") Long variation_source) {
+            @RequestParam(value="cfilterid", required = false) Long variation_contributor,
+            @RequestParam(value="tfilterid", required = false) Long variation_tag,
+            @RequestParam(value="sfilterid", required = false) Long variation_source) {
 
         BoardPosition board_position;
 
@@ -59,11 +59,20 @@ public class BoardPositionController {
 
         List<BoardPosition> next_positions;
 
-       if (variation_contributor != 0L || variation_tag != 0L || variation_source != 0L) {
-            log.info("filtering for variations by contributor " +
-                    variation_contributor.toString() + ", tag " +
-                    variation_tag.toString() + ", source " +
-                    variation_source.toString());
+       if (variation_contributor != null || variation_tag != null || variation_source != null) {
+           if (variation_contributor != null) {
+               log.info("filtering for variations by contributor " +
+                       variation_contributor.toString());
+           }
+           if (variation_tag != null) {
+               log.info("filtering for variations by tag " +
+                       variation_tag.toString());
+           }
+           if (variation_source != null) {
+               log.info("filtering for variations by source " +
+                       variation_source.toString());
+           }
+
             next_positions = bp_access.findFilteredVariations(board_position.id, variation_contributor, variation_tag, variation_source);
             log.info("next positions: " + next_positions.toString());
         }

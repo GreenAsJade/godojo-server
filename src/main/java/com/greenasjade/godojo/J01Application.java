@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 @SpringBootApplication
@@ -27,6 +26,7 @@ public class J01Application {
     private Users user_access;
     private AppInfos app_info_access;
 
+    private Integer current_schema = 2;
 
     @Bean
     public CommandLineRunner initialise (
@@ -49,10 +49,10 @@ public class J01Application {
             Iterable<AppInfo> app_info = app_info_access.findAll();
 
             // First introduction of schema id
-            if (!app_info.iterator().hasNext()) {
+            if (!app_info.iterator().hasNext() || app_info.iterator().next().getSchema_id() < current_schema) {
                 AppInfo new_info = new AppInfo();
-                new_info.setSchema_id(1);
-                migrateToSchema(1);
+                new_info.setSchema_id(current_schema);
+                migrateToSchema(current_schema);
                 app_info_access.save(new_info);
             }
 
@@ -69,11 +69,13 @@ public class J01Application {
 
     void migrateToSchema(Integer schema_id){
         switch (schema_id) {
-            case 1:
+            case 2:
+                // At the moment we are just resetting the DB with each update...
+
                 // This is the introduction of BoardPosition.variation_label
                 // with the deprecation of BoardPosition.seq,
                 // plus introducing tags
-                log.info("Migrating to schema 1...");
+                log.info("Migrating to schema 2...");
 
                 // lets just reset the DB for this
                 resetDB();
