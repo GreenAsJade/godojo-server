@@ -1,28 +1,22 @@
 package com.greenasjade.godojo;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.jwt.Jwt;
-import org.springframework.security.jwt.JwtHelper;
-import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class JosekiSourceController {
 
-	@Value("${godojo.http.ogs-key}")
-	private String ogs_key;
-
     private static final Logger log = LoggerFactory.getLogger(JosekiSourceController.class);
 
     private JosekiSources store;
+    private UserFactory user_factory;
 
     public JosekiSourceController(
-            JosekiSources store) {
+            JosekiSources store,
+            UserFactory user_factory) {
         this.store = store;
+        this.user_factory = user_factory;
     }
 
     @CrossOrigin()
@@ -47,21 +41,10 @@ public class JosekiSourceController {
             @RequestBody JosekiSourceDTO source_info) {
 
         // Grab the user-id off the jwt to store as the "contributor"
-        // (throw and die if it's not valid)
-        Jwt token = JwtHelper.decodeAndVerify(user_jwt, new RsaVerifier(ogs_key));
 
-        String claims = token.getClaims();
+        User the_user = this.user_factory.createUser(user_jwt);
 
-        JsonNode jwtClaims = null;
-        try {
-            jwtClaims = new ObjectMapper().readTree(claims);
-        } catch (java.io.IOException e) {
-            return null;
-        }
-
-        // log.info("Claims: " + jwtClaims.toString());
-
-        Long user_id = jwtClaims.get("user_id").asLong();
+        Long user_id = the_user.getUserId();
 
         log.info("Saving josekisource for user: " + user_id.toString());
 
