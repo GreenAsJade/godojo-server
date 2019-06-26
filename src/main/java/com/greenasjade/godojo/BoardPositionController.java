@@ -77,7 +77,7 @@ public class BoardPositionController {
             log.info("next positions: " + next_positions.toString());
         }
         else {
-            // Optimisation: if we don't have to as the DB to do the big filter thing, then don't.
+            // Optimisation: if we don't have to ask the DB to do the big filter thing, then don't.
             // We have to read them here in case the incoming BoardPosition does not have them
             // already read from the DB
             next_positions = bp_access.findByParentId(board_position.id);
