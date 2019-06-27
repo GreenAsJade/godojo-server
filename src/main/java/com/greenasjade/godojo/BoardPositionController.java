@@ -90,7 +90,7 @@ public class BoardPositionController {
 
     // an alias when we don't want to filter, used below.
     BoardPositionDTO position(String id) {
-        return this.position(id, 0L, 0L, 0L);
+        return this.position(id, null, null, null);
     }
 
     @CrossOrigin()
