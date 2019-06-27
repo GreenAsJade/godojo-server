@@ -35,7 +35,7 @@ public interface BoardPositionsNative extends PagingAndSortingRepository<BoardPo
             "(t:Tag), (s:JosekiSource) WHERE " +
             "id(p)={TargetID} AND " +
             "({ContributorID} IS NULL or c.contributor = {ContributorID}) AND " +
-            "({TagID} IS NULL or (id(t) = {TagID} AND (c)-->(t)) AND " +
+            "({TagID} IS NULL or (id(t) = {TagID} AND (c)-->(t)) ) AND " +
             "({SourceID} IS NULL or (id(s) = {SourceID} AND (c)-->(s)) ) " +
             "RETURN DISTINCT n")
 
