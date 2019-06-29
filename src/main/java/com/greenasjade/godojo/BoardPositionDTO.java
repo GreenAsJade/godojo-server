@@ -36,6 +36,8 @@ public class BoardPositionDTO {
 
     private MoveDTO parent;
 
+    private Integer child_count;
+
     // incoming
     public List<Long> tag_ids;
 
@@ -69,7 +71,10 @@ public class BoardPositionDTO {
     // Outbound position information
 
 
-    public BoardPositionDTO(BoardPosition position, List<BoardPosition> next_positions) {
+    public BoardPositionDTO(
+            BoardPosition position,
+            List<BoardPosition> next_positions,
+            Integer child_count) {
 
         description = position.getDescription();
         variation_label = position.getVariationLabel();
@@ -98,5 +103,7 @@ public class BoardPositionDTO {
         parent = new MoveDTO(parent_position);
 
         tags = position.tags;
+
+        this.child_count = child_count;
     }
 }

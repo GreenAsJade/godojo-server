@@ -44,7 +44,7 @@ public class BoardPositions {
         return (candidates.size() == 0 ? null : candidates.get(0));
     }
 
-    // Note that the results here are by definition active
+    // Note that the results here are by definition active (assuming the input node is active)
     List<BoardPosition> findByParentId(Long id) { return bp_access.findByParentId(id); }
 
     List<BoardPosition> findFilteredVariations(Long targetId,
@@ -54,6 +54,7 @@ public class BoardPositions {
         return bp_access.findFilteredVariations(targetId, contributorId, tagId, sourceId);
     }
 
+    Integer countChildren(Long id) {return bp_access.countChildren(id);}
 
     // Database Utility function
     //  NOTE THAT THIS DELETES *EVERYTHING* NOT JUST BOARD POSITIONS

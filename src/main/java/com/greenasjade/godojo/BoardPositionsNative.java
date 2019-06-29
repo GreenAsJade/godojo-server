@@ -48,14 +48,8 @@ public interface BoardPositionsNative extends PagingAndSortingRepository<BoardPo
                                                @Param("SourceID") Long sourceId);
 
 
-    @Query("MATCH (p:BoardPosition)<-[:PARENT]-(n:BoardPosition)<-[:PARENT*0..]-(c:BoardPosition)-->(t:Tag)  WHERE id(p)={TargetID} AND id(t)={TagID} RETURN n")
-    List<BoardPosition> findVariationsToTag(@Param("TargetID") Long targetId,
-                                            @Param("TagID") Long tagId);
-
-
-    @Query("MATCH (p:BoardPosition)<-[:PARENT]-(n:BoardPosition)<-[:PARENT*0..]-(c:BoardPosition) where id(p)={TargetID} and c.contributor={ContributorID} RETURN n")
-    List<BoardPosition> findVariationsOfContributor(@Param("TargetID") Long targetId,
-                                                    @Param("ContributorID") Long contributorId);
+    @Query("MATCH (p:BoardPosition)<-[:PARENT*1..]-(c:BoardPosition) where id(p)={TargetID} return count(c)")
+    Integer countChildren(@Param("TargetID") Long id);
 
     /* No real home for this, plonked it here... */
     // Database Utility function

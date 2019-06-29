@@ -83,7 +83,9 @@ public class BoardPositionController {
             next_positions = bp_access.findByParentId(board_position.id);
         }
 
-        BoardPositionDTO position = new BoardPositionDTO(board_position, next_positions);
+        Integer child_count = bp_access.countChildren(board_position.id);
+
+        BoardPositionDTO position = new BoardPositionDTO(board_position, next_positions, child_count);
 
         return position;
     }
@@ -209,4 +211,5 @@ public class BoardPositionController {
 
         return this.position(id);
     }
+
 }
