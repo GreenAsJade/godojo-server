@@ -181,11 +181,21 @@ public class BoardPosition {
 
             children.add(child);
             child.setParent(this);
-            child.variation_label = '_';
+            child.variation_label = this.nextVariationLabel();
             log.info("Added move: " + placement);
             log.info("now this node: " + this.toString());
             this.audits.add(new Audit(this, ChangeType.ADD_CHILD, previous_children, child.getPlay(),"Added child " + placement, user_id));
             return child;
+        }
+    }
+
+    Character nextVariationLabel() {
+        List<BoardPosition> labelled = this.children.stream().filter(p -> p.variation_label != null && p.variation_label != '_').collect(Collectors.toList());
+        if (labelled.size() < 9) {
+            return (char)(this.children.size() + '0');
+        }
+        else {
+            return '_';
         }
     }
 

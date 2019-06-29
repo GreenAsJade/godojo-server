@@ -9,7 +9,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @SpringBootApplication
 public class J01Application {
@@ -48,13 +50,22 @@ public class J01Application {
             this.app_info_access = app_info_access;
 
             // note: there should only be one (or zero) app_info in app_infos!
-            Iterable<AppInfo> app_info = app_info_access.findAll();
+            Iterable<AppInfo> app_infos = app_info_access.findAll();
 
-            if (!app_info.iterator().hasNext() || app_info.iterator().next().getSchema_id() < current_schema) {
-                AppInfo new_info = new AppInfo();
-                new_info.setSchema_id(current_schema);
+            AppInfo app_info;
+
+            if (app_infos.iterator().hasNext()) {
+                app_info = app_infos.iterator().next();
+            }
+            else {
+                app_info = new AppInfo();
+                app_info.setSchema_id(0);
+            }
+
+            if (app_info.getSchema_id() < current_schema) {
+                app_info.setSchema_id(current_schema);
                 migrateToSchema(current_schema);
-                app_info_access.save(new_info);
+                app_info_access.save(app_info);
             }
             else {
                 log.info("Schema version " + current_schema.toString());
@@ -84,8 +95,10 @@ public class J01Application {
                 return;
 
             case 3:
-                // Here we transition from 'A' 'B' 'C' to '1' '2' '3' for variation IDs.
+                // Here we transition from 'A' 'B' 'C' to '1' '2' '3' for variation IDs
+
                 log.info("Migrating to schema 3...");
+
                 this.native_bp_access.findAll().forEach(p->{
                     Character v = p.getVariationLabel();
                     Character n;
