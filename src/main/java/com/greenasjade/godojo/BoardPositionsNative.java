@@ -34,10 +34,10 @@ public interface BoardPositionsNative extends PagingAndSortingRepository<BoardPo
 
     // Find variations
 
-    @Query("MATCH (p:BoardPosition)<-[:PARENT]-(n:BoardPosition)<-[:PARENT*0..]-(c:BoardPosition), " +
-            "(t:Tag), (s:JosekiSource) WHERE " +
-            "id(p)={TargetID} AND " +
-            "({ContributorID} IS NULL or c.contributor = {ContributorID}) AND " +
+    @Query("MATCH (p:BoardPosition)<-[:PARENT]-(n:BoardPosition)<-[:PARENT*0..]-(c:BoardPosition) " +
+            "WHERE id(p)={TargetID} AND ({ContributorID} IS NULL or c.contributor = {ContributorID}) " +
+            "WITH c, n " +
+            "MATCH (t:Tag), (s:JosekiSource) WHERE " +
             "({TagID} IS NULL or (id(t) = {TagID} AND (c)-->(t)) ) AND " +
             "({SourceID} IS NULL or (id(s) = {SourceID} AND (c)-->(s)) ) " +
             "RETURN DISTINCT n")
