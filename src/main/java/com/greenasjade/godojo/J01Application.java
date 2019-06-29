@@ -20,17 +20,18 @@ public class J01Application {
         SpringApplication.run(J01Application.class, args);
     }
 
+    private BoardPositionsNative native_bp_access;
     private BoardPositions bp_access;
     private JosekiSources js_access;
     private Tags tags_access;
     private Users user_access;
     private AppInfos app_info_access;
 
-    private Integer current_schema = 2;
+    private Integer current_schema = 3;
 
     @Bean
     public CommandLineRunner initialise (
-            BoardPositionsNative store_by_bp,
+            BoardPositionsNative native_bp_access,
             JosekiSources js_access,
             Tags tags_access,
             Users user_access,
@@ -39,7 +40,8 @@ public class J01Application {
         return args -> {
             log.info("Initialising...");
 
-            this.bp_access = new BoardPositions(store_by_bp);
+            this.native_bp_access = native_bp_access;
+            this.bp_access = new BoardPositions(native_bp_access);
             this.js_access = js_access;
             this.tags_access = tags_access;
             this.user_access = user_access;
@@ -48,12 +50,14 @@ public class J01Application {
             // note: there should only be one (or zero) app_info in app_infos!
             Iterable<AppInfo> app_info = app_info_access.findAll();
 
-            // First introduction of schema id
             if (!app_info.iterator().hasNext() || app_info.iterator().next().getSchema_id() < current_schema) {
                 AppInfo new_info = new AppInfo();
                 new_info.setSchema_id(current_schema);
                 migrateToSchema(current_schema);
                 app_info_access.save(new_info);
+            }
+            else {
+                log.info("Schema version " + current_schema.toString());
             }
 
             BoardPosition rootNode = bp_access.findActiveByPlay(".root");
@@ -63,15 +67,13 @@ public class J01Application {
             }
             rootNode = bp_access.findActiveByPlay(".root");
 
-            log.info(rootNode.getInfo());
+            log.info("Current root: " + rootNode.getInfo());
         };
     }
 
     void migrateToSchema(Integer schema_id){
         switch (schema_id) {
             case 2:
-                // At the moment we are just resetting the DB with each update...
-
                 // This is the introduction of BoardPosition.variation_label
                 // with the deprecation of BoardPosition.seq,
                 // plus introducing tags
@@ -79,8 +81,26 @@ public class J01Application {
 
                 // lets just reset the DB for this
                 resetDB();
+                return;
+
+            case 3:
+                // Here we transition from 'A' 'B' 'C' to '1' '2' '3' for variation IDs.
+                log.info("Migrating to schema 3...");
+                this.native_bp_access.findAll().forEach(p->{
+                    Character v = p.getVariationLabel();
+                    Character n;
+                    if (v != null && "ABCDEFG".indexOf(v) != -1) {
+                            n = (char) (v - 'A' + '1');
+                    } else {
+                        n = v;
+                    }
+                    log.info("converting " + v + " to " + n);
+                    p.setVariationLabel(n);
+                    bp_access.save(p);
+                });
 
                 return;
+
             default:
                 // should maybe throw here I guess
                 log.error("Unrecognised schema ID! " + schema_id);

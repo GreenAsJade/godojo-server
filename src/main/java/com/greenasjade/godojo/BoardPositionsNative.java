@@ -1,6 +1,7 @@
 package com.greenasjade.godojo;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import org.springframework.data.neo4j.annotation.Query;
 
@@ -18,6 +19,8 @@ public interface BoardPositionsNative extends PagingAndSortingRepository<BoardPo
 
     List<BoardPosition> findByPlay(String play);  // There can be more than one due to old deactivated ones.
     Optional<BoardPosition> findById(Long id);
+
+    List<BoardPosition> findAll();
 
     // note: by definition the result of this query is an "active" position, since it has a parent.
     @Query("MATCH (p:BoardPosition)<-[prel:PARENT]-(c:BoardPosition) WHERE id(p)={ParentID} RETURN c, prel ORDER BY c.seq")

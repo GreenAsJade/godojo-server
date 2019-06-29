@@ -64,6 +64,11 @@ public class BoardPosition {
     public Long getContributorId(){return contributor_id;}
     public void setContributorId(Long id) {contributor_id = id;}
 
+    @Property("marks")
+    private String marks;  // note that this is an opaque string as far as server is concerned
+    public String getMarks() {return marks;}
+    public void setMarks(String marks){this.marks = marks;}
+
     @Relationship(type="PARENT", direction = Relationship.INCOMING)
     public List<BoardPosition> children;
 

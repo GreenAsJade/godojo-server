@@ -187,6 +187,8 @@ public class BoardPositionController {
 
         the_position.setVariationLabel(position_details.getVariation_label());
 
+        the_position.setMarks(position_details.getMarks());
+
         if (position_details.getCategory() != null) {
             the_position.setCategory(position_details.getCategory(), user_id);
         }

@@ -26,6 +26,8 @@ public class BoardPositionDTO {
 
     private Long contributor;
 
+    private String marks;
+
     private Long node_id;
 
     private Integer comment_count;
@@ -53,12 +55,14 @@ public class BoardPositionDTO {
             @JsonProperty("variation_label") Character variation_label,
             @JsonProperty("category") String category,
             @JsonProperty("joseki_source_id") Long joseki_source_id,
+            @JsonProperty("marks") String marks,
             @JsonProperty("tags") ArrayList<Long> tags) {
         this.description = description;
         this.variation_label = variation_label;
         // empty category means "don't change it"
         this.category = category == null ? null : PlayCategory.valueOf(category);
         this.joseki_source_id = joseki_source_id;
+        this.marks = marks;
         this.tag_ids = tags;
     }
 
@@ -75,6 +79,7 @@ public class BoardPositionDTO {
         play = position.getPlay();
         node_id = position.id;
         comment_count = position.getCommentCount();
+        marks = position.getMarks();
 
         // We need a list of Move DTOs for the variations
         next_moves = new ArrayList<>();
