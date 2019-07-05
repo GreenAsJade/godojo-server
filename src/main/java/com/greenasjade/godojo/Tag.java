@@ -20,12 +20,29 @@ public class Tag {
     private String description;
     public String getDescription() {return description;}
 
+    @Property
+    private Integer group;
+    public Integer getGroup() {return group;}
+    public void setGroup(Integer g) {group = g;}
+
+
+    @Property Integer seq;
+    public Integer getSeq() {return seq;}
+    public void setSeq(Integer s) {seq = s;}
+
     public Tag() {
         // Empty constructor required as of Neo4j API 2.0.5
     };
 
+    // legacy constructor
     public Tag(String description) {
         this.description = description;
+    }
+
+    public Tag(String description, Integer group, Integer seq) {
+        this.description = description;
+        this.group = group;
+        this.seq = seq;
     }
 
     public String toString() {

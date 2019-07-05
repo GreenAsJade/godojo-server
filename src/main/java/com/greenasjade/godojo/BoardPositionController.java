@@ -185,6 +185,8 @@ public class BoardPositionController {
 
         BoardPosition the_position = this.bp_access.findById(Long.valueOf(id));
 
+        log.info("updatePosition - the_position" + the_position.toString());
+
         the_position.setDescription(position_details.getDescription(), user_id);
 
         the_position.setVariationLabel(position_details.getVariation_label());
@@ -196,6 +198,7 @@ public class BoardPositionController {
         }
 
         if (position_details.joseki_source_id != null) {
+            log.info("sourcing joseki source " + position_details.joseki_source_id);
             the_position.source = js_access.findById(position_details.joseki_source_id).orElse(null);
         }
 

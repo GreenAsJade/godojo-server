@@ -38,8 +38,8 @@ public interface BoardPositionsNative extends PagingAndSortingRepository<BoardPo
             "WHERE id(p)={TargetID} AND ({ContributorID} IS NULL or c.contributor = {ContributorID}) " +
             "WITH c, n " +
             "MATCH (t:Tag), (s:JosekiSource) WHERE " +
-            "({TagID} IS NULL or (id(t) = {TagID} AND (c)-->(t)) ) AND " +
-            "({SourceID} IS NULL or (id(s) = {SourceID} AND (c)-->(s)) ) " +
+            "({TagID} IS NULL or (id(t) = {TagID} AND (c)-[:TAGS]->(t)) ) AND " +
+            "({SourceID} IS NULL or (id(s) = {SourceID} AND (c)-[:SOURCE]->(s)) ) " +
             "RETURN DISTINCT n")
 
     List<BoardPosition> findFilteredVariations(@Param("TargetID") Long targetId,

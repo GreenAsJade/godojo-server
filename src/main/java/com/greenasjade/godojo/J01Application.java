@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -50,21 +49,18 @@ public class J01Application {
             this.app_info_access = app_info_access;
 
             // note: there should only be one (or zero) app_info in app_infos!
-            Iterable<AppInfo> app_infos = app_info_access.findAll();
+            AppInfo app_info = app_info_access.getAppInfo();
 
-            AppInfo app_info;
-
-            if (app_infos.iterator().hasNext()) {
-                app_info = app_infos.iterator().next();
-            }
-            else {
+            if (app_info == null) {
                 app_info = new AppInfo();
                 app_info.setSchema_id(0);
             }
 
-            if (app_info.getSchema_id() < current_schema) {
+            Integer db_schema = app_info.getSchema_id();
+
+            if (db_schema < current_schema) {
+                migrateToSchema(current_schema, db_schema);
                 app_info.setSchema_id(current_schema);
-                migrateToSchema(current_schema);
                 app_info_access.save(app_info);
             }
             else {
@@ -82,7 +78,7 @@ public class J01Application {
         };
     }
 
-    void migrateToSchema(Integer schema_id){
+    void migrateToSchema(Integer schema_id, Integer previous_schema){
         switch (schema_id) {
             case 2:
                 // This is the introduction of BoardPosition.variation_label
@@ -96,7 +92,7 @@ public class J01Application {
 
             case 3:
                 // Here we transition from 'A' 'B' 'C' to '1' '2' '3' for variation IDs
-
+                
                 log.info("Migrating to schema 3...");
 
                 this.native_bp_access.findAll().forEach(p->{
@@ -111,6 +107,70 @@ public class J01Application {
                     p.setVariationLabel(n);
                     bp_access.save(p);
                 });
+
+                // Update existing tag's group and seq
+
+                List<Tag> tags = tags_access.listTags();
+
+                for (int i = 0; i < tags.size(); i++) {
+                    Tag tag = tags.get(i);
+                    tag.setGroup(0);
+                    tag.setSeq(i);
+                    tags_access.save(tag);
+                }
+
+                // And add some outcome tags
+
+                Tag result_tag;
+
+                result_tag = new Tag("Black gets the corner and top", 1, 1);
+                tags_access.save(result_tag);
+                result_tag = new Tag("Black gets the corner and center", 1, 2);
+                tags_access.save(result_tag);
+                result_tag = new Tag("Black gets the corner and right", 1, 3);
+                tags_access.save(result_tag);
+                result_tag = new Tag("Black gets the corner, top and center", 1, 4);
+                tags_access.save(result_tag);
+                result_tag = new Tag("Black gets the corner, top and right", 1, 5);
+                tags_access.save(result_tag);
+                result_tag = new Tag("Black gets the corner, center and right", 1, 6);
+                tags_access.save(result_tag);
+                result_tag = new Tag("Black gets the top", 1, 7);
+                tags_access.save(result_tag);
+                result_tag = new Tag("Black gets the centre", 1, 8);
+                tags_access.save(result_tag);
+                result_tag = new Tag("Black gets the right", 1, 9);
+                tags_access.save(result_tag);
+                result_tag = new Tag("Black gets the top and centre", 1, 10);
+                tags_access.save(result_tag);
+                result_tag = new Tag("Black gets the top and right", 1, 11);
+                tags_access.save(result_tag);
+                result_tag = new Tag("Black gets the centre and right", 1, 12);
+                tags_access.save(result_tag);
+                result_tag = new Tag("White gets the corner and top", 2, 1);
+                tags_access.save(result_tag);
+                result_tag = new Tag("White gets the corner and center", 2, 2);
+                tags_access.save(result_tag);
+                result_tag = new Tag("White gets the corner and right", 2, 3);
+                tags_access.save(result_tag);
+                result_tag = new Tag("White gets the corner, top and center", 2, 4);
+                tags_access.save(result_tag);
+                result_tag = new Tag("White gets the corner, top and right", 2, 5);
+                tags_access.save(result_tag);
+                result_tag = new Tag("White gets the corner, center and right", 2, 6);
+                tags_access.save(result_tag);
+                result_tag = new Tag("White gets the top", 2, 7);
+                tags_access.save(result_tag);
+                result_tag = new Tag("White gets the centre", 2, 8);
+                tags_access.save(result_tag);
+                result_tag = new Tag("White gets the right", 2, 9);
+                tags_access.save(result_tag);
+                result_tag = new Tag("White gets the top and centre", 2, 10);
+                tags_access.save(result_tag);
+                result_tag = new Tag("White gets the top and right", 2, 11);
+                tags_access.save(result_tag);
+                result_tag = new Tag("White gets the centre and right", 2, 12);
+                tags_access.save(result_tag);
 
                 return;
 
