@@ -215,4 +215,58 @@ public class BoardPositionController {
         return this.position(id);
     }
 
+    @CrossOrigin()
+    @ResponseBody()
+    @GetMapping("/godojo/position/tagcount" )
+    // Return all the information needed to display a position
+    // Filter out variations as specified by params
+    public Integer countOfTags(
+            @RequestParam(value = "id", required = false, defaultValue = "root") String id,
+            @RequestParam(value="tfilterid") Long variation_tag) {
+
+        BoardPosition board_position;
+
+        if (id.equals("root")) {
+            board_position = this.bp_access.findActiveByPlay(".root");
+        }
+        else {
+            board_position = this.bp_access.findById(Long.valueOf(id));
+        }
+
+        Integer result = bp_access.countChildrenWithTag(board_position.id, variation_tag);
+
+        log.info("At node " + id + " tag id " + variation_tag + " count is " + result);
+
+        return result;
+    }
+
+    @CrossOrigin()
+    @ResponseBody()
+    @GetMapping("/godojo/position/tagcounts" )
+    // Return all the information needed to display a position
+    // Filter out variations as specified by params
+    public HashMap<String, Integer> countsOfTags(
+            @RequestParam(value = "id", required = false, defaultValue = "root") String id) {
+
+        BoardPosition board_position;
+
+        if (id.equals("root")) {
+            board_position = this.bp_access.findActiveByPlay(".root");
+        }
+        else {
+            board_position = this.bp_access.findById(Long.valueOf(id));
+        }
+
+        HashMap<String, Integer> result = new HashMap<>();
+
+        tag_access.listTags().forEach( t -> {
+            result.put(t.getDescription(), bp_access.countChildrenWithTag(board_position.id, t.id));
+        });
+
+        log.info("Tags count for " + board_position.id.toString() + " " + result.toString() );
+
+        return result;
+    }
+
+
 }

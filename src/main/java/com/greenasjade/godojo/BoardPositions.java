@@ -56,6 +56,8 @@ public class BoardPositions {
 
     Integer countChildren(Long id) {return bp_access.countChildren(id);}
 
+    Integer countChildrenWithTag(Long id, Long tagId) {return bp_access.countChildrenWithTag(id, tagId);}
+
     // Database Utility function
     //  NOTE THAT THIS DELETES *EVERYTHING* NOT JUST BOARD POSITIONS
     void deleteEverythingInDB() { bp_access.deleteEverythingInDB(); }

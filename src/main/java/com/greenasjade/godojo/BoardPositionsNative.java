@@ -51,6 +51,9 @@ public interface BoardPositionsNative extends PagingAndSortingRepository<BoardPo
     @Query("MATCH (p:BoardPosition)<-[:PARENT*1..]-(c:BoardPosition) where id(p)={TargetID} return count(c)")
     Integer countChildren(@Param("TargetID") Long id);
 
+    @Query("MATCH (p:BoardPosition)<-[:PARENT*1..]-(c:BoardPosition)-[:TAGS]->(t:Tag) where id(p)={TargetID} and id(t)={TagID} return count(c)")
+    Integer countChildrenWithTag(@Param("TargetID") Long id, @Param("TagID") Long tagId);
+
     /* No real home for this, plonked it here... */
     // Database Utility function
     //  NOTE THAT THIS DELETES *EVERYTHING* NOT JUST BOARD POSITIONS

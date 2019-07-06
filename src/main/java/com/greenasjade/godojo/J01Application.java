@@ -49,7 +49,7 @@ public class J01Application {
             this.app_info_access = app_info_access;
 
             // note: there should only be one (or zero) app_info in app_infos!
-            AppInfo app_info = app_info_access.getAppInfo();
+            AppInfo app_info = this.app_info_access.getAppInfo();
 
             if (app_info == null) {
                 app_info = new AppInfo();
@@ -92,7 +92,7 @@ public class J01Application {
 
             case 3:
                 // Here we transition from 'A' 'B' 'C' to '1' '2' '3' for variation IDs
-                
+
                 log.info("Migrating to schema 3...");
 
                 this.native_bp_access.findAll().forEach(p->{
