@@ -30,6 +30,12 @@ public class Tag {
     public Integer getSeq() {return seq;}
     public void setSeq(Integer s) {seq = s;}
 
+    // Note NOT stored in DB, just used in TagsDTO
+    @Transient
+    private Integer continuationCount;
+    public Integer getContinuationCount() {return continuationCount;}
+    public void setContinuationCount(Integer count) {this.continuationCount = count;}
+
     public Tag() {
         // Empty constructor required as of Neo4j API 2.0.5
     };

@@ -245,7 +245,7 @@ public class BoardPositionController {
     @GetMapping("/godojo/position/tagcounts" )
     // Return all the information needed to display a position
     // Filter out variations as specified by params
-    public HashMap<String, Integer> countsOfTags(
+    public TagsDTO countsOfTags(
             @RequestParam(value = "id", required = false, defaultValue = "root") String id) {
 
         BoardPosition board_position;
@@ -257,15 +257,16 @@ public class BoardPositionController {
             board_position = this.bp_access.findById(Long.valueOf(id));
         }
 
-        HashMap<String, Integer> result = new HashMap<>();
+        List<Tag> tags = tag_access.listTags();
 
-        tag_access.listTags().forEach( t -> {
-            result.put(t.getDescription(), bp_access.countChildrenWithTag(board_position.id, t.id));
-        });
+        tags.stream()
+                .forEach( t ->
+                    t.setContinuationCount(bp_access.countChildrenWithTag(board_position.id, t.id))
+                );
 
-        log.info("Tags count for " + board_position.id.toString() + " " + result.toString() );
+        log.info("Tags count for " + board_position.id.toString() + " " + tags.toString() );
 
-        return result;
+        return new TagsDTO(tags);
     }
 
 
