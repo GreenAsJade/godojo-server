@@ -257,14 +257,14 @@ public class BoardPositionController {
             board_position = this.bp_access.findById(Long.valueOf(id));
         }
 
+        log.info("Tags count request for node " + board_position.toString());
+
         List<Tag> tags = tag_access.listTags();
 
         tags.stream()
                 .forEach( t ->
                     t.setContinuationCount(bp_access.countChildrenWithTag(board_position.id, t.id))
                 );
-
-        log.info("Tags count for " + board_position.id.toString() + " " + tags.toString() );
 
         return new TagsDTO(tags);
     }

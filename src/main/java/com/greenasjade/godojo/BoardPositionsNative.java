@@ -1,7 +1,6 @@
 package com.greenasjade.godojo;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 import org.springframework.data.neo4j.annotation.Query;
 

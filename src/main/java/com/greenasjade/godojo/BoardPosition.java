@@ -110,7 +110,7 @@ public class BoardPosition {
         this.commentary = new ArrayList<>();
         this.tags = new ArrayList<>();
 
-        log.info(placement + " created by user " + user_id.toString());
+        //log.info(placement + " created by user " + user_id.toString());
 
         this.source = null;
 
@@ -182,8 +182,8 @@ public class BoardPosition {
             children.add(child);
             child.setParent(this);
             child.variation_label = this.nextVariationLabel();
-            log.info("Added move: " + placement);
-            log.info("now this node: " + this.toString());
+            //log.info("Added move: " + placement);
+            //log.info("now this node: " + this.toString());
             this.audits.add(new Audit(this, ChangeType.ADD_CHILD, previous_children, child.getPlay(),"Added child " + placement, user_id));
             return child;
         }
@@ -206,7 +206,7 @@ public class BoardPosition {
     }
 
     public void setTag(Tag tag) {
-        log.info("Setting tag " + tag.toString() );
+        //log.info("Setting tag " + tag.toString() );
         if (this.tags == null) {
             this.tags = new ArrayList<>();
         }
