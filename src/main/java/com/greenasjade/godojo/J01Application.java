@@ -392,7 +392,7 @@ public class J01Application {
     void loadStressTest() {
         BoardPosition start = this.bp_access.findActiveByPlay(".root");
 
-        this.extendSequence(start,'A', 1, 50000);
+        this.extendSequence(start,'A', 1, 100000);
         log.info("Writing lots of nodes to neo - can take a few minutes on my machine...");
         bp_access.save(start);
     }
@@ -402,7 +402,7 @@ public class J01Application {
     void extendSequence(BoardPosition parent, char x, Integer y, Integer target_count){
         String new_move = x + y.toString();
         BoardPosition new_node = parent.addMove(new_move, PlayCategory.IDEAL, 168L);
-        new_node.setDescription("Load test position", 168L);
+        new_node.setDescription("Load-test position", 168L);
         new_node.setCategory(PlayCategory.TRICK, 168L);
         if (this.loadNodeCount % 100 == 0) {
             log.info("Node count: " + this.loadNodeCount.toString());
