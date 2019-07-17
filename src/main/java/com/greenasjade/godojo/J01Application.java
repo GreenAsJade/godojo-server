@@ -102,9 +102,9 @@ public class J01Application {
 
                 /* theoretically we'd do this, but I don't want any risk of inadvertent
                    database reset... */
-                if (previous_schema < 2) {
+                /*if (previous_schema < 2) {
                     migrateToSchema(2, previous_schema);
-                }
+                }*/
                 
 
                 log.info("Migrating to schema 3...");
@@ -392,7 +392,7 @@ public class J01Application {
     void loadStressTest() {
         BoardPosition start = this.bp_access.findActiveByPlay(".root");
 
-        this.extendSequence(start,'A', 1, 100000);
+        this.extendSequence(start,'A', 1, 50000);
         log.info("Writing lots of nodes to neo - can take a few minutes on my machine...");
         bp_access.save(start);
     }

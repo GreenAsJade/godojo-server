@@ -64,10 +64,17 @@ public class BoardPositionController {
                log.info("filtering for variations by contributor " +
                        variation_contributor.toString());
            }
+
+           List<Long> tagIds = null;
+
            if (variation_tag != null) {
                log.info("filtering for variations by tag " +
                        variation_tag.toString());
+
+               tagIds = new ArrayList<>();
+               tagIds.add(variation_tag);
            }
+
            if (variation_source != null) {
                log.info("filtering for variations by source " +
                        variation_source.toString());

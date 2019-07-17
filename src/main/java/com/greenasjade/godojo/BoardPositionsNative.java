@@ -31,16 +31,15 @@ public interface BoardPositionsNative extends PagingAndSortingRepository<BoardPo
     void removeParent(@Param("TargetID") Long id);
 
 
-    // Find variations
+    // Find variations filtered by Tag and optionally source and contributor
 
-    @Query("MATCH (p:BoardPosition)<-[:PARENT]-(n:BoardPosition)<-[:PARENT*0..]-(c:BoardPosition) " +
-            "WHERE id(p)={TargetID} AND ({ContributorID} IS NULL or c.contributor = {ContributorID}) " +
-            "WITH c, n " +
-            "MATCH (t:Tag), (s:JosekiSource) WHERE " +
-            "({TagID} IS NULL or (id(t) = {TagID} AND (c)-[:TAGS]->(t)) ) AND " +
-            "({SourceID} IS NULL or (id(s) = {SourceID} AND (c)-[:SOURCE]->(s)) ) " +
-            "RETURN DISTINCT n")
-
+    @Query("MATCH (t:Tag)<-[:TAGS]-(leaf:BoardPosition)-[:PARENT*0..]->(v:BoardPosition)-[:PARENT]->(target:BoardPosition) " +
+            "WHERE id(t) = {TagID} AND id(target) = {TargetID} " +
+            "WITH t,v,leaf MATCH (s:JosekiSource) " +
+            "WHERE ({SourceID} IS NULL OR (id(s) = {SourceID} AND (leaf)-[:SOURCE]->(s)) ) " +
+            "WITH t, v, leaf WHERE " +
+            "({ContributorID} IS NULL OR leaf.contributor = {ContributorID}) " +
+            "RETURN DISTINCT v")
     List<BoardPosition> findFilteredVariations(@Param("TargetID") Long targetId,
                                                @Param("ContributorID") Long contributorId,
                                                @Param("TagID") Long tagId,
