@@ -51,7 +51,13 @@ public class BoardPositions {
                                                Long contributorId,
                                                Long tagId,
                                                Long sourceId) {
-        return bp_access.findFilteredVariations(targetId, contributorId, tagId, sourceId);
+        if (tagId == null) {
+            // We must have a tag to do filtering, for acceptable performance
+            return bp_access.findByParentId(targetId);
+        }
+        else {
+            return bp_access.findFilteredVariations(targetId, contributorId, tagId, sourceId);
+        }
     }
 
     Integer countChildren(Long id) {return bp_access.countChildren(id);}

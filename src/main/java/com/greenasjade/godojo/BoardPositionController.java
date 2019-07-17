@@ -59,20 +59,21 @@ public class BoardPositionController {
 
         List<BoardPosition> next_positions;
 
-       if (variation_contributor != null || variation_tag != null || variation_source != null) {
+        // If we have a tag to filter for, we can do filtering
+        if (variation_tag != null) {
+            List<Long> tagIds = null;
+
+            if (variation_tag != null) {
+                log.info("filtering for variations by tag " +
+                        variation_tag.toString());
+
+                tagIds = new ArrayList<>();
+                tagIds.add(variation_tag);
+            }
+
            if (variation_contributor != null) {
                log.info("filtering for variations by contributor " +
                        variation_contributor.toString());
-           }
-
-           List<Long> tagIds = null;
-
-           if (variation_tag != null) {
-               log.info("filtering for variations by tag " +
-                       variation_tag.toString());
-
-               tagIds = new ArrayList<>();
-               tagIds.add(variation_tag);
            }
 
            if (variation_source != null) {
