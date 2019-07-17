@@ -29,20 +29,21 @@ public interface BoardPositionsNative extends PagingAndSortingRepository<BoardPo
 
     @Query("MATCH (parent:BoardPosition)<-[link:PARENT]-(target:BoardPosition) WHERE id(target)={TargetID} DELETE link")
     void removeParent(@Param("TargetID") Long id);
-
-
+    
     // Find variations filtered by Tag and optionally source and contributor
 
     @Query("MATCH (t:Tag)<-[:TAGS]-(leaf:BoardPosition)-[:PARENT*0..]->(v:BoardPosition)-[:PARENT]->(target:BoardPosition) " +
-            "WHERE id(t) = {TagID} AND id(target) = {TargetID} " +
-            "WITH t,v,leaf MATCH (s:JosekiSource) " +
+            "WHERE id(target) = {TargetID} " +
+            "WITH v, leaf, collect(id(t)) as tids " +
+            "WHERE ALL (tid in tids WHERE tid in {TagIDs}) " +
+            "WITH v,leaf MATCH (s:JosekiSource) " +
             "WHERE ({SourceID} IS NULL OR (id(s) = {SourceID} AND (leaf)-[:SOURCE]->(s)) ) " +
-            "WITH t, v, leaf WHERE " +
+            "WITH v, leaf WHERE " +
             "({ContributorID} IS NULL OR leaf.contributor = {ContributorID}) " +
             "RETURN DISTINCT v")
     List<BoardPosition> findFilteredVariations(@Param("TargetID") Long targetId,
                                                @Param("ContributorID") Long contributorId,
-                                               @Param("TagID") Long tagId,
+                                               @Param("TagIDs") List<Long> tagIds,
                                                @Param("SourceID") Long sourceId);
 
 

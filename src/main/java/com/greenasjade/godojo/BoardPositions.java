@@ -49,14 +49,14 @@ public class BoardPositions {
 
     List<BoardPosition> findFilteredVariations(Long targetId,
                                                Long contributorId,
-                                               Long tagId,
+                                               List<Long> tagIds,
                                                Long sourceId) {
-        if (tagId == null) {
+        if (tagIds == null) {
             // We must have a tag to do filtering, for acceptable performance
             return bp_access.findByParentId(targetId);
         }
         else {
-            return bp_access.findFilteredVariations(targetId, contributorId, tagId, sourceId);
+            return bp_access.findFilteredVariations(targetId, contributorId, tagIds, sourceId);
         }
     }
 

@@ -40,7 +40,7 @@ public class BoardPositionController {
     public BoardPositionDTO position(
             @RequestParam(value = "id", required = false, defaultValue = "root") String id,
             @RequestParam(value="cfilterid", required = false) Long variation_contributor,
-            @RequestParam(value="tfilterid", required = false) Long variation_tag,
+            @RequestParam(value="tfilterid", required = false) List<Long> variation_tags,
             @RequestParam(value="sfilterid", required = false) Long variation_source) {
 
         BoardPosition board_position;
@@ -60,15 +60,15 @@ public class BoardPositionController {
         List<BoardPosition> next_positions;
 
         // If we have a tag to filter for, we can do filtering
-        if (variation_tag != null) {
+        if (variation_tags != null) {
             List<Long> tagIds = null;
 
-            if (variation_tag != null) {
-                log.info("filtering for variations by tag " +
-                        variation_tag.toString());
+            if (variation_tags != null) {
+                log.info("filtering for variations by tags " +
+                        variation_tags.toString());
 
                 tagIds = new ArrayList<>();
-                tagIds.add(variation_tag);
+                tagIds.addAll(variation_tags);
             }
 
            if (variation_contributor != null) {
@@ -81,7 +81,7 @@ public class BoardPositionController {
                        variation_source.toString());
            }
 
-            next_positions = bp_access.findFilteredVariations(board_position.id, variation_contributor, variation_tag, variation_source);
+            next_positions = bp_access.findFilteredVariations(board_position.id, variation_contributor, tagIds, variation_source);
             log.info("next positions: " + next_positions.toString());
         }
         else {
