@@ -390,9 +390,24 @@ public class J01Application {
     }
 
     void loadStressTest() {
-        BoardPosition start = this.bp_access.findActiveByPlay(".root");
 
+        BoardPosition start = this.bp_access.findActiveByPlay(".root");
         this.extendSequence(start,'A', 1, 50000);
+        log.info("Writing lots of nodes to neo - can take a few minutes on my machine...");
+        bp_access.save(start);
+
+        start = this.bp_access.findActiveByPlay(".root"); // dump old node, allow it to be freed
+        this.extendSequence(start,'A', 2, 100000);
+        log.info("Writing lots of nodes to neo - can take a few minutes on my machine...");
+        bp_access.save(start);
+
+        start = this.bp_access.findActiveByPlay(".root");
+        this.extendSequence(start,'A', 3, 150000);
+        log.info("Writing lots of nodes to neo - can take a few minutes on my machine...");
+        bp_access.save(start);
+
+        start = this.bp_access.findActiveByPlay(".root");
+        this.extendSequence(start,'A', 4, 200000);
         log.info("Writing lots of nodes to neo - can take a few minutes on my machine...");
         bp_access.save(start);
     }
