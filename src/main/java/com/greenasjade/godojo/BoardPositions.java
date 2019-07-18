@@ -1,14 +1,21 @@
 package com.greenasjade.godojo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 // This should be a native BoardPosition Repository interface
-// This nasty shim to the actual interface is because of
+// It started life as a nasty shim to the actual interface is because of
 // https://stackoverflow.com/q/55964038/554807
 // This shim layer implements logic that would ideally be native in custom queries.
 
+// Now it's accumulating other handy pre-database logic as well
+
 public class BoardPositions {
+
+    private static final Logger log = LoggerFactory.getLogger(BoardPositions.class);
 
     private BoardPositionsNative bp_access;
 
@@ -66,6 +73,19 @@ public class BoardPositions {
 
     // Database Utility function
     //  NOTE THAT THIS DELETES *EVERYTHING* NOT JUST BOARD POSITIONS
-    void deleteEverythingInDB() { bp_access.deleteEverythingInDB(); }
+    void deleteEverythingInDB() {
+        // Do this 10,000 nodes at a time so as not to blow up the database with a huge request
+        //  https://neo4j.com/developer/kb/large-delete-transaction-best-practices-in-neo4j/
+
+        log.info("** Deleting DB contents! ...");
+        int deleted_nodes;
+
+        do {
+            deleted_nodes = bp_access.deleteNodes(10000);
+            log.info("Deleted " + deleted_nodes);
+        } while (deleted_nodes > 0);
+
+        log.info("... done.");
+    }
 
 }

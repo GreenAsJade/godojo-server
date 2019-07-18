@@ -29,17 +29,17 @@ public interface BoardPositionsNative extends PagingAndSortingRepository<BoardPo
 
     @Query("MATCH (parent:BoardPosition)<-[link:PARENT]-(target:BoardPosition) WHERE id(target)={TargetID} DELETE link")
     void removeParent(@Param("TargetID") Long id);
-    
+
     // Find variations filtered by Tag and optionally source and contributor
 
     @Query("MATCH (t:Tag)<-[:TAGS]-(leaf:BoardPosition)-[:PARENT*0..]->(v:BoardPosition)-[:PARENT]->(target:BoardPosition) " +
             "WHERE id(target) = {TargetID} " +
             "WITH v, leaf, collect(id(t)) as tids " +
             "WHERE ALL (tid in tids WHERE tid in {TagIDs}) " +
-            "WITH v,leaf MATCH (s:JosekiSource) " +
-            "WHERE ({SourceID} IS NULL OR (id(s) = {SourceID} AND (leaf)-[:SOURCE]->(s)) ) " +
             "WITH v, leaf WHERE " +
             "({ContributorID} IS NULL OR leaf.contributor = {ContributorID}) " +
+            "WITH v,leaf MATCH (s:JosekiSource) " +
+            "WHERE ({SourceID} IS NULL OR (id(s) = {SourceID} AND (leaf)-[:SOURCE]->(s)) ) " +
             "RETURN DISTINCT v")
     List<BoardPosition> findFilteredVariations(@Param("TargetID") Long targetId,
                                                @Param("ContributorID") Long contributorId,
@@ -55,7 +55,9 @@ public interface BoardPositionsNative extends PagingAndSortingRepository<BoardPo
 
     /* No real home for this, plonked it here... */
     // Database Utility function
+    // Delete 'Limit' nodes (at random), return how many.
+    // This needs to be called until none are left to delete everything
     //  NOTE THAT THIS DELETES *EVERYTHING* NOT JUST BOARD POSITIONS
-    @Query("MATCH (n) DETACH DELETE n")
-    void deleteEverythingInDB();
+    @Query("MATCH (n) WITH n LIMIT {Limit} DETACH DELETE n RETURN count(*)")
+    int deleteNodes(@Param("Limit") int Limit);
 }
