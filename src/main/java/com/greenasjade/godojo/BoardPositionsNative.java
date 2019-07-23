@@ -35,7 +35,7 @@ public interface BoardPositionsNative extends PagingAndSortingRepository<BoardPo
     @Query("MATCH (t:Tag)<-[:TAGS]-(leaf:BoardPosition)-[:PARENT*0..]->(v:BoardPosition)-[:PARENT]->(target:BoardPosition) " +
             "WHERE id(target) = {TargetID} " +
             "WITH v, leaf, collect(id(t)) as tids " +
-            "WHERE ALL (tid in tids WHERE tid in {TagIDs}) " +
+            "WHERE ALL (tid in {TagIDs} WHERE tid in tids) " +
             "WITH v, leaf WHERE " +
             "({ContributorID} IS NULL OR leaf.contributor = {ContributorID}) " +
             "WITH v,leaf MATCH (s:JosekiSource) " +
