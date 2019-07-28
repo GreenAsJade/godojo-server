@@ -64,6 +64,11 @@ public class BoardPosition {
     public Long getContributorId(){return contributor_id;}
     public void setContributorId(Long id) {contributor_id = id;}
 
+    @Property("forum_thread_id")
+    private Integer forum_thread_id;
+    public Integer getForumThreadId(){return forum_thread_id;}
+    public void setForumThreadId(Integer id) {forum_thread_id = id;}
+
     @Property("marks")
     private String marks;  // note that this is an opaque string as far as server is concerned
     public String getMarks() {return marks;}
@@ -137,8 +142,6 @@ public class BoardPosition {
 
         String i = this.id==null ? "tbd" : this.id.toString();
 
-        String c = this.commentary==null ? "" : this.commentary.toString();
-
         String u = this.contributor_id.toString();
 
         String child_list =
@@ -147,7 +150,7 @@ public class BoardPosition {
                         .collect(Collectors.toList()).toString();
 
         return p + " -> " +  "<"+i+">" + "("+u+")"+ this.play +
-                " -> " + child_list + c;
+                " -> " + child_list;
     }
 
     public BoardPosition addMove(String placement, Long user_id) {

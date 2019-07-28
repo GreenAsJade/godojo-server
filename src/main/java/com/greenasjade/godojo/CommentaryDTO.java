@@ -1,5 +1,6 @@
 package com.greenasjade.godojo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,9 @@ public class CommentaryDTO {
 
     private ArrayList<Comment> commentary;
 
+    @JsonProperty("forum_thread_id")
+    private Integer forumThreadId;
+
     public String toString() {
         return commentary.toString();
     }
@@ -29,5 +33,7 @@ public class CommentaryDTO {
                         .sorted( Comparator.comparing(Comment::getDate))
                         .collect(Collectors.toCollection(ArrayList::new)) :
                 new ArrayList<>();
+
+        forumThreadId = position.getForumThreadId();
     }
 }

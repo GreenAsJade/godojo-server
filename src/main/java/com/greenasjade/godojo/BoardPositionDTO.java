@@ -38,6 +38,8 @@ public class BoardPositionDTO {
 
     private Integer child_count;
 
+    private Integer topicId;
+
     // incoming
     public List<Long> tag_ids;
 
@@ -85,6 +87,7 @@ public class BoardPositionDTO {
         node_id = position.id;
         comment_count = position.getCommentCount();
         marks = position.getMarks();
+        topicId = position.getForumThreadId();
 
         // We need a list of Move DTOs for the variations
         next_moves = new ArrayList<>();

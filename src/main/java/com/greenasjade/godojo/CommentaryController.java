@@ -1,13 +1,9 @@
 package com.greenasjade.godojo;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.security.jwt.Jwt;
-import org.springframework.security.jwt.JwtHelper;
-import org.springframework.security.jwt.crypto.sign.RsaVerifier;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,6 +13,9 @@ public class CommentaryController {
 
     private BoardPositions bp_access;
     private UserFactory user_factory;
+
+    @Autowired
+    private ForumWriterService forumWriterService;
 
     public CommentaryController(
             BoardPositionsNative bp_access,
@@ -70,6 +69,15 @@ public class CommentaryController {
             the_position.addComment(comment, the_commenter.getUserId());
 
             this.bp_access.save(the_position);
+
+            if (the_position.commentary.size() == 1) {
+                forumWriterService.startPositionTopic(
+                        the_position,
+                        comment,
+                        the_commenter.username
+
+                );
+            }
         }
 
         return new CommentaryDTO(the_position);

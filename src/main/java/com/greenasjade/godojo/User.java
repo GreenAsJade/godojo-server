@@ -31,6 +31,10 @@ public class User {
     Boolean canComment() { return this.can_comment; }
     void setCanComment(Boolean val) { this.can_comment = val; }
 
+    @Transient  // We don't store this on our server, because it can change
+    public String username;
+
+
     public User() {
         // Empty constructor required as of Neo4j API 2.0.5
     };
@@ -43,8 +47,9 @@ public class User {
     }
 
     public String toString() {
-        return (String.format("User: %s comment %s edit %s admin %s",
+        return (String.format("User: %s (%s) comment %s edit %s admin %s",
                 this.user_id.toString(),
+                String.valueOf(this.username),
                 this.can_comment,
                 this.can_edit,
                 this.administrator));

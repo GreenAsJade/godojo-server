@@ -8,12 +8,19 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.List;
 
 
 @SpringBootApplication
+@EnableAsync
 public class J01Application {
 
     private static final Logger log = LoggerFactory.getLogger(J01Application.class);
@@ -29,7 +36,7 @@ public class J01Application {
     private Users user_access;
     private AppInfos app_info_access;
 
-    private Integer current_schema = 3;
+    private Integer current_schema = 4;
 
     @Bean
     public CommandLineRunner initialise (
@@ -88,14 +95,12 @@ public class J01Application {
                 // plus introducing tags
                 log.info("Migrating to schema 2...");
 
-                // lets just reset the DB for this
+                // lets just reset the DB for this  <<< *** BEWARE OF THIS MIGRATION!
                 resetDB();
 
                 app_info = new AppInfo();
-
                 app_info.setSchema_id(schema_id);
                 app_info_access.save(app_info);
-
                 return;
 
             case 3:
@@ -105,38 +110,43 @@ public class J01Application {
                 /*if (previous_schema < 2) {
                     migrateToSchema(2, previous_schema);
                 }*/
-                
 
                 log.info("Migrating to schema 3...");
 
                 this.changeToNumericVariationLabels();
                 this.addOutcomeTags();
 
-                app_info = this.app_info_access.getAppInfo();
-                app_info.setSchema_id(schema_id);
-                app_info_access.save(app_info);
+                break;
 
-                return;
-
-            case 999: // we'll do this later
+            case 4:
                 if (previous_schema < 3) {
-                    this.migrateToSchema(3, previous_schema);
+                    log.error("Expecting schema level 3.  Can't update to schema level 4!");
+                    throw new RuntimeException("Unexpected schema level");
                 }
 
+                log.info("Migrating to schema 4...");
+
+                Tag currency_tag = new Tag("Current");
+                currency_tag.setGroup(0);
+                currency_tag.setSeq(3);
+                tags_access.save(currency_tag);
+
+                break;
+
+            case 999: // we'll do this later
+
                 this.loadStressTest();
-
-
-                app_info = this.app_info_access.getAppInfo();
-                app_info.setSchema_id(schema_id);
-                app_info_access.save(app_info);
-
-                return;
+                break;
 
             default:
                 // should maybe throw here I guess
                 log.error("Unrecognised schema ID! " + schema_id);
         }
 
+        app_info = this.app_info_access.getAppInfo();
+        app_info.setSchema_id(schema_id);
+        app_info_access.save(app_info);
+        return;
     }
 
     void resetDB() {

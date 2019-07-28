@@ -41,6 +41,7 @@ dependencies {
             'org.springframework.boot:spring-boot-starter-thymeleaf',
             'org.springframework.boot:spring-boot-starter-web',
             'org.springframework.boot:spring-boot-starter-security',
+            'com.fasterxml.jackson.core:jackson-databind',            
             'org.springframework.security:spring-security-jwt:1.0.9.RELEASE',
             'org.springframework.boot:spring-boot-configuration-processor'
     )

@@ -73,6 +73,8 @@ public class UserFactory {
 
         id = jwtClaims.get("id").asLong();
 
+        String username = jwtClaims.get("username").asText();
+
         User the_user = user_access.findByUserId(id);
 
         if (the_user == null) {
@@ -98,7 +100,9 @@ public class UserFactory {
             }
         }
 
-        log.info(the_user.toString());
+        the_user.username = username;
+
+        // log.info(the_user.toString());
 
         return the_user;
     }
