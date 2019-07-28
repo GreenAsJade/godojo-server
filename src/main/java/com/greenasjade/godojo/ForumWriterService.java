@@ -61,12 +61,13 @@ public class ForumWriterService {
         comment = "> " + comment;
         comment = comment.replace("\n", "\n> ");
 
-        String url = "https://beta.online-go.com/joseki/" + position.id;
+        String position_url = "https://beta.online-go.com/joseki/" + position.id + "?show_comments=true";
 
-        String raw_post_text =  "At position [" + play + "](" + url + "), " +
+        String raw_post_text =
+                "At position [" + play + "](" + position_url + "), " +
                 "@" + commenterName + " started the conversation: \n\n" +
                 comment + "\n\n" /* +
-                            "(FYI @" + contributorName */;
+                "(FYI @" + contributorName */;
 
         // log.info(raw_post_text);
 
@@ -97,4 +98,46 @@ public class ForumWriterService {
             bp_access_native.save(position);
         }
     }
+
+    @Async("asyncExecutor")
+    public void addPositionComment(BoardPosition position, String comment, String commenterName) {
+        String play = position.getPlay();
+        log.info("Adding forum comment for: " + play);
+
+        // Quote the comment:
+        comment = "> " + comment;
+        comment = comment.replace("\n", "\n> ");
+
+        String position_url = "https://beta.online-go.com/joseki/" + position.id + "?show_comments=true";
+
+        String raw_post_text =
+                "@" + commenterName + " [said](" + position_url + "): \n\n" +
+                comment + "\n\n" /* +
+                "(FYI @" + contributorName */;
+
+        // log.info(raw_post_text);
+
+        JSONObject topicObject = new JSONObject();
+        try {
+            topicObject.put("topic_id", position.getForumThreadId());
+            topicObject.put("raw", raw_post_text);
+        }
+        catch (JSONException e) {
+            log.error("Can't create post for " + play);
+            log.error(e.toString());
+            return;
+        }
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity request = new HttpEntity(topicObject.toString(), forumHeaders);
+
+        ForumPostResponseDTO response = restTemplate.postForObject(
+                "https://forums.online-go.com/posts.json",
+                request,
+                ForumPostResponseDTO.class);
+
+        log.info("Forum server result: " +  response);
+
+    }
+
 }

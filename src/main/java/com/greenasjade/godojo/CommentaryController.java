@@ -70,12 +70,19 @@ public class CommentaryController {
 
             this.bp_access.save(the_position);
 
-            if (the_position.commentary.size() == 1) {
+            if (the_position.getForumThreadId() == null) {
                 forumWriterService.startPositionTopic(
                         the_position,
                         comment,
                         the_commenter.username
 
+                );
+            }
+            else {
+                forumWriterService.addPositionComment(
+                        the_position,
+                        comment,
+                        the_commenter.username
                 );
             }
         }
