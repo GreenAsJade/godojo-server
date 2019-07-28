@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -24,12 +26,20 @@ public class ForumWriterService {
     @Value("${godojo.server.url}")
     private String serverUrl;
 
+    @Value("${godojo.server.api}")
+    private String serverApi;
+
     @Value("${godojo.forum.url}")
     private String forumUrl;
 
-    final Integer JOSEKI_CATEGORY = 36;  // The forum category ID for Joseki posts
-    final String JOSEKI_POST_USER = "JosekiDictionary";
-    final String JOSEKI_POST_API_KEY = "29e30bc67baae2ee4df852ede3a32796668ff74459d5d6641473a4a373589e7a";
+    @Value("${godojo.forum.joseki-category}")
+    private Integer JOSEKI_CATEGORY;  // The forum category ID for Joseki posts
+
+    @Value("${godojo.forum.joseki-user}")
+    private String JOSEKI_POST_USER;
+
+    @Value("${godojo.forum.joseki-user-key}")
+    private String JOSEKI_POST_API_KEY;
 
     @Autowired
     private BoardPositionsNative bp_access_native;
@@ -46,6 +56,29 @@ public class ForumWriterService {
         headers.set("User-Agent", "Godojo Server");
         headers.set("Accept", "*/*");
         return headers;
+    }
+
+    @Autowired
+    private HttpHeaders apiHeaders;
+
+    @Bean
+    public HttpHeaders apiHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+        headers.set("User-Agent", "Godojo Server");
+        headers.set("Accept", "*/*");
+        return headers;
+    }
+    public String fetchContributorName(Long contributorId) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity request = new HttpEntity(apiHeaders);
+        String apiUrl = serverApi + "/v1/players/" + contributorId.toString();
+        log.info("Fetching contributor name from " + apiUrl);
+
+        ResponseEntity<UserGetResponseDTO> response = restTemplate.exchange(
+                apiUrl, HttpMethod.GET, request, UserGetResponseDTO.class);
+
+        return response.getBody().getUsername();
     }
 
     @Async("asyncExecutor")
@@ -69,11 +102,16 @@ public class ForumWriterService {
 
         String position_url = serverUrl + "/" + position.id + "?show_comments=true";
 
+        String contributorName = fetchContributorName(position.getContributorId());
+
         String raw_post_text =
                 "At position [" + play + "](" + position_url + "), " +
                 "@" + commenterName + " started the conversation: \n\n" +
-                comment + "\n\n" /* +
-                "(FYI @" + contributorName */;
+                comment + "\n\n";
+
+        if (contributorName != null) {
+            raw_post_text += "( FYI @" + contributorName + " )";
+        }
 
         // log.info(raw_post_text);
 
@@ -116,10 +154,15 @@ public class ForumWriterService {
 
         String position_url = serverUrl + "/" + position.id + "?show_comments=true";
 
+        String contributorName = fetchContributorName(position.getContributorId());
+
         String raw_post_text =
                 "@" + commenterName + " [said](" + position_url + "): \n\n" +
-                comment + "\n\n" /* +
-                "(FYI @" + contributorName */;
+                comment + "\n\n";
+
+        if (contributorName != null) {
+            raw_post_text += "( FYI @" + contributorName + " )";
+        }
 
         // log.info(raw_post_text);
 
