@@ -1,16 +1,16 @@
 package com.greenasjade.godojo;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -20,6 +20,12 @@ import org.springframework.web.client.RestTemplate;
 public class ForumWriterService {
 
     private static Logger log = LoggerFactory.getLogger(ForumWriterService.class);
+
+    @Value("${godojo.server.url}")
+    private String serverUrl;
+
+    @Value("${godojo.forum.url}")
+    private String forumUrl;
 
     final Integer JOSEKI_CATEGORY = 36;  // The forum category ID for Joseki posts
     final String JOSEKI_POST_USER = "JosekiDictionary";
@@ -61,7 +67,7 @@ public class ForumWriterService {
         comment = "> " + comment;
         comment = comment.replace("\n", "\n> ");
 
-        String position_url = "https://beta.online-go.com/joseki/" + position.id + "?show_comments=true";
+        String position_url = serverUrl + "/" + position.id + "?show_comments=true";
 
         String raw_post_text =
                 "At position [" + play + "](" + position_url + "), " +
@@ -74,7 +80,7 @@ public class ForumWriterService {
         JSONObject topicObject = new JSONObject();
         try {
             topicObject.put("category", JOSEKI_CATEGORY);
-            topicObject.put("title", "(test) Discussion about " + play);
+            topicObject.put("title", "Discussion about " + play);
             topicObject.put("raw", raw_post_text);
         }
         catch (JSONException e) {
@@ -87,7 +93,7 @@ public class ForumWriterService {
         HttpEntity request = new HttpEntity(topicObject.toString(), forumHeaders);
 
         ForumPostResponseDTO response = restTemplate.postForObject(
-                "https://forums.online-go.com/posts.json",
+                forumUrl + "/posts.json",
                 request,
                 ForumPostResponseDTO.class);
 
@@ -108,7 +114,7 @@ public class ForumWriterService {
         comment = "> " + comment;
         comment = comment.replace("\n", "\n> ");
 
-        String position_url = "https://beta.online-go.com/joseki/" + position.id + "?show_comments=true";
+        String position_url = serverUrl + "/" + position.id + "?show_comments=true";
 
         String raw_post_text =
                 "@" + commenterName + " [said](" + position_url + "): \n\n" +
@@ -132,7 +138,7 @@ public class ForumWriterService {
         HttpEntity request = new HttpEntity(topicObject.toString(), forumHeaders);
 
         ForumPostResponseDTO response = restTemplate.postForObject(
-                "https://forums.online-go.com/posts.json",
+                forumUrl + "/posts.json",
                 request,
                 ForumPostResponseDTO.class);
 
