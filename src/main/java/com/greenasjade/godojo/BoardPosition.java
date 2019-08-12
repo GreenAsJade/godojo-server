@@ -194,8 +194,8 @@ public class BoardPosition {
 
     Character nextVariationLabel() {
         List<BoardPosition> labelled = this.children.stream().filter(p -> p.variation_label != null && p.variation_label != '_').collect(Collectors.toList());
-        if (labelled.size() < 9) {
-            return (char)(this.children.size() + '0');
+        if (labelled.size() < 10) {
+            return (char)(labelled.size() + '0');
         }
         else {
             return '_';
