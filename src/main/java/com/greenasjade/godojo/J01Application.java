@@ -36,7 +36,7 @@ public class J01Application {
     private Users user_access;
     private AppInfos app_info_access;
 
-    private Integer current_schema = 4;
+    private Integer current_schema = 5;
 
     @Bean
     public CommandLineRunner initialise (
@@ -119,7 +119,7 @@ public class J01Application {
                 break;
 
             case 4:
-                if (previous_schema < 3) {
+                if (previous_schema !=  3) {
                     log.error("Expecting schema level 3.  Can't update to schema level 4!");
                     throw new RuntimeException("Unexpected schema level");
                 }
@@ -130,6 +130,37 @@ public class J01Application {
                 currency_tag.setGroup(0);
                 currency_tag.setSeq(3);
                 tags_access.save(currency_tag);
+
+                break;
+
+            case 5:
+                if (previous_schema != 4) {
+                    log.error("Expecting schema level 4.  Can't update to schema level 5!");
+                    throw new RuntimeException("Unexpected schema level");
+                }
+
+                log.info("Migrating to schema 5...");
+
+                Tag corner_tag = new Tag("Black gets the corner");
+                corner_tag.setGroup(1);
+                corner_tag.setSeq(0);
+                tags_access.save(corner_tag);
+
+                corner_tag = new Tag("White gets the corner");
+                corner_tag.setGroup(2);
+                corner_tag.setSeq(0);
+                tags_access.save(corner_tag);
+
+                Tag sente_tag = new Tag("Black gets sente");
+                sente_tag.setGroup(3);
+                sente_tag.setSeq(0);
+                tags_access.save(sente_tag);
+
+                sente_tag = new Tag("White gets sente");
+                sente_tag.setGroup(3);
+                sente_tag.setSeq(1);
+                tags_access.save(sente_tag);
+
 
                 break;
 

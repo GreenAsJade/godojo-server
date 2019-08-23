@@ -20,11 +20,13 @@ public class Tag {
     private String description;
     public String getDescription() {return description;}
 
+    // Intent: a person should only be able to select one tag from a group,
+    // except group 0. TBD
+
     @Property
     private Integer group;
     public Integer getGroup() {return group;}
     public void setGroup(Integer g) {group = g;}
-
 
     @Property Integer seq;
     public Integer getSeq() {return seq;}
