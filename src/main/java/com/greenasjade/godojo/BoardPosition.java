@@ -37,7 +37,14 @@ public class BoardPosition {
     @Property("variation_label")
     private Character variation_label;
     public Character getVariationLabel() {return variation_label;}
-    public void setVariationLabel(Character label) { variation_label = label; }
+    public void setVariationLabel(Character label) {
+        if ("123456789_".indexOf(label) >= 0) {
+            variation_label = label;
+        } else {
+            log.warn("Asked to set an invalid variation label, set a valid one instead!");
+            variation_label = this.nextVariationLabel();
+        }
+    }
 
     @Property("category")
     private PlayCategory category;
@@ -111,6 +118,8 @@ public class BoardPosition {
         this.contributor_id = user_id;
 
         this.description = "";
+        this.variation_label = '_';
+
         this.children = new ArrayList<>();
         this.commentary = new ArrayList<>();
         this.tags = new ArrayList<>();
