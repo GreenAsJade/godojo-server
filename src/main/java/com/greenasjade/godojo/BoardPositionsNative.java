@@ -2,6 +2,8 @@ package com.greenasjade.godojo;
 
 import java.util.*;
 
+import java.util.stream.Stream;
+
 import org.springframework.data.neo4j.annotation.Query;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -52,6 +54,9 @@ public interface BoardPositionsNative extends PagingAndSortingRepository<BoardPo
 
     @Query("MATCH (p:BoardPosition)<-[:PARENT*1..]-(c:BoardPosition)-[:TAGS]->(t:Tag) where id(p)={TargetID} and id(t)={TagID} return count(c)")
     Integer countChildrenWithTag(@Param("TargetID") Long id, @Param("TagID") Long tagId);
+
+    @Query("MATCH (p:BoardPosition) WHERE p.variation_label = '0' RETURN p")
+    Stream<BoardPosition> findVariationLabelZeros();
 
     /* No real home for this, plonked it here... */
     // Database Utility function

@@ -203,6 +203,11 @@ public class BoardPosition {
     }
 
     Character nextVariationLabel() {
+        if (this.children == null) {
+            log.warn("Asked to get next variation label of node with null children - unexpected");
+            return '1';
+        }
+
         List<BoardPosition> labelled = this.children.stream()
                 .filter(p -> p.variation_label != null && p.variation_label != '_' && !p.placement.equals("pass"))
                 .collect(Collectors.toList());

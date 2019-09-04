@@ -36,7 +36,7 @@ public class J01Application {
     private Users user_access;
     private AppInfos app_info_access;
 
-    private Integer current_schema = 5;
+    private Integer current_schema = 6;
 
     @Bean
     public CommandLineRunner initialise (
@@ -160,8 +160,10 @@ public class J01Application {
                 sente_tag.setGroup(3);
                 sente_tag.setSeq(1);
                 tags_access.save(sente_tag);
+                break;
 
-
+            case 6:
+                this.fixVariationLabelZeros();
                 break;
 
             case 999: // we'll do this later
@@ -428,6 +430,15 @@ public class J01Application {
         tags_access.save(result_tag);
 
         return;
+    }
+
+    void fixVariationLabelZeros() {
+        native_bp_access.findVariationLabelZeros().forEach( p -> {
+            BoardPosition the_position = native_bp_access.findById(p.id).orElse(null); // load children
+            log.info("Fixing variation label at node " + the_position.getInfo());
+            the_position.setVariationLabel((char)(the_position.parent.nextVariationLabel() -1));
+            native_bp_access.save(the_position);
+        });
     }
 
     void loadStressTest() {
