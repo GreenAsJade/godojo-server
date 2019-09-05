@@ -55,6 +55,12 @@ public class BoardPositionController {
             board_position = this.bp_access.findById(Long.valueOf(id));
         }
 
+        if (board_position == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "requested position not found"
+            );
+        }
+
         log.info("which is: " + board_position.getInfo());
 
         List<BoardPosition> next_positions;
