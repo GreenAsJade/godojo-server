@@ -28,6 +28,7 @@ public class Comment {
     @Property
     private Long user_id;
     public Long getUserId() {return user_id;}
+    public void setUserId(Long id) {this.user_id = id;}
 
     @Property
     private String comment;

@@ -5,6 +5,7 @@ import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 public interface Users extends Neo4jRepository<User, Long> {
 	@Query("MATCH (u:User {user_id:{userId}}) RETURN u")
@@ -12,4 +13,7 @@ public interface Users extends Neo4jRepository<User, Long> {
 
 	@Query("MATCH (b:BoardPosition) RETURN DISTINCT b.contributor")
 	List<Long> findContributors();
+
+	@Query("MATCH (u:User) RETURN u")
+	Stream<User>streamAllUsers();
 }

@@ -15,6 +15,7 @@ public class User {
     @Property
     private Long user_id;
     public Long getUserId() {return this.user_id;}
+    public void setUserId(Long id) {this.user_id = id;}
 
     @Property
     private Boolean can_edit;

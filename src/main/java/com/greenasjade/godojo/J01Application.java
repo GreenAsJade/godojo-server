@@ -3,20 +3,21 @@ package com.greenasjade.godojo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.web.client.RestTemplate;
+
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 
 @SpringBootApplication
@@ -36,7 +37,10 @@ public class J01Application {
     private Users user_access;
     private AppInfos app_info_access;
 
-    private Integer current_schema = 6;
+    private Integer current_schema = 7;
+
+    @Value("${godojo.server.type}")
+    private String server_type;
 
     @Bean
     public CommandLineRunner initialise (
@@ -48,6 +52,9 @@ public class J01Application {
     ) {
         return args -> {
             log.info("Initialising...");
+
+            //String server_type = env.getProperty("godojo.server.type");
+            log.info("Server type: " + server_type);
 
             this.native_bp_access = native_bp_access;
             this.bp_access = new BoardPositions(native_bp_access);
@@ -119,7 +126,7 @@ public class J01Application {
                 break;
 
             case 4:
-                if (previous_schema !=  3) {
+                if (previous_schema != 3) {
                     log.error("Expecting schema level 3.  Can't update to schema level 4!");
                     throw new RuntimeException("Unexpected schema level");
                 }
@@ -164,6 +171,26 @@ public class J01Application {
 
             case 6:
                 this.fixVariationLabelZeros();
+                break;
+
+            case 7:
+                if (previous_schema != 6) {
+                    if (previous_schema == 5) {
+                        this.migrateToSchema(6,5);
+                    }
+                    else {
+                        log.error("Expecting schema level 6.  Can't update to schema level 7!");
+                        throw new RuntimeException("Unexpected schema level");
+                    }
+                }
+
+                if (!server_type.equals("production")) {
+                    log.warn("Not on production server, so not migrating user IDs");
+                    break;
+                }
+
+                log.info("Migrating to schema 7");
+                this.migrateUsersToProductionIds();
                 break;
 
             case 999: // we'll do this later
@@ -433,11 +460,66 @@ public class J01Application {
     }
 
     void fixVariationLabelZeros() {
-        native_bp_access.findVariationLabelZeros().forEach( p -> {
+        native_bp_access.streamVariationLabelZeros().forEach( p -> {
             BoardPosition the_position = native_bp_access.findById(p.id).orElse(null); // load children
             log.info("Fixing variation label at node " + the_position.getInfo());
             the_position.setVariationLabel((char)(the_position.parent.nextVariationLabel() -1));
             native_bp_access.save(the_position);
+        });
+    }
+
+    void migrateUsersToProductionIds() {
+        Map<Long, Long> userIdMap = new HashMap<Long, Long>() {
+            {
+                put(1L, 1L);  // Anoek
+                put(129L, 64817L);   // Mark5000
+                put(168L, 412892L);  // Eugene
+                put(645L, 499745L);  // DevGaj -> GaJ
+                put(816L, 360861L);  // AdamR
+                put(913L, 445315L);  // BHydden
+                put(920L, 427361L);  // shinuito
+                put(923L, 639990L);  // Icedrinker
+            }
+        };
+
+        user_access.streamAllUsers().forEach( u -> {
+            Long newId = userIdMap.get(u.getUserId());
+
+            if (newId == null) {
+                throw new RuntimeException("Unmappable user ID:" + u.getUserId().toString());
+            }
+
+            log.info("User ID update for user: " + u.getUserId());
+            log.info(" -> " + newId);
+            u.setUserId(newId);
+            user_access.save(u);
+        });
+
+        log.info("Doing contributor ID updates...");
+        native_bp_access.streamAllPositions().forEach( p -> {
+            Long newId = userIdMap.get(p.getContributorId());
+
+            if (newId == null) {
+                throw new RuntimeException("Unmappable contributor ID:" + p.getContributorId().toString());
+            }
+
+            BoardPosition full = bp_access.findById(p.id); // load relationships
+
+            full.setContributorId(newId);
+
+            if (full.commentary != null && full.commentary.size() > 0) {
+                log.info("Found comments: " + full.commentary.toString());
+                full.commentary.stream().forEach(c -> {
+                    Long newCid = userIdMap.get(c.getUserId());
+
+                    if (newCid == null) {
+                        throw new RuntimeException("Unmappable commenter ID:" + c.getUserId().toString());
+                    }
+
+                    c.setUserId(newCid);
+                });
+            }
+            native_bp_access.save(full);
         });
     }
 
