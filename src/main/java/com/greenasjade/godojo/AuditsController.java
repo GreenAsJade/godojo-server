@@ -51,11 +51,18 @@ public class AuditsController {
     @ResponseBody()
     @GetMapping("/godojo/changes" )
     // Return recent change information
-    public Page<AuditDTO> changes(Pageable pageable) {
+    public Page<AuditDTO> changes(
+            @RequestParam(value = "user_id", required = false, defaultValue = "0") Long user_id,
+            Pageable pageable) {
 
-        log.info("Change log request");
+        log.info("Change log request for user id {}", user_id);
 
-        return audit_store.getAudits(pageable).map(audit -> new AuditDTO(audit));
+        if (user_id == 0L) {
+            return audit_store.getAudits(pageable).map(audit -> new AuditDTO(audit));
+        }
+        else {
+            return audit_store.getAuditsFor(user_id, pageable).map(audit -> new AuditDTO(audit));
+        }
     }
 
     private String RevertCategoryChange(Audit target, Long user_id) {
