@@ -37,10 +37,10 @@ public class J01Application {
     private Users user_access;
     private AppInfos app_info_access;
 
-    private Integer current_schema = 7;
+    private Integer current_schema = 8;
 
-    @Value("${godojo.server.type}")
-    private String server_type;
+    @Value("${sentry.environment}")
+    private String environment;
 
     @Bean
     public CommandLineRunner initialise (
@@ -53,8 +53,10 @@ public class J01Application {
         return args -> {
             log.info("Initialising...");
 
-            //String server_type = env.getProperty("godojo.server.type");
-            log.info("Server type: " + server_type);
+            if (environment.equals("set-me-in-the-environment")) {
+                throw new RuntimeException("SENTRY_ENVIRONMENT needs to be set");
+            }
+            log.info("Server environment: " + environment);
 
             this.native_bp_access = native_bp_access;
             this.bp_access = new BoardPositions(native_bp_access);
@@ -173,23 +175,23 @@ public class J01Application {
                 this.fixVariationLabelZeros();
                 break;
 
-            case 7:
-                if (previous_schema != 6) {
-                    if (previous_schema == 5) {
-                        this.migrateToSchema(6,5);
-                    }
-                    else {
-                        log.error("Expecting schema level 6.  Can't update to schema level 7!");
+            case 8:
+                if (previous_schema == 5) {
+                    this.migrateToSchema(6, 5);
+                }
+                else {
+                    if (previous_schema != 7 && previous_schema != 6) {
+                        log.error("Expecting fixed variation labels.  Can't update to schema level 8!");
                         throw new RuntimeException("Unexpected schema level");
                     }
                 }
 
-                if (!server_type.equals("production")) {
+                if (!environment.equals("production")) {
                     log.warn("Not on production server, so not migrating user IDs");
-                    break;
+                    return;
                 }
 
-                log.info("Migrating to schema 7");
+                log.info("Migrating to schema 8");
                 this.migrateUsersToProductionIds();
                 break;
 
