@@ -53,12 +53,19 @@ public class BoardPositionController {
         }
         else {
             board_position = this.bp_access.findById(Long.valueOf(id));
-        }
 
-        if (board_position == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "requested position not found"
-            );
+            if (board_position == null) {
+                throw new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "the requested position was not found"
+                );
+            }
+
+            if (board_position.parent == null && !board_position.getPlay().equals(".root")) {
+                log.info("which is a deleted position.");
+                throw new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "the requested position has been deleted"
+                );
+            }
         }
 
         log.info("which is: " + board_position.getInfo());
