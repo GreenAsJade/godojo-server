@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import java.util.Optional;
 import java.util.ArrayList;
+import java.util.stream.Stream;
 
 public interface Audits extends PagingAndSortingRepository<Audit, Long> {
     Optional<Audit> findById(Long id);
@@ -31,4 +32,6 @@ public interface Audits extends PagingAndSortingRepository<Audit, Long> {
             countQuery="MATCH (a:Audit)-[ref:AUDIT]->(p:BoardPosition) WHERE a.user_id={UserID} RETURN count(a)")
     Page<Audit> getAuditsFor(@Param("UserID") Long user_id, Pageable pageable);
 
+    @Query("MATCH (a:Audit) RETURN a")
+    Stream<Audit> streamAllAudits();
 }

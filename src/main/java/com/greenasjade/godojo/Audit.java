@@ -37,6 +37,7 @@ public class Audit {
     @Property
     private Long user_id;
     public Long getUserId() {return user_id;}
+    public void setUserId(Long new_id) {this.user_id = new_id;}
 
     @Property
     private ChangeType type;

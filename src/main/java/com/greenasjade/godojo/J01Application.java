@@ -35,8 +35,9 @@ public class J01Application {
     private Tags tags_access;
     private Users user_access;
     private AppInfos app_info_access;
+    private Audits audit_access;
 
-    private Integer current_schema = 8;
+    private Integer current_schema = 9;
 
     @Value("${sentry.environment}")
     private String environment;
@@ -47,7 +48,8 @@ public class J01Application {
             JosekiSources js_access,
             Tags tags_access,
             Users user_access,
-            AppInfos app_info_access
+            AppInfos app_info_access,
+            Audits audit_access
     ) {
         return args -> {
             log.debug("Initialising...");
@@ -63,6 +65,7 @@ public class J01Application {
             this.tags_access = tags_access;
             this.user_access = user_access;
             this.app_info_access = app_info_access;
+            this.audit_access = audit_access;
 
             // note: there should only be one (or zero) app_info in app_infos!
             AppInfo app_info = this.app_info_access.getAppInfo();
@@ -79,7 +82,7 @@ public class J01Application {
                 migrateToSchema(current_schema, db_schema);
             }
             else {
-                log.debug("Schema version " + current_schema.toString());
+                log.info("Schema version " + current_schema.toString());
             }
 
             BoardPosition rootNode = bp_access.findActiveByPlay(".root");
@@ -185,13 +188,17 @@ public class J01Application {
                     }
                 }
 
-                if (!environment.equals("production")) {
-                    log.warn("Not on production server, so not migrating user IDs");
-                    return;
+                log.info("Migrating to schema 8");
+                this.migrateUsersToProductionIds();
+                break;
+
+            case 9:
+                if (previous_schema != 8) {
+                    throw new RuntimeException("Unexptected schema level: " + previous_schema.toString());
                 }
 
-                log.debug("Migrating to schema 8");
-                this.migrateUsersToProductionIds();
+                log.info("Migrating to schema 9...");
+                this.migrateAuditsToProductionUserIds();
                 break;
 
             case 999: // we'll do this later
@@ -521,6 +528,33 @@ public class J01Application {
                 });
             }
             native_bp_access.save(full);
+        });
+    }
+
+    void migrateAuditsToProductionUserIds() {
+        Map<Long, Long> userIdMap = new HashMap<Long, Long>() {
+            {
+                put(1L, 1L);  // Anoek
+                put(129L, 64817L);   // Mark5000
+                put(168L, 412892L);  // Eugene
+                put(645L, 499745L);  // DevGaj -> GaJ
+                put(816L, 360861L);  // AdamR
+                put(913L, 445315L);  // BHydden
+                put(920L, 427361L);  // shinuito
+                put(923L, 639990L);  // Icedrinker
+            }
+        };
+
+        log.info("Doing Audit ID updates...");
+        audit_access.streamAllAudits().forEach( a -> {
+            Long newId = userIdMap.get(a.getUserId());
+
+            if (newId == null) {
+                throw new RuntimeException("Unmappable user ID:" + a.getUserId().toString());
+            }
+
+            a.setUserId(newId);
+            audit_access.save(a);
         });
     }
 
