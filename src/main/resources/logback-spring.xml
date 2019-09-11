@@ -1,25 +1,32 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
-    <!-- Debug our stuff to the console -->
-    <logger name="com.greenasjade.godojo" level="DEBUG" additivity="false">
-        <appender-ref ref="CONSOLE"/>
-    </logger>
-
     <!-- Configure the Sentry appender -->
-    <appender name="Sentry" class="io.sentry.logback.SentryAppender">
+    <appender name="Sentry" class="io.sentry.logback.SentryAppender"> -->
+        <!-- debug: <appender name="Sentry" class="ch.qos.logback.core.ConsoleAppender">
+            <layout>
+                <pattern> Sentry -> %msg%n</pattern>
+        </layout> -->
+
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>
     </appender>
 
-    <!-- and get rid of Neo warnings to Sentry for now, until we can fix them -->
-    <logger name="org.springframework.data.neo4j" level="ERROR" additivity="false">
-        <appender-ref ref="Sentry"/>
+    <!-- Debug our stuff to the console, (default WARN for everything else) -->
+    <logger name="com.greenasjade.godojo" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="Sentry"/>   <!-- This will get filtered down to INFO for Sentry by it's filter -->
     </logger>
 
-    <!-- Enable the Console and Sentry appenders -->
-    <root level="INFO">
+    <!-- and get rid of Neo warnings to Sentry for now, until we can fix them - have them only in the console -->
+
+    <logger name="org.springframework.data.neo4j" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <!-- Enable the Console and Sentry appenders, default WARN (so Sentry doesn't get all that Spring INFO)-->
+    <root level="WARN">
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="Sentry" />
     </root>
