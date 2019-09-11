@@ -102,7 +102,7 @@ public class UserFactory {
 
         the_user.username = username;
 
-        // log.debug(the_user.toString());
+        log.info(the_user.toString());
 
         return the_user;
     }
