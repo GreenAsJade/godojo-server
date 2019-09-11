@@ -21,7 +21,7 @@ public class AdminController {
     @ResponseBody()
     @GetMapping("/godojo/appinfo" )
     public AppInfoDTO appInfo() {
-        log.info("App Info request");
+        log.debug("App Info request");
 
         // note: there should only be one (or zero) app_info in app_infos!
         Iterable<AppInfo> app_info = app_infos.findAll();

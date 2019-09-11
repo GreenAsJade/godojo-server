@@ -47,7 +47,7 @@ public class UserFactory {
             the_user = new User(id);
         }
 
-        log.info(the_user.toString());
+        log.debug(the_user.toString());
 
         return the_user;
     }
@@ -69,7 +69,7 @@ public class UserFactory {
             return null;  // urk should have a better solution TBD
         }
 
-        log.info("User Claims: " + jwtClaims.toString());
+        log.debug("User Claims: " + jwtClaims.toString());
 
         id = jwtClaims.get("id").asLong();
 
@@ -84,7 +84,7 @@ public class UserFactory {
                 /* Example code to give permissions based on a rule...
                 LocalDate joined_date = LocalDate.parse(jwtClaims.get("registration_date").asText(),
                         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSxxxxx"));
-                log.info("User joined: " + joined_date.toString());
+                log.debug("User joined: " + joined_date.toString());
 
                 LocalDate cutoff = LocalDate.parse("2019-01-01");
 
@@ -94,7 +94,7 @@ public class UserFactory {
                 */
 
             } else {
-                log.info("anonymous visitor");
+                log.debug("anonymous visitor");
                 the_user = new User(0L);
                 the_user.setCanComment(false);  // anonymous can't comment
             }
@@ -102,7 +102,7 @@ public class UserFactory {
 
         the_user.username = username;
 
-        // log.info(the_user.toString());
+        // log.debug(the_user.toString());
 
         return the_user;
     }

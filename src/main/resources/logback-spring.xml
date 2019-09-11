@@ -1,0 +1,26 @@
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <!-- Debug our stuff to the console -->
+    <logger name="com.greenasjade.godojo" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <!-- Configure the Sentry appender -->
+    <appender name="Sentry" class="io.sentry.logback.SentryAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <!-- and get rid of Neo warnings to Sentry for now, until we can fix them -->
+    <logger name="org.springframework.data.neo4j" level="ERROR" additivity="false">
+        <appender-ref ref="Sentry"/>
+    </logger>
+
+    <!-- Enable the Console and Sentry appenders -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="Sentry" />
+    </root>
+</configuration>

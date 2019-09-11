@@ -18,6 +18,6 @@ public class JosekiSourceDTO {
     @JsonCreator
     public JosekiSourceDTO(@JsonProperty("source") JosekiSource source) {
         this.source = source;
-        //log.info("Creating Source DTO with description: " + source.getDescription());
+        //log.debug("Creating Source DTO with description: " + source.getDescription());
     }
 }

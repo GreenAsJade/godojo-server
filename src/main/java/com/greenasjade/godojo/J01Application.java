@@ -50,12 +50,12 @@ public class J01Application {
             AppInfos app_info_access
     ) {
         return args -> {
-            log.info("Initialising...");
+            log.debug("Initialising...");
 
             if (environment.equals("set-me-in-the-environment")) {
                 throw new RuntimeException("SENTRY_ENVIRONMENT needs to be set");
             }
-            log.info("Server environment: " + environment);
+            log.debug("Server environment: " + environment);
 
             this.native_bp_access = native_bp_access;
             this.bp_access = new BoardPositions(native_bp_access);
@@ -70,7 +70,7 @@ public class J01Application {
             if (app_info == null) {
                 app_info = new AppInfo();
                 app_info.setSchema_id(0);
-                log.info("*** Initialising Schema ID");
+                log.debug("*** Initialising Schema ID");
             }
 
             Integer db_schema = app_info.getSchema_id();
@@ -79,7 +79,7 @@ public class J01Application {
                 migrateToSchema(current_schema, db_schema);
             }
             else {
-                log.info("Schema version " + current_schema.toString());
+                log.debug("Schema version " + current_schema.toString());
             }
 
             BoardPosition rootNode = bp_access.findActiveByPlay(".root");
@@ -89,7 +89,7 @@ public class J01Application {
             }
             rootNode = bp_access.findActiveByPlay(".root");
 
-            log.info("Current root: " + rootNode.getInfo());
+            log.debug("Current root: " + rootNode.getInfo());
         };
     }
 
@@ -101,7 +101,7 @@ public class J01Application {
                 // This is the introduction of BoardPosition.variation_label
                 // with the deprecation of BoardPosition.seq,
                 // plus introducing tags
-                log.info("Migrating to schema 2...");
+                log.debug("Migrating to schema 2...");
 
                 // lets just reset the DB for this  <<< *** BEWARE OF THIS MIGRATION!
                 resetDB();
@@ -119,7 +119,7 @@ public class J01Application {
                     migrateToSchema(2, previous_schema);
                 }*/
 
-                log.info("Migrating to schema 3...");
+                log.debug("Migrating to schema 3...");
 
                 this.changeToNumericVariationLabels();
                 this.addOutcomeTags();
@@ -132,7 +132,7 @@ public class J01Application {
                     throw new RuntimeException("Unexpected schema level");
                 }
 
-                log.info("Migrating to schema 4...");
+                log.debug("Migrating to schema 4...");
 
                 Tag currency_tag = new Tag("Current");
                 currency_tag.setGroup(0);
@@ -147,7 +147,7 @@ public class J01Application {
                     throw new RuntimeException("Unexpected schema level");
                 }
 
-                log.info("Migrating to schema 5...");
+                log.debug("Migrating to schema 5...");
 
                 Tag corner_tag = new Tag("Black gets the corner");
                 corner_tag.setGroup(1);
@@ -190,7 +190,7 @@ public class J01Application {
                     return;
                 }
 
-                log.info("Migrating to schema 8");
+                log.debug("Migrating to schema 8");
                 this.migrateUsersToProductionIds();
                 break;
 
@@ -211,7 +211,7 @@ public class J01Application {
     }
 
     void resetDB() {
-        log.info("resetting DB...");
+        log.debug("resetting DB...");
 
         bp_access.deleteEverythingInDB();
 
@@ -231,7 +231,7 @@ public class J01Application {
 
             User check = user_access.findByUserId(admin_id);
 
-            log.info(check.toString());
+            log.debug(check.toString());
         }
 
         // Lets make another couple of contributors, to test filtering
@@ -275,7 +275,7 @@ public class J01Application {
 
         bp_access.save(rootNode);
 
-        log.info("After save of root: " + rootNode.getInfo() );
+        log.debug("After save of root: " + rootNode.getInfo() );
 
         Long root_id = rootNode.id;
 
@@ -347,20 +347,20 @@ public class J01Application {
 
         bp_access.save(rootNode);
 
-        log.info("After save of root with children: " + rootNode.getInfo() );
+        log.debug("After save of root with children: " + rootNode.getInfo() );
 
         /* Figuring out how/when/what Neo4j loads */
-        log.info("Loading and looking at child moves...");
+        log.debug("Loading and looking at child moves...");
 
         rootNode = bp_access.findActiveByPlay(".root");
-        log.info("reloaded root: " + rootNode.getInfo());
+        log.debug("reloaded root: " + rootNode.getInfo());
 
         /* Test reload of a position */
 
         rootNode = bp_access.findById(root_id);
-        log.info("After findById: " + rootNode.getInfo() );
+        log.debug("After findById: " + rootNode.getInfo() );
 
-        log.info("Adding second level moves to a node...");
+        log.debug("Adding second level moves to a node...");
 
         // Test adding a comment later
         rootNode.addComment("... initial setup in place!", GajId);
@@ -370,7 +370,7 @@ public class J01Application {
         child.setCategory(PlayCategory.QUESTION, GajId);
         bp_access.save(child);
 
-        log.info("...DB reset done");
+        log.debug("...DB reset done");
     }
 
 
@@ -385,7 +385,7 @@ public class J01Application {
             } else {
                 n = v;
             }
-            log.info("converting " + v + " to " + n);
+            log.debug("converting " + v + " to " + n);
             p.setVariationLabel(n);
             bp_access.save(p);
         });
@@ -463,7 +463,7 @@ public class J01Application {
     void fixVariationLabelZeros() {
         native_bp_access.streamVariationLabelZeros().forEach( p -> {
             BoardPosition the_position = native_bp_access.findById(p.id).orElse(null); // load children
-            log.info("Fixing variation label at node " + the_position.getInfo());
+            log.debug("Fixing variation label at node " + the_position.getInfo());
             the_position.setVariationLabel((char)(the_position.parent.nextVariationLabel() -1));
             native_bp_access.save(the_position);
         });
@@ -490,13 +490,13 @@ public class J01Application {
                 throw new RuntimeException("Unmappable user ID:" + u.getUserId().toString());
             }
 
-            log.info("User ID update for user: " + u.getUserId());
-            log.info(" -> " + newId);
+            log.debug("User ID update for user: " + u.getUserId());
+            log.debug(" -> " + newId);
             u.setUserId(newId);
             user_access.save(u);
         });
 
-        log.info("Doing contributor ID updates...");
+        log.debug("Doing contributor ID updates...");
         native_bp_access.streamAllPositions().forEach( p -> {
             Long newId = userIdMap.get(p.getContributorId());
 
@@ -509,7 +509,7 @@ public class J01Application {
             full.setContributorId(newId);
 
             if (full.commentary != null && full.commentary.size() > 0) {
-                log.info("Found comments: " + full.commentary.toString());
+                log.debug("Found comments: " + full.commentary.toString());
                 full.commentary.stream().forEach(c -> {
                     Long newCid = userIdMap.get(c.getUserId());
 
@@ -528,22 +528,22 @@ public class J01Application {
 
         BoardPosition start = this.bp_access.findActiveByPlay(".root");
         this.extendSequence(start,'A', 1, 50000);
-        log.info("Writing lots of nodes to neo - can take a few minutes on my machine...");
+        log.debug("Writing lots of nodes to neo - can take a few minutes on my machine...");
         bp_access.save(start);
 
         start = this.bp_access.findActiveByPlay(".root"); // dump old node, allow it to be freed
         this.extendSequence(start,'A', 2, 100000);
-        log.info("Writing lots of nodes to neo - can take a few minutes on my machine...");
+        log.debug("Writing lots of nodes to neo - can take a few minutes on my machine...");
         bp_access.save(start);
 
         start = this.bp_access.findActiveByPlay(".root");
         this.extendSequence(start,'A', 3, 150000);
-        log.info("Writing lots of nodes to neo - can take a few minutes on my machine...");
+        log.debug("Writing lots of nodes to neo - can take a few minutes on my machine...");
         bp_access.save(start);
 
         start = this.bp_access.findActiveByPlay(".root");
         this.extendSequence(start,'A', 4, 200000);
-        log.info("Writing lots of nodes to neo - can take a few minutes on my machine...");
+        log.debug("Writing lots of nodes to neo - can take a few minutes on my machine...");
         bp_access.save(start);
     }
 
@@ -555,10 +555,10 @@ public class J01Application {
         new_node.setDescription("Load-test position", 168L);
         new_node.setCategory(PlayCategory.TRICK, 168L);
         if (this.loadNodeCount % 100 == 0) {
-            log.info("Node count: " + this.loadNodeCount.toString());
+            log.debug("Node count: " + this.loadNodeCount.toString());
         }
         if (y == 1) {
-            log.info(x + "," + y);
+            log.debug(x + "," + y);
         }
 
         this.loadNodeCount += 1;

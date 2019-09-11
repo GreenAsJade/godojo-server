@@ -77,15 +77,15 @@ public class BoardPositions {
         // Do this 10,000 nodes at a time so as not to blow up the database with a huge request
         //  https://neo4j.com/developer/kb/large-delete-transaction-best-practices-in-neo4j/
 
-        log.info("** Deleting DB contents! ...");
+        log.debug("** Deleting DB contents! ...");
         int deleted_nodes;
 
         do {
             deleted_nodes = bp_access.deleteNodes(10000);
-            log.info("Deleted " + deleted_nodes);
+            log.debug("Deleted " + deleted_nodes);
         } while (deleted_nodes > 0);
 
-        log.info("... done.");
+        log.debug("... done.");
     }
 
 }

@@ -33,7 +33,7 @@ public class CommentaryController {
 
         BoardPosition board_position;
 
-        log.info("Commentary request for: " + id);
+        log.debug("Commentary request for: " + id);
 
         if (id.equals("root")) {
             board_position = this.bp_access.findActiveByPlay(".root");
@@ -43,9 +43,9 @@ public class CommentaryController {
             board_position = this.bp_access.findById(Long.valueOf(id));
         }
 
-        log.info("which is: " + board_position.toString());
+        log.debug("which is: " + board_position.toString());
 
-        log.info("with comments " + board_position.getCommentCount().toString());
+        log.debug("with comments " + board_position.getCommentCount().toString());
 
         CommentaryDTO commentary = new CommentaryDTO(board_position);
 

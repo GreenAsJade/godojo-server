@@ -73,7 +73,7 @@ public class ForumWriterService {
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity request = new HttpEntity(apiHeaders);
         String apiUrl = serverApi + "/v1/players/" + contributorId.toString();
-        log.info("Fetching contributor name from " + apiUrl);
+        log.debug("Fetching contributor name from " + apiUrl);
 
         ResponseEntity<UserGetResponseDTO> response = restTemplate.exchange(
                 apiUrl, HttpMethod.GET, request, UserGetResponseDTO.class);
@@ -84,7 +84,7 @@ public class ForumWriterService {
     @Async("asyncExecutor")
     public void startPositionTopic(BoardPosition position, String comment, String commenterName) {
         String play = position.getPlay();
-        log.info("Starting forum topic for: " + play);
+        log.debug("Starting forum topic for: " + play);
 
         // Tidy up the Play for readability
         if (".root".equals(play)) {
@@ -113,7 +113,7 @@ public class ForumWriterService {
             raw_post_text += "( FYI @" + contributorName + " )";
         }
 
-        // log.info(raw_post_text);
+        // log.debug(raw_post_text);
 
         JSONObject topicObject = new JSONObject();
         try {
@@ -135,7 +135,7 @@ public class ForumWriterService {
                 request,
                 ForumPostResponseDTO.class);
 
-        log.info("Forum server result: " +  response);
+        log.debug("Forum server result: " +  response);
 
         if (response != null) {
             position.setForumThreadId(response.getTopicId());
@@ -146,7 +146,7 @@ public class ForumWriterService {
     @Async("asyncExecutor")
     public void addPositionComment(BoardPosition position, String comment, String commenterName) {
         String play = position.getPlay();
-        log.info("Adding forum comment for: " + play);
+        log.debug("Adding forum comment for: " + play);
 
         // Quote the comment:
         comment = "> " + comment;
@@ -164,7 +164,7 @@ public class ForumWriterService {
             raw_post_text += "( FYI @" + contributorName + " )";
         }
 
-        // log.info(raw_post_text);
+        // log.debug(raw_post_text);
 
         JSONObject topicObject = new JSONObject();
         try {
@@ -185,7 +185,7 @@ public class ForumWriterService {
                 request,
                 ForumPostResponseDTO.class);
 
-        log.info("Forum server result: " +  response);
+        log.debug("Forum server result: " +  response);
 
     }
 

@@ -18,7 +18,7 @@ public class APIKeyAuthFilter extends AbstractPreAuthenticatedProcessingFilter {
     @Override
     protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
     	Object the_header = request.getHeader(principalRequestHeader);
-    	//log.info("PRH found: " + the_header.toString());
+    	//log.debug("PRH found: " + the_header.toString());
         return the_header; 
     }
 

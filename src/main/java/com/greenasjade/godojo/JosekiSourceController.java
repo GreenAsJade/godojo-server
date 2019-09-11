@@ -25,7 +25,7 @@ public class JosekiSourceController {
     // Return the list of all joseki sources
     public JosekiSourcesDTO josekisources() {
 
-        log.info("Joseki sources request");
+        log.debug("Joseki sources request");
 
         return new JosekiSourcesDTO(store.listSources());
     }
@@ -46,14 +46,14 @@ public class JosekiSourceController {
 
         Long user_id = the_user.getUserId();
 
-        log.info("Saving josekisource for user: " + user_id.toString());
+        log.debug("Saving josekisource for user: " + user_id.toString());
 
         if (source_info == null) {
             log.warn("WHOA NO SOURCE INFO! (brace for impact)");
         }
         else {
-            log.info("Description: "  + source_info.getSource().getDescription());
-            log.info("URL: " + source_info.getSource().getUrl());
+            log.debug("Description: "  + source_info.getSource().getDescription());
+            log.debug("URL: " + source_info.getSource().getUrl());
         }
         JosekiSource the_new_source = new JosekiSource(
                 source_info.getSource().getDescription(),

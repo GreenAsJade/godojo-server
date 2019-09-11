@@ -42,7 +42,7 @@ public class AuditsController {
         if (node_id.equals("root")) {
             node_id = audit_store.getRootId();
         }
-        log.info("Audit request for: " + node_id);
+        log.debug("Audit request for: " + node_id);
 
         return audit_store.findByNodeId(Long.parseLong(node_id));
     }
@@ -55,7 +55,7 @@ public class AuditsController {
             @RequestParam(value = "user_id", required = false, defaultValue = "0") Long user_id,
             Pageable pageable) {
 
-        log.info("Change log request for user id {}", user_id);
+        log.debug("Change log request for user id {}", user_id);
 
         if (user_id == 0L) {
             return audit_store.getAudits(pageable).map(audit -> new AuditDTO(audit));
@@ -67,7 +67,7 @@ public class AuditsController {
 
     private String RevertCategoryChange(Audit target, Long user_id) {
         if (target.ref.getCategory().toString().equals(target.getNewValue())) {
-            log.info("proceeding with revert on " + target.ref);
+            log.debug("proceeding with revert on " + target.ref);
             target.ref.setCategory(PlayCategory.valueOf(target.getOriginalValue()), user_id);
             this.bp_access.save(target.ref);
             return "done.";
@@ -79,7 +79,7 @@ public class AuditsController {
 
     private String RevertDescriptionChange(Audit target, Long user_id) {
         if (target.ref.getDescription().equals(target.getNewValue())) {
-            log.info("proceeding with revert on " + target.ref);
+            log.debug("proceeding with revert on " + target.ref);
             target.ref.setDescription(target.getOriginalValue(), user_id);
             this.bp_access.save(target.ref);
             return "done.";
@@ -90,7 +90,7 @@ public class AuditsController {
     }
 
     private void DeleteBoardPosition(BoardPosition target, Long user_id) {
-        log.info("'DELETING' " + target.getPlacement());
+        log.debug("'DELETING' " + target.getPlacement());
 
         BoardPosition losing_parent = target.parent;
 
@@ -101,7 +101,7 @@ public class AuditsController {
 
         // To be honest, I don't understand why we don't have to explicitly load these,
         // so it won't surprise me if at some point they appear empty and needing loading here.
-        log.info("losing parent audits: " + losing_parent + " "  + losing_parent.id + " " + losing_parent.audits);
+        log.debug("losing parent audits: " + losing_parent + " "  + losing_parent.id + " " + losing_parent.audits);
 
         losing_parent.audits.add(new Audit(losing_parent, ChangeType.REMOVE_CHILD, target.id.toString(), "", "Removed child " + target.getPlacement(), user_id));
         bp_access.save(losing_parent);
@@ -111,8 +111,8 @@ public class AuditsController {
     }
 
     private String RemoveAddedPosition(BoardPosition target_child, BoardPosition from, Long created_by_id, Long user_id) {
-        log.info("RemoveAddedPosition: " + target_child.getPlacement() + " from " + from);
-        log.info("initial children: " + from.children);
+        log.debug("RemoveAddedPosition: " + target_child.getPlacement() + " from " + from);
+        log.debug("initial children: " + from.children);
 
         if (target_child.children != null) {
             // Take a copy of the children list, so we can remove children from the actual children list as we go.
@@ -130,7 +130,7 @@ public class AuditsController {
             }
         }
         else {
-            log.info("(no children)");
+            log.debug("(no children)");
         }
         if (target_child.getContributorId().equals(created_by_id)) {
             DeleteBoardPosition(target_child, user_id);
@@ -143,9 +143,9 @@ public class AuditsController {
     }
 
     private String RevertAddChild(Audit target, Long user_id) {
-        log.info("Add Child Reversion request for " + target.ref.getPlacement());
-        log.info("target child " + target.getNewValue());
-        log.info("created by " + target.getUserId().toString());
+        log.debug("Add Child Reversion request for " + target.ref.getPlacement());
+        log.debug("target child " + target.getNewValue());
+        log.debug("created by " + target.getUserId().toString());
 
         // We need the target and it's parent fully loaded from neo (for audit etc)
 
@@ -185,7 +185,7 @@ public class AuditsController {
         // When we are asked to revert a "CREATE" audit, we simply check that the
         // previous required "ADD_CHILD" reversion was done, which will have taken care of removing the node
 
-        log.info("Checking add child reversal for " + target);
+        log.debug("Checking add child reversal for " + target);
 
         if (target.ref.parent == null) {
             return "checks OK: the node does not exist or is not active";
@@ -196,7 +196,7 @@ public class AuditsController {
     }
 
     private String CheckDeactivateReversionDone(Audit target) {
-        log.info("Checking deactivation reversal done for target");
+        log.debug("Checking deactivation reversal done for target");
 
         if (bp_access.findById(Long.parseLong(target.getOriginalValue())).parent != null) {
             return "checks OK: the child node is active";
@@ -209,7 +209,7 @@ public class AuditsController {
     private String RevertAddComment(Audit target, Long user_id) {
         int target_comment = Integer.parseInt(target.getOriginalValue()) -1;
 
-        log.info(String.format("Reverting comment %s from %s", target_comment, target.ref.getInfo()));
+        log.debug(String.format("Reverting comment %s from %s", target_comment, target.ref.getInfo()));
 
         Long target_comment_id = target.ref.commentary.get(target_comment).id;
         String target_comment_remark = target.ref.commentary.get(target_comment).getComment();
@@ -249,12 +249,12 @@ public class AuditsController {
             return new RevertResultDTO("invalid audit!");
         }
 
-        log.info("which is " + target_audit + " pointing to " + target_audit.ref);
+        log.debug("which is " + target_audit + " pointing to " + target_audit.ref);
 
         // load all the child info of the board position (we need the audits array)
         target_audit.ref = bp_access.findById(target_audit.ref.id);
 
-        log.info("After load, the target node has children " + target_audit.ref.children);
+        log.debug("After load, the target node has children " + target_audit.ref.children);
 
         String result;
 
