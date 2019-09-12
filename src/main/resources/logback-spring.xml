@@ -25,6 +25,12 @@
         <appender-ref ref="CONSOLE"/>
     </logger>
 
+    <!-- Get rid of annoying Spring DEBUG embedded in Auth -->
+    <logger name="com.greenasjade.godojo.APIKeyAuthFilter" level="WARN" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="Sentry"/>
+    </logger>
+
     <!-- Enable the Console and Sentry appenders, default WARN (so Sentry doesn't get all that Spring INFO)-->
     <root level="WARN">
         <appender-ref ref="CONSOLE" />

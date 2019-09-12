@@ -37,7 +37,7 @@ public class J01Application {
     private AppInfos app_info_access;
     private Audits audit_access;
 
-    private Integer current_schema = 9;
+    private Integer target_schema = 9;
 
     @Value("${sentry.environment}")
     private String environment;
@@ -78,11 +78,12 @@ public class J01Application {
 
             Integer db_schema = app_info.getSchema_id();
 
-            if (db_schema < current_schema) {
-                migrateToSchema(current_schema, db_schema);
+            if (db_schema < target_schema) {
+                log.info("Migrating from " + db_schema.toString() + " to " + target_schema.toString());
+                migrateToSchema(target_schema, db_schema);
             }
             else {
-                log.info("Schema version " + current_schema.toString());
+                log.info("Currently on schema version " + target_schema.toString());
             }
 
             BoardPosition rootNode = bp_access.findActiveByPlay(".root");
@@ -104,7 +105,6 @@ public class J01Application {
                 // This is the introduction of BoardPosition.variation_label
                 // with the deprecation of BoardPosition.seq,
                 // plus introducing tags
-                log.debug("Migrating to schema 2...");
 
                 // lets just reset the DB for this  <<< *** BEWARE OF THIS MIGRATION!
                 resetDB();
@@ -122,8 +122,6 @@ public class J01Application {
                     migrateToSchema(2, previous_schema);
                 }*/
 
-                log.debug("Migrating to schema 3...");
-
                 this.changeToNumericVariationLabels();
                 this.addOutcomeTags();
 
@@ -134,8 +132,6 @@ public class J01Application {
                     log.error("Expecting schema level 3.  Can't update to schema level 4!");
                     throw new RuntimeException("Unexpected schema level");
                 }
-
-                log.debug("Migrating to schema 4...");
 
                 Tag currency_tag = new Tag("Current");
                 currency_tag.setGroup(0);
@@ -149,8 +145,6 @@ public class J01Application {
                     log.error("Expecting schema level 4.  Can't update to schema level 5!");
                     throw new RuntimeException("Unexpected schema level");
                 }
-
-                log.debug("Migrating to schema 5...");
 
                 Tag corner_tag = new Tag("Black gets the corner");
                 corner_tag.setGroup(1);
@@ -174,15 +168,22 @@ public class J01Application {
                 break;
 
             case 6:
+                log.info("Migrating to schema 6");
                 this.fixVariationLabelZeros();
                 break;
 
             case 7:
-                throw new RuntimeException("unexpected schema (not used): 7");
+                if (previous_schema < 6) {
+                    this.migrateToSchema(6, previous_schema);
+                }
+                // nothing to do now for schema 7
+                log.info("Migrating to schema 7");
+                log.debug("No migration to run for schema 7");
+                break;
 
             case 8:
-                if (previous_schema > 6) {
-                    this.migrateToSchema(6, previous_schema);
+                if (previous_schema < 7) {
+                    this.migrateToSchema(7, previous_schema);
                 }
 
                 log.info("Migrating to schema 8");
@@ -199,7 +200,7 @@ public class J01Application {
                     this.migrateToSchema(8, previous_schema);
                 }
 
-                log.info("Migrating to schema 9...");
+                log.info("Migrating to schema 9");
                 if (environment.equals("production")) {
                     this.migrateAuditsToProductionUserIds();
                 }
