@@ -177,28 +177,35 @@ public class J01Application {
                 this.fixVariationLabelZeros();
                 break;
 
+            case 7:
+                throw new RuntimeException("unexpected schema (not used): 7");
+
             case 8:
-                if (previous_schema == 5) {
-                    this.migrateToSchema(6, 5);
-                }
-                else {
-                    if (previous_schema != 7 && previous_schema != 6) {
-                        log.error("Expecting fixed variation labels.  Can't update to schema level 8!");
-                        throw new RuntimeException("Unexpected schema level");
-                    }
+                if (previous_schema > 6) {
+                    this.migrateToSchema(6, previous_schema);
                 }
 
                 log.info("Migrating to schema 8");
-                this.migrateUsersToProductionIds();
+                if (environment.equals("production")) {
+                    this.migrateUsersToProductionIds();
+                }
+                else {
+                    log.warn("Not on Production so not migrating user IDs");
+                }
                 break;
 
             case 9:
                 if (previous_schema != 8) {
-                    throw new RuntimeException("Unexptected schema level: " + previous_schema.toString());
+                    this.migrateToSchema(8, previous_schema);
                 }
 
                 log.info("Migrating to schema 9...");
-                this.migrateAuditsToProductionUserIds();
+                if (environment.equals("production")) {
+                    this.migrateAuditsToProductionUserIds();
+                }
+                else {
+                    log.warn("Not on Production so not migrating user IDs");
+                }
                 break;
 
             case 999: // we'll do this later
