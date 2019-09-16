@@ -47,7 +47,7 @@ public class UserFactory {
             the_user = new User(id);
         }
 
-        log.debug(the_user.toString());
+        J01Application.debug(the_user.toString(), log);
 
         return the_user;
     }
@@ -69,7 +69,7 @@ public class UserFactory {
             return null;  // urk should have a better solution TBD
         }
 
-        log.debug("User Claims: " + jwtClaims.toString());
+        J01Application.debug("User Claims: " + jwtClaims.toString(), log);
 
         id = jwtClaims.get("id").asLong();
 
@@ -94,7 +94,7 @@ public class UserFactory {
                 */
 
             } else {
-                log.debug("anonymous visitor");
+                J01Application.debug("anonymous visitor", log);
                 the_user = new User(0L);
                 the_user.setCanComment(false);  // anonymous can't comment
             }
@@ -102,7 +102,7 @@ public class UserFactory {
 
         the_user.username = username;
 
-        log.debug(the_user.toString());
+        J01Application.debug(the_user.toString(), log);
 
         return the_user;
     }
