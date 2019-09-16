@@ -27,7 +27,7 @@ public class TagController {
     // Return the list of all tags
     public TagsDTO josekisources() {
 
-        log.debug("Tags request");
+        J01Application.debug("Tags request", log);
 
         return new TagsDTO(store.listTags());
     }

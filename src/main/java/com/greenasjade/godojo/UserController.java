@@ -68,7 +68,7 @@ public class UserController {
             @RequestParam(value="id") Long id,
             @RequestBody PermissionsDTO permissions) {
 
-        log.debug("set permissions request " + permissions);
+        J01Application.debug("set permissions request " + permissions, log);
 
         User the_user = this.user_factory.createUser(user_jwt);
         Long user_id = the_user.getUserId();

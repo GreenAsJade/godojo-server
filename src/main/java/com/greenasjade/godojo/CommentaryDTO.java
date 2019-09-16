@@ -27,7 +27,7 @@ public class CommentaryDTO {
     public CommentaryDTO(BoardPosition position) {
         // BoardPositions can have null elements returned from neo4j queries
         // BoardPosition commentary array returned from neo is not sorted
-        log.debug("Building commentary dto for " + position);
+        J01Application.debug("Building commentary dto for " + position, log);
         commentary =  (position.commentary != null) ?
                 position.commentary.stream()
                         .sorted( Comparator.comparing(Comment::getDate))

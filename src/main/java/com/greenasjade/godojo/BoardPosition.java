@@ -221,7 +221,7 @@ public class BoardPosition {
     }
 
     public void setTags(List<Tag> tags) {
-        log.debug("Setting tags " + tags.toString());
+        J01Application.debug("Setting tags " + tags.toString(), log);
         this.tags = new ArrayList<>();
         this.tags.addAll(tags);
     }

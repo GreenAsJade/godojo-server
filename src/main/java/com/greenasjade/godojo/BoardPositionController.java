@@ -45,7 +45,7 @@ public class BoardPositionController {
 
         BoardPosition board_position;
 
-        log.debug("Position request for: " + id);
+        J01Application.debug("Position request for: " + id, log);
 
         if (id.equals("root")) {
             board_position = this.bp_access.findActiveByPlay(".root");
@@ -61,14 +61,14 @@ public class BoardPositionController {
             }
 
             if (board_position.parent == null && !board_position.getPlay().equals(".root")) {
-                log.debug("which is a deleted position.");
+                J01Application.debug("which is a deleted position.", log);
                 throw new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "the requested position has been deleted"
                 );
             }
         }
 
-        log.debug("which is: " + board_position.getInfo());
+        J01Application.debug("which is: " + board_position.getInfo(), log);
 
         List<BoardPosition> next_positions;
 
@@ -77,25 +77,25 @@ public class BoardPositionController {
             List<Long> tagIds = null;
 
             if (variation_tags != null) {
-                log.debug("filtering for variations by tags " +
-                        variation_tags.toString());
+                J01Application.debug("filtering for variations by tags " +
+                        variation_tags.toString(), log);
 
                 tagIds = new ArrayList<>();
                 tagIds.addAll(variation_tags);
             }
 
            if (variation_contributor != null) {
-               log.debug("filtering for variations by contributor " +
-                       variation_contributor.toString());
+               J01Application.debug("filtering for variations by contributor " +
+                       variation_contributor.toString(), log);
            }
 
            if (variation_source != null) {
-               log.debug("filtering for variations by source " +
-                       variation_source.toString());
+               J01Application.debug("filtering for variations by source " +
+                       variation_source.toString(), log);
            }
 
             next_positions = bp_access.findFilteredVariations(board_position.id, variation_contributor, tagIds, variation_source);
-            log.debug("next positions: " + next_positions.toString());
+            J01Application.debug("next positions: " + next_positions.toString(), log);
         }
         else {
             // Optimisation: if we don't have to ask the DB to do the big filter thing, then don't.
@@ -142,7 +142,7 @@ public class BoardPositionController {
                 
         List<String> placements = new ArrayList<>(Arrays.asList(sequence_details.getSequence().split(",")));
 
-        log.debug("Adding move from sequence: " + placements.toString());
+        J01Application.debug("Adding move from sequence: " + placements.toString(), log);
 
         // Now, first we have to find where the first new move to be created is, in the sequence they gave us
         // So we start from "root" and see if each move in the sequence exists...
@@ -154,18 +154,18 @@ public class BoardPositionController {
     	BoardPosition next_position = bp_access.findActiveByPlay(next_play);
     	
         while (next_position != null && placements.size() > 0) {
-        	log.debug("found existing next position as: " + next_position);
+        	J01Application.debug("found existing next position as: " + next_position, log);
         	current_position = next_position;
         	next_placement = placements.remove(0);
         	next_play = next_play +  '.' + next_placement;
-        	log.debug("looking for play: " + next_play);
+        	J01Application.debug("looking for play: " + next_play, log);
         	next_position = bp_access.findActiveByPlay(next_play);
         }        	
             
         // Now "current_position" is an existing position, and next_placement takes us to the first new one to be created
         // so we add the remaining placements creating new positions as we go
         
-        log.debug("Extending at: " + current_position + " with " + next_placement);
+        J01Application.debug("Extending at: " + current_position + " with " + next_placement, log);
         
         PlayCategory new_category = sequence_details.getCategory();
 
@@ -173,7 +173,7 @@ public class BoardPositionController {
 
         while (placements.size() > 0) {
         	next_placement = placements.remove(0);
-            log.debug("Extending at: " + next_position + " with " + next_placement);
+            J01Application.debug("Extending at: " + next_position + " with " + next_placement, log);
             next_position = next_position.addMove(next_placement, new_category, user_id);
         }
        
@@ -192,7 +192,7 @@ public class BoardPositionController {
             @RequestParam(value="id") String id,
             @RequestBody BoardPositionDTO position_details) {
 
-        log.debug("updatePosition: " + position_details.toString());
+        J01Application.debug("updatePosition: " + position_details.toString(), log);
 
         User the_user = this.user_factory.createUser(user_jwt);
 
@@ -206,7 +206,7 @@ public class BoardPositionController {
 
         BoardPosition the_position = this.bp_access.findById(Long.valueOf(id));
 
-        log.debug("updatePosition - the_position" + the_position.toString());
+        J01Application.debug("updatePosition - the_position" + the_position.toString(), log);
 
         the_position.setDescription(position_details.getDescription(), user_id);
 
@@ -219,7 +219,7 @@ public class BoardPositionController {
         }
 
         if (position_details.joseki_source_id != null) {
-            log.debug("sourcing joseki source " + position_details.joseki_source_id);
+            J01Application.debug("sourcing joseki source " + position_details.joseki_source_id, log);
             the_position.source = js_access.findById(position_details.joseki_source_id).orElse(null);
         }
 
@@ -256,7 +256,7 @@ public class BoardPositionController {
 
         Integer result = bp_access.countChildrenWithTag(board_position.id, variation_tag);
 
-        log.debug("At node " + id + " tag id " + variation_tag + " count is " + result);
+        J01Application.debug("At node " + id + " tag id " + variation_tag + " count is " + result, log);
 
         return result;
     }
@@ -278,7 +278,7 @@ public class BoardPositionController {
             board_position = this.bp_access.findById(Long.valueOf(id));
         }
 
-        log.debug("Tags count request for node " + board_position.toString());
+        J01Application.debug("Tags count request for node " + board_position.toString(), log);
 
         List<Tag> tags = tag_access.listTags();
 

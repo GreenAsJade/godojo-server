@@ -1,5 +1,7 @@
 package com.greenasjade.godojo;
 
+import io.sentry.Sentry;
+import io.sentry.event.BreadcrumbBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,15 +11,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
-
 import org.springframework.scheduling.annotation.EnableAsync;
-
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-
 
 @SpringBootApplication
 @EnableAsync
@@ -27,6 +26,15 @@ public class J01Application {
 
     public static void main(String[] args) {
         SpringApplication.run(J01Application.class, args);
+    }
+
+    public static void debug(String message, Logger logger) {
+        // breadcrumbs to Sentry for debug on issues
+        Sentry.getContext().recordBreadcrumb(
+                new BreadcrumbBuilder().setMessage(message).build()
+        );
+
+        logger.debug(message);
     }
 
     private BoardPositionsNative native_bp_access;
@@ -52,12 +60,12 @@ public class J01Application {
             Audits audit_access
     ) {
         return args -> {
-            log.debug("Initialising...");
+            J01Application.debug("Initialising...", log);
 
             if (environment.equals("set-me-in-the-environment")) {
                 throw new RuntimeException("SENTRY_ENVIRONMENT needs to be set");
             }
-            log.debug("Server environment: " + environment);
+            J01Application.debug("Server environment: " + environment, log);
 
             this.native_bp_access = native_bp_access;
             this.bp_access = new BoardPositions(native_bp_access);
@@ -73,7 +81,7 @@ public class J01Application {
             if (app_info == null) {
                 app_info = new AppInfo();
                 app_info.setSchema_id(0);
-                log.debug("*** Initialising Schema ID");
+                J01Application.debug("*** Initialising Schema ID", log);
             }
 
             Integer db_schema = app_info.getSchema_id();
@@ -93,7 +101,7 @@ public class J01Application {
             }
             rootNode = bp_access.findActiveByPlay(".root");
 
-            log.debug("Current root: " + rootNode.getInfo());
+            J01Application.debug("Current root: " + rootNode.getInfo(), log);
         };
     }
 
@@ -178,7 +186,7 @@ public class J01Application {
                 }
                 // nothing to do now for schema 7
                 log.info("Migrating to schema 7");
-                log.debug("No migration to run for schema 7");
+                J01Application.debug("No migration to run for schema 7", log);
                 break;
 
             case 8:
@@ -226,7 +234,7 @@ public class J01Application {
     }
 
     void resetDB() {
-        log.debug("resetting DB...");
+        J01Application.debug("resetting DB...", log);
 
         bp_access.deleteEverythingInDB();
 
@@ -246,7 +254,7 @@ public class J01Application {
 
             User check = user_access.findByUserId(admin_id);
 
-            log.debug(check.toString());
+            J01Application.debug(check.toString(), log);
         }
 
         // Lets make another couple of contributors, to test filtering
@@ -290,7 +298,7 @@ public class J01Application {
 
         bp_access.save(rootNode);
 
-        log.debug("After save of root: " + rootNode.getInfo() );
+        J01Application.debug("After save of root: " + rootNode.getInfo(), log);
 
         Long root_id = rootNode.id;
 
@@ -362,20 +370,20 @@ public class J01Application {
 
         bp_access.save(rootNode);
 
-        log.debug("After save of root with children: " + rootNode.getInfo() );
+        J01Application.debug("After save of root with children: " + rootNode.getInfo(), log);
 
         /* Figuring out how/when/what Neo4j loads */
-        log.debug("Loading and looking at child moves...");
+        J01Application.debug("Loading and looking at child moves...", log);
 
         rootNode = bp_access.findActiveByPlay(".root");
-        log.debug("reloaded root: " + rootNode.getInfo());
+        J01Application.debug("reloaded root: " + rootNode.getInfo(), log);
 
         /* Test reload of a position */
 
         rootNode = bp_access.findById(root_id);
-        log.debug("After findById: " + rootNode.getInfo() );
+        J01Application.debug("After findById: " + rootNode.getInfo(), log);
 
-        log.debug("Adding second level moves to a node...");
+        J01Application.debug("Adding second level moves to a node...", log);
 
         // Test adding a comment later
         rootNode.addComment("... initial setup in place!", GajId);
@@ -385,7 +393,7 @@ public class J01Application {
         child.setCategory(PlayCategory.QUESTION, GajId);
         bp_access.save(child);
 
-        log.debug("...DB reset done");
+        J01Application.debug("...DB reset done", log);
     }
 
 
@@ -400,7 +408,7 @@ public class J01Application {
             } else {
                 n = v;
             }
-            log.debug("converting " + v + " to " + n);
+            J01Application.debug("converting " + v + " to " + n, log);
             p.setVariationLabel(n);
             bp_access.save(p);
         });
@@ -478,7 +486,7 @@ public class J01Application {
     void fixVariationLabelZeros() {
         native_bp_access.streamVariationLabelZeros().forEach( p -> {
             BoardPosition the_position = native_bp_access.findById(p.id).orElse(null); // load children
-            log.debug("Fixing variation label at node " + the_position.getInfo());
+            J01Application.debug("Fixing variation label at node " + the_position.getInfo(), log);
             the_position.setVariationLabel((char)(the_position.parent.nextVariationLabel() -1));
             native_bp_access.save(the_position);
         });
@@ -505,13 +513,13 @@ public class J01Application {
                 throw new RuntimeException("Unmappable user ID:" + u.getUserId().toString());
             }
 
-            log.debug("User ID update for user: " + u.getUserId());
-            log.debug(" -> " + newId);
+            J01Application.debug("User ID update for user: " + u.getUserId(), log);
+            J01Application.debug(" -> " + newId, log);
             u.setUserId(newId);
             user_access.save(u);
         });
 
-        log.debug("Doing contributor ID updates...");
+        J01Application.debug("Doing contributor ID updates...", log);
         native_bp_access.streamAllPositions().forEach( p -> {
             Long newId = userIdMap.get(p.getContributorId());
 
@@ -524,7 +532,7 @@ public class J01Application {
             full.setContributorId(newId);
 
             if (full.commentary != null && full.commentary.size() > 0) {
-                log.debug("Found comments: " + full.commentary.toString());
+                J01Application.debug("Found comments: " + full.commentary.toString(), log);
                 full.commentary.stream().forEach(c -> {
                     Long newCid = userIdMap.get(c.getUserId());
 
@@ -570,22 +578,22 @@ public class J01Application {
 
         BoardPosition start = this.bp_access.findActiveByPlay(".root");
         this.extendSequence(start,'A', 1, 50000);
-        log.debug("Writing lots of nodes to neo - can take a few minutes on my machine...");
+        J01Application.debug("Writing lots of nodes to neo - can take a few minutes on my machine...", log);
         bp_access.save(start);
 
         start = this.bp_access.findActiveByPlay(".root"); // dump old node, allow it to be freed
         this.extendSequence(start,'A', 2, 100000);
-        log.debug("Writing lots of nodes to neo - can take a few minutes on my machine...");
+        J01Application.debug("Writing lots of nodes to neo - can take a few minutes on my machine...", log);
         bp_access.save(start);
 
         start = this.bp_access.findActiveByPlay(".root");
         this.extendSequence(start,'A', 3, 150000);
-        log.debug("Writing lots of nodes to neo - can take a few minutes on my machine...");
+        J01Application.debug("Writing lots of nodes to neo - can take a few minutes on my machine...", log);
         bp_access.save(start);
 
         start = this.bp_access.findActiveByPlay(".root");
         this.extendSequence(start,'A', 4, 200000);
-        log.debug("Writing lots of nodes to neo - can take a few minutes on my machine...");
+        J01Application.debug("Writing lots of nodes to neo - can take a few minutes on my machine...", log);
         bp_access.save(start);
     }
 
@@ -597,10 +605,10 @@ public class J01Application {
         new_node.setDescription("Load-test position", 168L);
         new_node.setCategory(PlayCategory.TRICK, 168L);
         if (this.loadNodeCount % 100 == 0) {
-            log.debug("Node count: " + this.loadNodeCount.toString());
+            J01Application.debug("Node count: " + this.loadNodeCount.toString(), log);
         }
         if (y == 1) {
-            log.debug(x + "," + y);
+            J01Application.debug(x + "," + y, log);
         }
 
         this.loadNodeCount += 1;
