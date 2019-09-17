@@ -36,6 +36,7 @@ public class AuditsController {
     @ResponseBody()
     @GetMapping("/godojo/audits" )
     // Return all the information needed to display audit log for a single position
+    // note: surely this should have been a Page<AuditDTO>.  I think this was here before I knew about that...
     public ArrayList<Audit> audits(
             @RequestParam(value = "id", required = false, defaultValue = "root") String node_id) {
 
@@ -52,16 +53,19 @@ public class AuditsController {
     @GetMapping("/godojo/changes" )
     // Return recent change information
     public Page<AuditDTO> changes(
-            @RequestParam(value = "user_id", required = false, defaultValue = "0") Long user_id,
+            @RequestParam(value = "position_id", required = false, defaultValue = "-1") Long position_id,
+            @RequestParam(value = "user_id", required = false, defaultValue = "-1") Long user_id,
             Pageable pageable) {
 
         J01Application.debug("Change log request for user id " + user_id.toString(), log);
 
-        if (user_id == 0L) {
-            return audit_store.getAudits(pageable).map(audit -> new AuditDTO(audit));
+        if (position_id != -1L) {
+            return audit_store.getAuditsForPosition(position_id, pageable).map(audit -> new AuditDTO(audit));
         }
+        else if (user_id != -1L)
+            return audit_store.getAuditsForUser(user_id, pageable).map(audit -> new AuditDTO(audit));
         else {
-            return audit_store.getAuditsFor(user_id, pageable).map(audit -> new AuditDTO(audit));
+            return audit_store.getAudits(pageable).map(audit -> new AuditDTO(audit));
         }
     }
 

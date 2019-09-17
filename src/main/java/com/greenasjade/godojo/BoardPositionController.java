@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -37,7 +38,7 @@ public class BoardPositionController {
     @GetMapping("/godojo/position" )
     // Return all the information needed to display a position
     // Filter out variations as specified by params
-    public BoardPositionDTO position(
+    public ResponseEntity<BoardPositionDTO> position(
             @RequestParam(value = "id", required = false, defaultValue = "root") String id,
             @RequestParam(value="cfilterid", required = false) Long variation_contributor,
             @RequestParam(value="tfilterid", required = false) List<Long> variation_tags,
@@ -55,16 +56,15 @@ public class BoardPositionController {
             board_position = this.bp_access.findById(Long.valueOf(id));
 
             if (board_position == null) {
-                throw new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "the requested position was not found"
-                );
+                J01Application.debug("requested position does not exist", log);
+
+                return new ResponseEntity(HttpStatus.NOT_FOUND);
             }
 
             if (board_position.parent == null && !board_position.getPlay().equals(".root")) {
                 J01Application.debug("which is a deleted position.", log);
-                throw new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "the requested position has been deleted"
-                );
+
+                return new ResponseEntity(HttpStatus.NOT_FOUND);
             }
         }
 
@@ -108,11 +108,11 @@ public class BoardPositionController {
 
         BoardPositionDTO position = new BoardPositionDTO(board_position, next_positions, child_count);
 
-        return position;
+        return new ResponseEntity(position, HttpStatus.OK);
     }
 
     // an alias when we don't want to filter, used below.
-    BoardPositionDTO position(String id) {
+    ResponseEntity<BoardPositionDTO> position(String id) {
         return this.position(id, null, null, null);
     }
 
@@ -124,7 +124,7 @@ public class BoardPositionController {
     // The incoming Sequence DTO describes the category for all new positions/moves that have to be created
     // Only the category is set for all created positions - other parameters need a separate call
     // (to updatePosition) to set them.
-    public BoardPositionDTO createPositions(
+    public ResponseEntity<BoardPositionDTO> createPositions(
             @RequestHeader("X-User-Info") String user_jwt,
             @RequestBody SequenceDTO sequence_details) {
 
@@ -187,7 +187,7 @@ public class BoardPositionController {
     @ResponseBody()
     @PutMapping("/godojo/position")
     // Update details about a given position
-    public BoardPositionDTO updatePosition(
+    public ResponseEntity<BoardPositionDTO> updatePosition(
             @RequestHeader("X-User-Info") String user_jwt,
             @RequestParam(value="id") String id,
             @RequestBody BoardPositionDTO position_details) {
