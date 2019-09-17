@@ -39,6 +39,11 @@ public interface Audits extends PagingAndSortingRepository<Audit, Long> {
             countQuery="MATCH (a:Audit)-[ref:AUDIT]->(p:BoardPosition) WHERE id(p)={PositionID} RETURN count(a)")
     Page<Audit> getAuditsForPosition(@Param("PositionID") Long position_id, Pageable pageable);
 
+    @Query(
+            value="MATCH (a:Audit)-[ref:AUDIT]->(p:BoardPosition) WHERE a.type={Type} RETURN a, ref, p ORDER BY a.date DESC, a.seq DESC",
+            countQuery="MATCH (a:Audit)-[ref:AUDIT]->(p:BoardPosition) WHERE a.type={Type} RETURN count(a)")
+    Page<Audit> getAuditsOfType(@Param("Type") String audit_type, Pageable pageable);
+
     @Query("MATCH (a:Audit) RETURN a")
     Stream<Audit> streamAllAudits();
 }

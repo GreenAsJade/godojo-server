@@ -55,15 +55,20 @@ public class AuditsController {
     public Page<AuditDTO> changes(
             @RequestParam(value = "position_id", required = false, defaultValue = "-1") Long position_id,
             @RequestParam(value = "user_id", required = false, defaultValue = "-1") Long user_id,
+            @RequestParam(value = "audit_type", required = false, defaultValue = "") String audit_type,
             Pageable pageable) {
 
-        J01Application.debug("Change log request for user id " + user_id.toString(), log);
+        J01Application.debug(String.format("Change log request: %d, %d, '%s'", position_id, user_id, audit_type), log);
 
         if (position_id != -1L) {
             return audit_store.getAuditsForPosition(position_id, pageable).map(audit -> new AuditDTO(audit));
         }
-        else if (user_id != -1L)
+        else if (user_id != -1L) {
             return audit_store.getAuditsForUser(user_id, pageable).map(audit -> new AuditDTO(audit));
+        }
+        else if (!audit_type.equals("")) {
+            return audit_store.getAuditsOfType(audit_type, pageable).map(audit -> new AuditDTO(audit));
+        }
         else {
             return audit_store.getAudits(pageable).map(audit -> new AuditDTO(audit));
         }
