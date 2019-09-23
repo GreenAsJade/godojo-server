@@ -11,6 +11,11 @@ public interface Users extends Neo4jRepository<User, Long> {
 	@Query("MATCH (u:User {user_id:{userId}}) RETURN u")
 	User findByUserId(@Param("userId") Long user_id);
 
+	@Query("MATCH (u:User {user_id:{userId}})" +
+			"WITH u OPTIONAL MATCH (u) -[r:PLAYED]- (b:BoardPosition) " +
+			"RETURN u,r,b")
+	User loadUserWithPlayRecordByUserId(@Param("userId") Long user_id);
+
 	@Query("MATCH (b:BoardPosition) RETURN DISTINCT b.contributor")
 	List<Long> findContributors();
 

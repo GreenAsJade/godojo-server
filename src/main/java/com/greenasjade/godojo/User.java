@@ -4,6 +4,8 @@ import org.neo4j.ogm.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+
 @NodeEntity
 public class User {
 
@@ -32,6 +34,9 @@ public class User {
     Boolean canComment() { return this.can_comment; }
     void setCanComment(Boolean val) { this.can_comment = val; }
 
+    @Relationship(type = "PLAYED")
+    public ArrayList<PlayRecord> played_josekis;
+
     @Transient  // We don't store this on our server, because it can change
     public String username;
 
@@ -45,14 +50,37 @@ public class User {
         this.can_comment = true; // at the beginning, registered users can comment
         this.can_edit = false;
         this.administrator = false;
+        this.played_josekis = new ArrayList<>();
     }
 
     public String toString() {
-        return (String.format("User: %s (%s) comment %s edit %s admin %s",
+        String basic_info = String.format("User: %s (%s) comment %s edit %s admin %s ",
                 this.user_id.toString(),
                 String.valueOf(this.username),
                 this.can_comment,
                 this.can_edit,
-                this.administrator));
+                this.administrator);
+
+        return basic_info + (this.played_josekis == null ? "josekis: null" : this.played_josekis.toString());
     }
+
+    public Integer errorsFor(Long position_id) {
+        PlayRecord played = this.played_josekis.stream()
+                .filter(p -> p.getPosition().id == position_id)
+                .findFirst()
+                .orElse(null);
+
+        return played == null ? 0 : played.getBest_attempt();
+    }
+
+    public Long completedJosekiCount() {
+        return played_josekis.stream()
+                .filter(p -> p.getSuccesses() > 0)
+                .count();
+    }
+
+    public Integer josekisPlayedCount() {
+        return played_josekis.size();
+    }
+
 }

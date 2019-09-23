@@ -19,12 +19,14 @@ public class UserController {
 
     private Users user_access;
     private UserFactory user_factory;
-
+    private BoardPositions bp_access;
     public UserController(
             Users user_access,
-            UserFactory user_factory) {
+            UserFactory user_factory,
+            BoardPositionsNative bpn_access) {
         this.user_access = user_access;
         this.user_factory = user_factory;
+        this.bp_access = new BoardPositions(bpn_access);
     }
 
     @CrossOrigin()
@@ -81,9 +83,62 @@ public class UserController {
 
         User target_user = this.user_factory.createUser(id);
 
-        user_factory.updatePermissions(target_user, permissions);
+        target_user.setCanComment(permissions.getCan_comment());
+        target_user.setCanEdit((permissions.getCan_edit()));
+        target_user.setAdministrator(permissions.getIs_admin());
+
+        user_access.save(target_user);
 
         return new PermissionsDTO(target_user);
     }
 
+    @CrossOrigin()
+    @ResponseBody()
+    @GetMapping("/godojo/playrecord" )  // user id param not needed because we have user jwt anyhow
+    public PlayRecordDTO userPlayRecord(
+            @RequestHeader("X-User-Info") String user_jwt) {
+
+        User the_user = this.user_factory.createUser(user_jwt);
+
+        return new PlayRecordDTO(the_user);
+    }
+
+    @CrossOrigin()
+    @ResponseBody()
+    @PutMapping("/godojo/playrecord")
+    // Update position play record
+    public PlayRecordDTO updatePlayRecord(
+            @RequestHeader("X-User-Info") String user_jwt,
+            @RequestBody PlayRecordDTO data) {
+
+        J01Application.debug("set play record request " + data, log);
+
+        User the_user = this.user_factory.createUser(user_jwt);
+
+        // see if the user already played this position before
+        PlayRecord played = the_user.played_josekis.stream()
+                .filter(p -> p.getPosition().id.equals(data.getPosition_id()))
+                .findFirst()
+                .orElse(null);
+
+        if (played == null) {
+            J01Application.debug("new play record needed", log);
+            BoardPosition target = bp_access.findById(data.getPosition_id());
+            played = new PlayRecord(the_user, target);
+            the_user.played_josekis.add(played);
+        }
+
+        played.setAttempts(played.getAttempts() + 1);
+
+        if (played.getBest_attempt() == -1 || data.getError_count() < played.getBest_attempt()) {
+            played.setBest_attempt(data.getError_count());
+        }
+
+        if (data.getError_count() == 0) {
+            played.setSuccesses(played.getSuccesses() + 1);
+        }
+
+        user_access.save(the_user);
+        return new PlayRecordDTO(played);
+    }
 }
