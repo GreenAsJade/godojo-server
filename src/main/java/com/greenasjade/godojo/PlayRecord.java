@@ -26,6 +26,6 @@ public class PlayRecord {
     }
 
     public String toString() {
-        return String.format("PlayRecord: %s -> %s", this.user.getUserId().toString(), this.position.id.toString());
+        return String.format("%s -> %s", this.user.getUserId().toString(), this.position.id.toString());
     }
 }

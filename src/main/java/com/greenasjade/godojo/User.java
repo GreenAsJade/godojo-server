@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @NodeEntity
 public class User {
@@ -54,14 +55,16 @@ public class User {
     }
 
     public String toString() {
-        String basic_info = String.format("User: %s (%s) comment %s edit %s admin %s ",
+        String basic_info = String.format("User: %s (%s) comment %s edit %s admin %s played positions: ",
                 this.user_id.toString(),
                 String.valueOf(this.username),
                 this.can_comment,
                 this.can_edit,
                 this.administrator);
 
-        return basic_info + (this.played_josekis == null ? "josekis: null" : this.played_josekis.toString());
+        // its useful to know what positions were played, but full elaboration of each play record is too long
+        return basic_info + (this.played_josekis == null ? "null" : this.played_josekis.stream()
+                .map(r -> r.getPosition().id.toString()).collect(Collectors.joining(",")));
     }
 
     public Integer errorsFor(Long position_id) {
