@@ -138,7 +138,7 @@ public class BoardPositionController {
             );
         }
 
-        log.info("Saving new move sequence from user: " + user_id.toString());
+        J01Application.debug("Saving new move sequence from user: " + user_id.toString(),log);
                 
         List<String> placements = new ArrayList<>(Arrays.asList(sequence_details.getSequence().split(",")));
 
