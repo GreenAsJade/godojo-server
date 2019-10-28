@@ -59,11 +59,10 @@ public class BoardPositions {
                                                List<Long> tagIds,
                                                Long sourceId) {
         if (tagIds == null) {
-            // We must have a tag to do filtering, for acceptable performance
-            return bp_access.findByParentId(targetId);
+            return bp_access.findFilteredVariations(targetId, contributorId, sourceId);
         }
         else {
-            return bp_access.findFilteredVariations(targetId, contributorId, tagIds, sourceId);
+            return bp_access.findTagFilteredVariations(targetId, tagIds, contributorId,  sourceId);
         }
     }
 

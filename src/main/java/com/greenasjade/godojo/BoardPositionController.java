@@ -72,8 +72,7 @@ public class BoardPositionController {
 
         List<BoardPosition> next_positions;
 
-        // If we have a tag to filter for, we can do filtering
-        if (variation_tags != null) {
+        if (variation_tags != null || variation_contributor != null || variation_source != null) {
             List<Long> tagIds = null;
 
             if (variation_tags != null) {
@@ -99,7 +98,7 @@ public class BoardPositionController {
         }
         else {
             // Optimisation: if we don't have to ask the DB to do the big filter thing, then don't.
-            // We have to read them here in case the incoming BoardPosition does not have them
+            // We have to read the next positions from DB here in case the incoming BoardPosition does not have them
             // already read from the DB
             next_positions = bp_access.findByParentId(board_position.id);
         }

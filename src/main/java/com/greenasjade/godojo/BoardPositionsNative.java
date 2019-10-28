@@ -32,7 +32,23 @@ public interface BoardPositionsNative extends PagingAndSortingRepository<BoardPo
     @Query("MATCH (parent:BoardPosition)<-[link:PARENT]-(target:BoardPosition) WHERE id(target)={TargetID} DELETE link")
     void removeParent(@Param("TargetID") Long id);
 
-    // Find variations filtered by Tag and optionally source and contributor
+
+    // Find variations filtered by Contributor and/or Source
+    // (filtering with tags as well is separate, because it's hard to do a query with both "tags list is null" and
+    //  tags list is not null")
+
+    @Query("MATCH (leaf:BoardPosition)-[:PARENT*0..]->(v:BoardPosition)-[:PARENT]->(target:BoardPosition) " +
+            "WHERE id(target) = {TargetID} " +
+            "AND ({ContributorID} IS NULL OR leaf.contributor = {ContributorID}) " +
+            "WITH v, leaf MATCH (s:JosekiSource) " +
+            "WHERE ({SourceID} IS NULL OR (id(s) = {SourceID} AND (leaf)-[:SOURCE]->(s)) ) " +
+            "RETURN DISTINCT v")
+    List<BoardPosition> findFilteredVariations(@Param("TargetID") Long targetId,
+                                               @Param("ContributorID") Long contributorId,
+                                               @Param("SourceID") Long sourceId);
+
+    // Find variations filtered by Tag and optionally Source and Contributor
+    // This query grabs the tag sequences first, because there are fewest of these (tags only at the end of sequences)
 
     @Query("MATCH (t:Tag)<-[:TAGS]-(leaf:BoardPosition)-[:PARENT*0..]->(v:BoardPosition)-[:PARENT]->(target:BoardPosition) " +
             "WHERE id(target) = {TargetID} " +
@@ -43,10 +59,10 @@ public interface BoardPositionsNative extends PagingAndSortingRepository<BoardPo
             "WITH v,leaf MATCH (s:JosekiSource) " +
             "WHERE ({SourceID} IS NULL OR (id(s) = {SourceID} AND (leaf)-[:SOURCE]->(s)) ) " +
             "RETURN DISTINCT v")
-    List<BoardPosition> findFilteredVariations(@Param("TargetID") Long targetId,
-                                               @Param("ContributorID") Long contributorId,
-                                               @Param("TagIDs") List<Long> tagIds,
-                                               @Param("SourceID") Long sourceId);
+    List<BoardPosition> findTagFilteredVariations(@Param("TargetID") Long targetId,
+                                                  @Param("TagIDs") List<Long> tagIds,
+                                                  @Param("ContributorID") Long contributorId,
+                                                  @Param("SourceID") Long sourceId);
 
 
     @Query("MATCH (p:BoardPosition)<-[:PARENT*1..]-(c:BoardPosition) where id(p)={TargetID} return count(c)")
