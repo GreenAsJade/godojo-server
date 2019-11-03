@@ -23,14 +23,9 @@ public class AdminController {
     public AppInfoDTO appInfo() {
         J01Application.debug("App Info request", log);
 
-        // note: there should only be one (or zero) app_info in app_infos!
-        Iterable<AppInfo> app_info = app_infos.findAll();
+        AppInfo app_info = app_infos.getAppInfo();
 
-        if (!app_info.iterator().hasNext()) {
-            // When we were on schema 0, we had no app info.
-            return new AppInfoDTO();
-        }
-        return new AppInfoDTO(app_infos.findAll().iterator().next());
+        return new AppInfoDTO(app_info);
     }
 
 }

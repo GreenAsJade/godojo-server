@@ -1,10 +1,11 @@
 package com.greenasjade.godojo;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.SortedSet;
 
 @Data
 public class AppInfoDTO {
@@ -12,13 +13,16 @@ public class AppInfoDTO {
 
     private Integer schema_version;
 
+    private Long page_visits;
+
+    private SortedSet<DayVisitRecord> daily_visits;
+
     // Outgoing info
 
     AppInfoDTO(AppInfo appInfo) {
         schema_version = appInfo.getSchema_id();
-    }
-
-    AppInfoDTO() {
-        schema_version = 0;
+        page_visits = appInfo.getPageVisits();
+        // Will need to page this, or something else suitable, in due course
+        daily_visits = appInfo.getDailyPageVisits();
     }
 }

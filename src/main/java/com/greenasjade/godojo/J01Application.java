@@ -13,10 +13,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.time.Instant;
+import java.util.*;
 
 @SpringBootApplication
 @EnableAsync
@@ -45,7 +43,7 @@ public class J01Application {
     private AppInfos app_info_access;
     private Audits audit_access;
 
-    private Integer target_schema = 9;
+    private Integer target_schema = 10;
 
     @Value("${sentry.environment}")
     private String environment;
@@ -215,6 +213,19 @@ public class J01Application {
                 else {
                     log.warn("Not on Production so not migrating user IDs");
                 }
+                break;
+
+            case 10:
+                if (previous_schema != 9) {
+                    this.migrateToSchema(9, previous_schema);
+                }
+
+                log.info("Migrating to schema 10");
+                app_info = this.app_info_access.getAppInfo();
+                app_info.setPageVisits(0L);
+                app_info.setDailyPageVisits(new TreeSet<>());
+                app_info.dailyPageVisits.add(new DayVisitRecord(Instant.now()));
+                app_info_access.save(app_info);
                 break;
 
             case 999: // we'll do this later

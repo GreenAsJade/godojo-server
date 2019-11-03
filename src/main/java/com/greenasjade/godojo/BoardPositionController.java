@@ -21,16 +21,19 @@ public class BoardPositionController {
     private JosekiSources js_access;
     private Tags tag_access;
     private UserFactory user_factory;
+    private AppInfos app_info_access;
 
     public BoardPositionController(
             BoardPositionsNative bp_native_access,
             JosekiSources js_access,
             Tags tag_access,
-            UserFactory user_factory) {
+            UserFactory user_factory,
+            AppInfos app_info_access) {
         this.bp_access = new BoardPositions(bp_native_access);
         this.js_access = js_access;
         this.tag_access = tag_access;
         this.user_factory = user_factory;
+        this.app_info_access = app_info_access;
     }
 
     @CrossOrigin()
@@ -49,10 +52,16 @@ public class BoardPositionController {
         J01Application.debug("Position request for: " + id, log);
 
         if (id.equals("root")) {
+            // note that we don't increment page visit count for root, it doesn't
+            // really count as using the explorer.
             board_position = this.bp_access.findActiveByPlay(".root");
             id = board_position.id.toString();
         }
         else {
+            AppInfo app_info = this.app_info_access.getAppInfo();
+            app_info.incrementVisitCount();
+            this.app_info_access.save(app_info);
+
             board_position = this.bp_access.findById(Long.valueOf(id));
 
             if (board_position == null) {
@@ -69,6 +78,7 @@ public class BoardPositionController {
         }
 
         J01Application.debug("which is: " + board_position.getInfo(), log);
+
 
         List<BoardPosition> next_positions;
 

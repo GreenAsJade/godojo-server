@@ -6,9 +6,13 @@ import org.slf4j.LoggerFactory;
 
 import lombok.Data;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.SortedSet;
+
 /*
     A node in the DB where we store general app level info
-    Initially created for storing schema version.
  */
 
 @Data
@@ -24,8 +28,36 @@ public class AppInfo {
     @Property
     private Integer schema_id;
 
+    // Count of visits to the Joseki Explorer, reported by clients asking for
+    // position information.
+    @Property
+    public Long pageVisits;
+
+    @Relationship("DAILY_PAGE_VISITS")
+    SortedSet<DayVisitRecord> dailyPageVisits;
+
     public AppInfo() {
-        // Empty constructor required as of Neo4j API 2.0.5
+        // No-parameter constructor required as of Neo4j API 2.0.5
     };
 
+    public void incrementVisitCount() {
+        // J01Application.debug("Incrementing visit counts...", log);
+
+        this.pageVisits++;
+
+        Instant now = Instant.now();
+
+        DayVisitRecord currentRecord = this.dailyPageVisits.last();
+
+        if (now.truncatedTo(ChronoUnit.DAYS).compareTo(currentRecord.getDate().truncatedTo(ChronoUnit.DAYS)) > 0) {
+            J01Application.debug("New day for visit counts!", log);
+
+            currentRecord = new DayVisitRecord(Instant.now());
+            currentRecord.setPageVisits(1L);
+            this.dailyPageVisits.add(currentRecord);
+        }
+        else {
+            currentRecord.setPageVisits(currentRecord.getPageVisits() +1);
+        }
+    }
 } 
