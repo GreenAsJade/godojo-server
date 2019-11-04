@@ -40,6 +40,10 @@ public class BoardPositionDTO {
 
     private Integer topicId;
 
+    // This field is global, not related to the specific board position
+    // It's a useful sideband signal to get each time we collect a board position
+    private Boolean db_locked_down;
+
     // incoming
     public List<Long> tag_ids;
 
@@ -72,11 +76,11 @@ public class BoardPositionDTO {
 
     // Outbound position information
 
-
     public BoardPositionDTO(
             BoardPosition position,
             List<BoardPosition> next_positions,
-            Integer child_count) {
+            Integer child_count,
+            Boolean db_locked_down) {
 
         description = position.getDescription();
         variation_label = position.getVariationLabel();
@@ -108,5 +112,7 @@ public class BoardPositionDTO {
         tags = position.tags;
 
         this.child_count = child_count;
+
+        this.db_locked_down = db_locked_down;
     }
 }

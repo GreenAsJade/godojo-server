@@ -43,7 +43,7 @@ public class J01Application {
     private AppInfos app_info_access;
     private Audits audit_access;
 
-    private Integer target_schema = 10;
+    private Integer target_schema = 11;
 
     @Value("${sentry.environment}")
     private String environment;
@@ -227,6 +227,19 @@ public class J01Application {
                 app_info.dailyPageVisits.add(new DayVisitRecord(Instant.now()));
                 app_info_access.save(app_info);
                 break;
+
+            case 11:
+                if (previous_schema != 10) {
+                    this.migrateToSchema(10, previous_schema);
+                }
+                log.info("Migrating to schema 11");
+                app_info = this.app_info_access.getAppInfo();
+                app_info.setLockedDown(false);
+                app_info_access.save(app_info);
+                break;
+
+            case 100:
+                throw new RuntimeException("Dumb developer error.  Add break statement");
 
             case 999: // we'll do this later
 

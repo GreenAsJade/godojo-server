@@ -28,6 +28,9 @@ public class AppInfo {
     @Property
     private Integer schema_id;
 
+    @Property
+    private Boolean lockedDown; // set to stop anyone modifying anything
+
     // Count of visits to the Joseki Explorer, reported by clients asking for
     // position information.
     @Property

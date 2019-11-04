@@ -51,6 +51,8 @@ public class BoardPositionController {
 
         J01Application.debug("Position request for: " + id, log);
 
+        AppInfo app_info = this.app_info_access.getAppInfo();
+
         if (id.equals("root")) {
             // note that we don't increment page visit count for root, it doesn't
             // really count as using the explorer.
@@ -58,7 +60,6 @@ public class BoardPositionController {
             id = board_position.id.toString();
         }
         else {
-            AppInfo app_info = this.app_info_access.getAppInfo();
             app_info.incrementVisitCount();
             this.app_info_access.save(app_info);
 
@@ -115,7 +116,7 @@ public class BoardPositionController {
 
         Integer child_count = bp_access.countChildren(board_position.id);
 
-        BoardPositionDTO position = new BoardPositionDTO(board_position, next_positions, child_count);
+        BoardPositionDTO position = new BoardPositionDTO(board_position, next_positions, child_count, app_info.getLockedDown());
 
         return new ResponseEntity(position, HttpStatus.OK);
     }
@@ -137,11 +138,13 @@ public class BoardPositionController {
             @RequestHeader("X-User-Info") String user_jwt,
             @RequestBody SequenceDTO sequence_details) {
 
+        AppInfo app_info = this.app_info_access.getAppInfo();
+
         User the_user = this.user_factory.createUser(user_jwt);
 
         Long user_id = the_user.getUserId();
 
-        if (!the_user.canEdit()) {
+        if (!the_user.canEdit() || app_info.getLockedDown()) {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN, String.format("User %s does not have edit permissions", user_id.toString())
             );
@@ -203,11 +206,13 @@ public class BoardPositionController {
 
         J01Application.debug("updatePosition: " + position_details.toString(), log);
 
+        AppInfo app_info = this.app_info_access.getAppInfo();
+
         User the_user = this.user_factory.createUser(user_jwt);
 
         Long user_id = the_user.getUserId();
 
-        if (!the_user.canEdit()) {
+        if (!the_user.canEdit() || app_info.getLockedDown()) {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN, String.format("User %s does not have edit permissions", user_id.toString())
             );

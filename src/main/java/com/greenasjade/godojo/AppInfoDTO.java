@@ -17,11 +17,14 @@ public class AppInfoDTO {
 
     private SortedSet<DayVisitRecord> daily_visits;
 
+    private Boolean locked_down;
+
     // Outgoing info
 
     AppInfoDTO(AppInfo appInfo) {
         schema_version = appInfo.getSchema_id();
         page_visits = appInfo.getPageVisits();
+        locked_down = appInfo.getLockedDown();
         // Will need to page this, or something else suitable, in due course
         daily_visits = appInfo.getDailyPageVisits();
     }
