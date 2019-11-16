@@ -59,25 +59,30 @@ public class UserFactory {
     // Here we fully populate the User object with its relationships from the DB
     // and with a temporary value for their current user name, from the jwt
     User createUser(String jwt) {
-        // First grab the user-id off the jwt
-        Jwt token = JwtHelper.decodeAndVerify(jwt, new RsaVerifier(ogs_key));
-
-        String claims = token.getClaims();
+        J01Application.debug("Processing user jwt: " + jwt, log);
 
         JsonNode jwtClaims;
 
-        Long id;
-
         try {
+            Jwt token = JwtHelper.decodeAndVerify(jwt, new RsaVerifier(ogs_key));
+
+            String claims = token.getClaims();
+
             jwtClaims = new ObjectMapper().readTree(claims);
-        } catch (java.io.IOException e) {
-            log.error("Couldn't get user info!");
-            return null;  // urk should have a better solution TBD
+
+        } catch (Exception e) {
+            // Let's just carry on with them as anonymous
+
+            log.error("Couldn't get user info from jwt - treating them as anonymous! " + e.toString());
+
+            User the_user = new User(0L);
+            the_user.setCanComment(false);  // anonymous can't comment
+            return the_user;
         }
 
         J01Application.debug("User Claims: " + jwtClaims.toString(), log);
 
-        id = jwtClaims.get("id").asLong();
+        Long id = jwtClaims.get("id").asLong();
 
         String username = jwtClaims.get("username").asText();
 
