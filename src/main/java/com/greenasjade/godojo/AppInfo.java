@@ -73,23 +73,23 @@ public class AppInfo {
             }
         }
 
-        if (client_mode.equals("0")) {  // "0" is the value of the client's Explore mode enum. Magic numbers FTW.
-            if (currentRecord.getExplorePageVisits() == null) {
-                // historical DayVisitRecord that didn't have this member
-                currentRecord.setExplorePageVisits(1L);
+        if (client_mode != null) {
+            if (client_mode.equals("0")) {  // "0" is the value of the client's Explore mode enum. Magic numbers FTW.
+                if (currentRecord.getExplorePageVisits() == null) {
+                    // historical DayVisitRecord that didn't have this member
+                    currentRecord.setExplorePageVisits(1L);
+                } else {
+                    currentRecord.setExplorePageVisits(currentRecord.getExplorePageVisits() + 1);
+                }
             }
-            else {
-                currentRecord.setExplorePageVisits(currentRecord.getExplorePageVisits() + 1);
-            }
-        }
 
-        if (client_mode.equals("1")) {  // "1" is the value of the client's Play mode enum.
-            if (currentRecord.getPlayPageVisits() == null) {
-                // historical DayVisitRecord that didn't have this member
-                currentRecord.setPlayPageVisits(1L);
-            }
-            else {
-                currentRecord.setPlayPageVisits(currentRecord.getPlayPageVisits() + 1);
+            if (client_mode.equals("1")) {  // "1" is the value of the client's Play mode enum.
+                if (currentRecord.getPlayPageVisits() == null) {
+                    // historical DayVisitRecord that didn't have this member
+                    currentRecord.setPlayPageVisits(1L);
+                } else {
+                    currentRecord.setPlayPageVisits(currentRecord.getPlayPageVisits() + 1);
+                }
             }
         }
     }
