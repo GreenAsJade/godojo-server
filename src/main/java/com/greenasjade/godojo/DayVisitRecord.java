@@ -25,15 +25,27 @@ public class DayVisitRecord implements Comparable<DayVisitRecord> {
     private Long pageVisits;
 
     @Property
+    public Long explorePageVisits;
+
+    @Property
+    public Long playPageVisits;
+
+    @Property
+    public Long guestPageVisits;
+
+    @Property
     private Instant date;
 
     public DayVisitRecord() {
-        // Empty constructor required as of Neo4j API 2.0.5
+        // Empty parameter constructor required as of Neo4j API 2.0.5
     };
 
     public DayVisitRecord(Instant date) {
         this.date = date;
         this.pageVisits = 0L;
+        this.explorePageVisits = 0L;
+        this.playPageVisits = 0L;
+        this.guestPageVisits = 0L;
     }
 
     @Override

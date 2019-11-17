@@ -42,6 +42,7 @@ public class BoardPositionController {
     // Return all the information needed to display a position
     // Filter out variations as specified by params
     public ResponseEntity<BoardPositionDTO> position(
+            @RequestHeader("X-User-Info") String user_jwt,
             @RequestParam(value = "id", required = false, defaultValue = "root") String id,
             @RequestParam(value="cfilterid", required = false) Long variation_contributor,
             @RequestParam(value="tfilterid", required = false) List<Long> variation_tags,
@@ -49,7 +50,9 @@ public class BoardPositionController {
 
         BoardPosition board_position;
 
-        J01Application.debug("Position request for: " + id, log);
+        User the_user = this.user_factory.createUser(user_jwt);
+
+        J01Application.debug("User " + the_user.username +  " position request for: " + id, log);
 
         AppInfo app_info = this.app_info_access.getAppInfo();
 
@@ -60,7 +63,7 @@ public class BoardPositionController {
             id = board_position.id.toString();
         }
         else {
-            app_info.incrementVisitCount();
+            app_info.incrementVisitCount(the_user);
             this.app_info_access.save(app_info);
 
             board_position = this.bp_access.findById(Long.valueOf(id));
@@ -122,8 +125,8 @@ public class BoardPositionController {
     }
 
     // an alias when we don't want to filter, used below.
-    ResponseEntity<BoardPositionDTO> position(String id) {
-        return this.position(id, null, null, null);
+    ResponseEntity<BoardPositionDTO> position(String user_jwt, String id) {
+        return this.position(user_jwt, id, null, null, null);
     }
 
     @CrossOrigin()
@@ -192,7 +195,7 @@ public class BoardPositionController {
         this.bp_access.save(next_position);
 
         // Finally, return the info for the last position created.
-        return this.position(next_position.id.toString());
+        return this.position(user_jwt, next_position.id.toString());
     }
 
     @CrossOrigin()
@@ -247,7 +250,7 @@ public class BoardPositionController {
 
         this.bp_access.save(the_position);
 
-        return this.position(id);
+        return this.position(user_jwt, id);
     }
 
     @CrossOrigin()

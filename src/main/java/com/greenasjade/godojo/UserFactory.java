@@ -52,7 +52,6 @@ public class UserFactory {
         }
 
         J01Application.debug(the_user.toString(), log);
-
         return the_user;
     }
 

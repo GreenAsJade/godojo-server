@@ -43,7 +43,7 @@ public class AppInfo {
         // No-parameter constructor required as of Neo4j API 2.0.5
     };
 
-    public void incrementVisitCount() {
+    public void incrementVisitCount(User the_user) {
         // J01Application.debug("Incrementing visit counts...", log);
 
         this.pageVisits++;
@@ -62,5 +62,16 @@ public class AppInfo {
         else {
             currentRecord.setPageVisits(currentRecord.getPageVisits() +1);
         }
+
+        if (the_user.getUserId() == 0L) {
+            if (currentRecord.getGuestPageVisits() == null) {
+                // historical DayVisitRecord that didn't have this member
+                currentRecord.setGuestPageVisits(1L);
+            }
+            else {
+                currentRecord.setGuestPageVisits(currentRecord.getGuestPageVisits() + 1);
+            }
+        }
+
     }
 } 

@@ -13,7 +13,7 @@ public class MoveDTO {
 
     private final Character variation_label;
 
-    private Long node_id;
+    private String node_id; // client wants these to be strings, compatible with "root" as the root id
 
     /* Not used?
     // Inbound info.
@@ -32,7 +32,7 @@ public class MoveDTO {
     public MoveDTO(BoardPosition move) {
         this.placement = move.getPlacement();
         this.category = move.getCategory();
-        this.node_id = move.id;
+        this.node_id = move.id.toString();
         this.variation_label = move.getVariationLabel();
     }
 }
