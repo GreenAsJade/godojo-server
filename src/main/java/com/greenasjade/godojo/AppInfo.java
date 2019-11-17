@@ -43,7 +43,7 @@ public class AppInfo {
         // No-parameter constructor required as of Neo4j API 2.0.5
     };
 
-    public void incrementVisitCount(User the_user) {
+    public void incrementVisitCount(User the_user, String client_mode) {
         // J01Application.debug("Incrementing visit counts...", log);
 
         this.pageVisits++;
@@ -73,5 +73,24 @@ public class AppInfo {
             }
         }
 
+        if (client_mode.equals("0")) {  // "0" is the value of the client's Explore mode enum. Magic numbers FTW.
+            if (currentRecord.getExplorePageVisits() == null) {
+                // historical DayVisitRecord that didn't have this member
+                currentRecord.setExplorePageVisits(1L);
+            }
+            else {
+                currentRecord.setExplorePageVisits(currentRecord.getExplorePageVisits() + 1);
+            }
+        }
+
+        if (client_mode.equals("1")) {  // "1" is the value of the client's Play mode enum.
+            if (currentRecord.getPlayPageVisits() == null) {
+                // historical DayVisitRecord that didn't have this member
+                currentRecord.setPlayPageVisits(1L);
+            }
+            else {
+                currentRecord.setPlayPageVisits(currentRecord.getPlayPageVisits() + 1);
+            }
+        }
     }
 } 

@@ -46,7 +46,8 @@ public class BoardPositionController {
             @RequestParam(value = "id", required = false, defaultValue = "root") String id,
             @RequestParam(value="cfilterid", required = false) Long variation_contributor,
             @RequestParam(value="tfilterid", required = false) List<Long> variation_tags,
-            @RequestParam(value="sfilterid", required = false) Long variation_source) {
+            @RequestParam(value="sfilterid", required = false) Long variation_source,
+            @RequestParam(value="mode", required = false) String client_mode) {
 
         BoardPosition board_position;
 
@@ -54,6 +55,9 @@ public class BoardPositionController {
 
         J01Application.debug("User " + the_user.username +  " position request for: " + id, log);
 
+        if (client_mode != null) {
+            J01Application.debug("mode " + client_mode, log);
+        }
         AppInfo app_info = this.app_info_access.getAppInfo();
 
         if (id.equals("root")) {
@@ -63,7 +67,7 @@ public class BoardPositionController {
             id = board_position.id.toString();
         }
         else {
-            app_info.incrementVisitCount(the_user);
+            app_info.incrementVisitCount(the_user, client_mode);
             this.app_info_access.save(app_info);
 
             board_position = this.bp_access.findById(Long.valueOf(id));
@@ -126,7 +130,7 @@ public class BoardPositionController {
 
     // an alias when we don't want to filter, used below.
     ResponseEntity<BoardPositionDTO> position(String user_jwt, String id) {
-        return this.position(user_jwt, id, null, null, null);
+        return this.position(user_jwt, id, null, null, null, null);
     }
 
     @CrossOrigin()
