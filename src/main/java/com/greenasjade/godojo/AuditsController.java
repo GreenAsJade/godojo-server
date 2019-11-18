@@ -38,7 +38,7 @@ public class AuditsController {
     // Return all the information needed to display audit log for a single position
     // note: surely this should have been a Page<AuditDTO>.  I think this was here before I knew about that...
     public ArrayList<Audit> audits(
-            @RequestParam(value = "id", required = false, defaultValue = "root") String node_id) {
+            @RequestParam(value = "id") String node_id) {
 
         if (node_id.equals("root")) {
             node_id = audit_store.getRootId();
