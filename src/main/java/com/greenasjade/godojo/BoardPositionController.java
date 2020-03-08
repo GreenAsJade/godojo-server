@@ -49,8 +49,6 @@ public class BoardPositionController {
             @RequestParam(value="sfilterid", required = false) Long variation_source,
             @RequestParam(value="mode", required = false) String client_mode) {
 
-        BoardPosition board_position;
-
         User the_user = this.user_factory.createUser(user_jwt);
 
         J01Application.debug("User " + the_user.username +  " position request for: " + id, log);
@@ -58,30 +56,54 @@ public class BoardPositionController {
         if (client_mode != null) {
             J01Application.debug("mode " + client_mode, log);
         }
+
+        // Visit counter update
         AppInfo app_info = this.app_info_access.getAppInfo();
 
-        if (id.equals("root")) {
-            // note that we don't increment page visit count for root, it doesn't
-            // really count as using the explorer.
-            board_position = this.bp_access.findActiveByPlay(".root");
-            id = board_position.id.toString();
-        }
-        else {
+        // note that we don't increment page visit count for root, it doesn't
+        // really count as using the explorer.
+
+        if (!id.equals("root")) {
             app_info.incrementVisitCount(the_user, client_mode);
             this.app_info_access.save(app_info);
+        }
 
+        // Return the data...
+
+        BoardPositionDTO position = getFilteredPositionInfo(id, variation_contributor,  variation_tags, variation_source);
+
+        if (position == null) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        else {
+            return new ResponseEntity(position, HttpStatus.OK);
+        }
+    }
+
+    BoardPositionDTO getFilteredPositionInfo(
+            String id,
+            Long variation_contributor,
+            List<Long> variation_tags,
+            Long variation_source) {
+
+        BoardPosition board_position;
+
+        if (id.equals("root")) {
+            board_position = this.bp_access.findActiveByPlay(".root");
+        }
+        else {
             board_position = this.bp_access.findById(Long.valueOf(id));
 
             if (board_position == null) {
                 J01Application.debug("requested position does not exist", log);
 
-                return new ResponseEntity(HttpStatus.NOT_FOUND);
+                return null;
             }
 
             if (board_position.parent == null && !board_position.getPlay().equals(".root")) {
                 J01Application.debug("which is a deleted position.", log);
 
-                return new ResponseEntity(HttpStatus.NOT_FOUND);
+                return null;
             }
         }
 
@@ -101,15 +123,15 @@ public class BoardPositionController {
                 tagIds.addAll(variation_tags);
             }
 
-           if (variation_contributor != null) {
-               J01Application.debug("filtering for variations by contributor " +
-                       variation_contributor.toString(), log);
-           }
+            if (variation_contributor != null) {
+                J01Application.debug("filtering for variations by contributor " +
+                        variation_contributor.toString(), log);
+            }
 
-           if (variation_source != null) {
-               J01Application.debug("filtering for variations by source " +
-                       variation_source.toString(), log);
-           }
+            if (variation_source != null) {
+                J01Application.debug("filtering for variations by source " +
+                        variation_source.toString(), log);
+            }
 
             next_positions = bp_access.findFilteredVariations(board_position.id, variation_contributor, tagIds, variation_source);
             J01Application.debug("next positions: " + next_positions.toString(), log);
@@ -123,9 +145,62 @@ public class BoardPositionController {
 
         Integer child_count = bp_access.countChildren(board_position.id);
 
-        BoardPositionDTO position = new BoardPositionDTO(board_position, next_positions, child_count, app_info.getLockedDown());
+        // yuk, I wish I found a better way than to have locked down status in board position :S
+        AppInfo app_info = this.app_info_access.getAppInfo();
 
-        return new ResponseEntity(position, HttpStatus.OK);
+        return new BoardPositionDTO(board_position, next_positions, child_count, app_info.getLockedDown());
+    }
+
+
+    @CrossOrigin()
+    @ResponseBody()
+    @GetMapping("/godojo/positions" )
+    // Return all the information needed to display a position, along with the info for the nodes it leads to
+    // Filter out variations as specified by params
+    public ResponseEntity<ArrayList<BoardPositionDTO>> positions(
+            @RequestHeader("X-User-Info") String user_jwt,
+            @RequestParam(value = "id", required = false, defaultValue = "root") String id,
+            @RequestParam(value="cfilterid", required = false) Long variation_contributor,
+            @RequestParam(value="tfilterid", required = false) List<Long> variation_tags,
+            @RequestParam(value="sfilterid", required = false) Long variation_source,
+            @RequestParam(value="mode", required = false) String client_mode) {
+
+        User the_user = this.user_factory.createUser(user_jwt);
+
+        J01Application.debug("User " + the_user.username +  " positions request for: " + id, log);
+
+        if (client_mode != null) {
+            J01Application.debug("mode " + client_mode, log);
+        }
+
+        // Visit counter update
+        AppInfo app_info = this.app_info_access.getAppInfo();
+
+        // note that we don't increment page visit count for root, it doesn't
+        // really count as using the explorer.
+
+        if (!id.equals("root")) {
+            app_info.incrementVisitCount(the_user, client_mode);
+            this.app_info_access.save(app_info);
+        }
+
+        BoardPositionDTO position = getFilteredPositionInfo(id, variation_contributor,  variation_tags, variation_source);
+
+        if (position == null) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+
+        List<BoardPositionDTO> positions = new ArrayList<>();
+
+        // the actual position they asked for
+        positions.add(position);
+
+        // prefetch the next ones
+        for(MoveDTO next_move: position.getNext_moves()) {
+            positions.add(getFilteredPositionInfo(next_move.getNode_id(), variation_contributor, variation_tags, variation_source));
+        }
+
+        return new ResponseEntity(positions, HttpStatus.OK);
     }
 
     // an alias when we don't want to filter, used below.
