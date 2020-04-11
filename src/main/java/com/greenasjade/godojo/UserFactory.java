@@ -14,6 +14,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 /* This "factory" implements the logic to find out whether a user needs to be created
@@ -90,6 +92,24 @@ public class UserFactory {
         if (the_user == null) {
             if (!jwtClaims.get("anonymous").asBoolean()) {
                 the_user = new User(id);
+
+                // You have to have been a member for 2 months to comment
+                
+                LocalDate joined_date = LocalDate.parse(jwtClaims.get("registration_date").asText(),
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSxxxxx"));
+                log.info("User joined: " + joined_date.toString());
+
+                LocalDate cutoff = LocalDate.now().minusMonths(2);
+
+                log.debug("Comment cutoff: " + cutoff.toString());
+
+                if (joined_date.compareTo(cutoff) < 0) {
+                    the_user.setCanEdit(true);
+                }
+                else {
+                    the_user.setCanComment(false);
+                }
+
             }
             else {
                 J01Application.debug("anonymous visitor", log);
