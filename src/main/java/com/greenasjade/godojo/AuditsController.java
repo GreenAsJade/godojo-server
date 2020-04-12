@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -216,14 +217,23 @@ public class AuditsController {
     }
 
     private String RevertAddComment(Audit target, Long user_id) {
-        int target_comment = Integer.parseInt(target.getOriginalValue()) -1;
+        String target_comment_date = target.getOriginalValue();
 
-        J01Application.debug(String.format("Reverting comment %s from %s", target_comment, target.ref.getInfo()), log);
+        J01Application.debug(String.format("Reverting comment made at %s from %s", target_comment_date, target.ref.getInfo()), log);
 
-        Long target_comment_id = target.ref.commentary.get(target_comment).id;
-        String target_comment_remark = target.ref.commentary.get(target_comment).getComment();
+        int target_comment_index = IntStream.range(0, target.ref.commentary.size())
+                .filter(i -> target_comment_date.equals(target.ref.commentary.get(i).getDate().toString()))
+                .findFirst()
+                .orElse(-1);
 
-        target.ref.commentary.remove(target_comment);
+        Comment target_comment = target.ref.commentary.get(target_comment_index);
+
+        Long target_comment_id = target_comment.id;
+        String target_comment_remark = target_comment.getComment();
+
+        target.ref.commentary.remove(target_comment_index);
+
+        J01Application.debug(target.ref.commentary.toString(), log);
 
         target.ref.audits.add(new Audit(target.ref, ChangeType.REMOVE_COMMENT,
                         target_comment_id.toString(), target_comment_remark,
