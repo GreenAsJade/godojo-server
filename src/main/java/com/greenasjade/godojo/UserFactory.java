@@ -94,7 +94,7 @@ public class UserFactory {
                 the_user = new User(id);
 
                 // You have to have been a member for 2 months to comment
-                
+
                 LocalDate joined_date = LocalDate.parse(jwtClaims.get("registration_date").asText(),
                         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSxxxxx"));
                 log.info("User joined: " + joined_date.toString());

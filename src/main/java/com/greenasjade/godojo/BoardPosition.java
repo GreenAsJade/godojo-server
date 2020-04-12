@@ -137,9 +137,11 @@ public class BoardPosition {
         if (this.commentary == null) {
             this.commentary = new ArrayList<>();
         }
+
         this.commentary.add(new_comment);
-        // Use "old value" to save which comment this is.
-        this.audits.add(new Audit(this, ChangeType.ADD_COMMENT, String.valueOf(this.commentary.size()), text, "Commented", user_id));
+
+        // The only way to uniquely identify this comment is it's date (it doesn't have an ID yet)
+        this.audits.add(new Audit(this, ChangeType.ADD_COMMENT, new_comment.getDate().toString(), text, "Commented", user_id));
     }
 
     public String toString() {
