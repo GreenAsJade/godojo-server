@@ -97,7 +97,7 @@ public class UserFactory {
 
                 LocalDate joined_date = LocalDate.parse(jwtClaims.get("registration_date").asText(),
                         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSxxxxx"));
-                log.info("User joined: " + joined_date.toString());
+                log.debug("User joined: " + joined_date.toString());
 
                 LocalDate cutoff = LocalDate.now().minusMonths(2);
 
