@@ -104,7 +104,7 @@ public class UserFactory {
                 log.debug("Comment cutoff: " + cutoff.toString());
 
                 if (joined_date.compareTo(cutoff) < 0) {
-                    the_user.setCanEdit(true);
+                    the_user.setCanComment(true);
                 }
                 else {
                     the_user.setCanComment(false);
