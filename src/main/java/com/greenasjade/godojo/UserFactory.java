@@ -85,40 +85,42 @@ public class UserFactory {
 
         Long id = jwtClaims.get("id").asLong();
 
-        String username = jwtClaims.get("username").asText();
-
         User the_user = user_access.loadUserWithPlayRecordByUserId(id);
 
         if (the_user == null) {
             if (!jwtClaims.get("anonymous").asBoolean()) {
                 the_user = new User(id);
-
-                // You have to have been a member for 2 months to comment
-
-                LocalDate joined_date = LocalDate.parse(jwtClaims.get("registration_date").asText(),
-                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSSSSS]xxxxx"));
-                log.debug("User joined: " + joined_date.toString());
-
-                LocalDate cutoff = LocalDate.now().minusMonths(2);
-
-                log.debug("Comment cutoff: " + cutoff.toString());
-
-                if (joined_date.compareTo(cutoff) < 0) {
-                    the_user.setCanComment(true);
-                }
-                else {
-                    the_user.setCanComment(false);
-                }
-
             }
             else {
                 J01Application.debug("anonymous visitor", log);
                 the_user = new User(0L);
-                the_user.setCanComment(false);  // anonymous can't comment
             }
         }
 
-        the_user.username = username;
+        the_user.username = jwtClaims.get("username").asText();
+
+        // You have to have been a member for 2 months to comment
+
+        try {
+            LocalDate joined_date = LocalDate.parse(jwtClaims.get("registration_date").asText(),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSSSSS]xxxxx"));
+            log.debug("User joined: " + joined_date.toString());
+
+            LocalDate cutoff = LocalDate.now().minusMonths(2);
+
+            log.debug("Comment cutoff: " + cutoff.toString());
+
+            if (joined_date.compareTo(cutoff) > 0) {
+                the_user.setCanComment(false);  // note this overrides whatever permission is set on the user in the DB
+            }
+        }
+        catch (Exception e){
+            // Note that date parsing could fail if the date format is unexpected.
+            // In which case they can't comment.
+            log.error("Exception while checking user registration date: " + e.toString());
+
+            the_user.setCanComment(false);
+        }
 
         if (the_user.played_josekis == null) {
             the_user.played_josekis = new ArrayList<>();
