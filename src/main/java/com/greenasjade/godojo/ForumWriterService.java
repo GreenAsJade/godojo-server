@@ -1,7 +1,5 @@
 package com.greenasjade.godojo;
 
-import io.sentry.Sentry;
-import io.sentry.event.BreadcrumbBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +21,7 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class ForumWriterService {
 
-    private static Logger log = LoggerFactory.getLogger(ForumWriterService.class);
+    private static final Logger log = LoggerFactory.getLogger(ForumWriterService.class);
 
     @Value("${godojo.server.url}")
     private String serverUrl;
@@ -74,14 +72,14 @@ public class ForumWriterService {
 
     public String fetchContributorName(Long contributorId) {
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity request = new HttpEntity(apiHeaders);
+        HttpEntity<?> request = new HttpEntity<>(apiHeaders);
         String apiUrl = serverApi + "/v1/players/" + contributorId.toString();
         J01Application.debug("Fetching contributor name from " + apiUrl, log);
 
         ResponseEntity<UserGetResponseDTO> response = restTemplate.exchange(
                 apiUrl, HttpMethod.GET, request, UserGetResponseDTO.class);
 
-        return response.getBody().getUsername();
+        return response.getBody().getUsername().replace(' ', '_');
     }
 
     @Async("asyncExecutor")
@@ -132,7 +130,7 @@ public class ForumWriterService {
         }
 
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity request = new HttpEntity(topicObject.toString(), forumHeaders);
+        HttpEntity<?> request = new HttpEntity<>(topicObject.toString(), forumHeaders);
 
         J01Application.debug("About to post: " + forumUrl + "\nheaders: " + forumHeaders.toString() + "\nrequest: " + request.toString(), log);
 
@@ -184,7 +182,7 @@ public class ForumWriterService {
         }
 
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity request = new HttpEntity(topicObject.toString(), forumHeaders);
+        HttpEntity<?> request = new HttpEntity<>(topicObject.toString(), forumHeaders);
 
         J01Application.debug("About to post: " + forumUrl + "\nheaders: " + forumHeaders.toString() + "\nrequest: " + request.toString(), log);
 
