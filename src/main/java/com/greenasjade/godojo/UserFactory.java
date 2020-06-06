@@ -74,7 +74,7 @@ public class UserFactory {
         } catch (Exception e) {
             // Let's just carry on with them as anonymous
 
-            log.error("Couldn't get user info from jwt - treating them as anonymous! " + e.toString());
+            J01Application.debug("Couldn't get user info from jwt - treating them as anonymous! " + e.toString(), log);
 
             User the_user = new User(0L);
             the_user.setCanComment(false);  // anonymous can't comment
