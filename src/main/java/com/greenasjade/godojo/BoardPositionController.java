@@ -92,7 +92,14 @@ public class BoardPositionController {
             board_position = this.bp_access.findActiveByPlay(".root");
         }
         else {
-            board_position = this.bp_access.findById(Long.valueOf(id));
+            try {
+                board_position = this.bp_access.findById(Long.valueOf(id));
+            }
+            catch (NumberFormatException e) {
+                J01Application.debug("unrecognised position id: " + id, log);
+
+                return null;
+            }
 
             if (board_position == null) {
                 J01Application.debug("requested position does not exist", log);
