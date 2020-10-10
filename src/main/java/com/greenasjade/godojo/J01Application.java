@@ -1,7 +1,9 @@
 package com.greenasjade.godojo;
 
 import io.sentry.Sentry;
-import io.sentry.event.BreadcrumbBuilder;
+import io.sentry.Breadcrumb;
+import io.sentry.SentryLevel;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,9 +30,14 @@ public class J01Application {
 
     public static void debug(String message, Logger logger) {
         // breadcrumbs to Sentry for debug on issues
-        Sentry.getContext().recordBreadcrumb(
-                new BreadcrumbBuilder().setMessage(message).build()
-        );
+
+        Sentry.configureScope(scope -> {
+            Breadcrumb breadcrumb = new Breadcrumb();
+            breadcrumb.setCategory("debug");
+            breadcrumb.setMessage(message);
+            breadcrumb.setLevel(SentryLevel.DEBUG);
+            scope.addBreadcrumb(breadcrumb);
+        });
 
         logger.debug(message);
     }
