@@ -70,7 +70,7 @@ public class J01Application {
             if (environment.equals("set-me-in-the-environment")) {
                 throw new RuntimeException("SENTRY_ENVIRONMENT needs to be set");
             }
-            J01Application.debug("Server environment: " + environment, log);
+            J01Application.debug("SENTRY_ENVIRONMENT: " + environment, log);
 
             this.native_bp_access = native_bp_access;
             this.bp_access = new BoardPositions(native_bp_access);
