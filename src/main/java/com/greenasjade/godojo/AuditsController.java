@@ -250,7 +250,7 @@ public class AuditsController {
     RevertResultDTO revert(
             @RequestHeader("X-User-Info") String user_jwt,
             @RequestBody RevertRequestDTO request) {
-        log.info("revert request " + request);
+        J01Application.info("revert request " + request, log);
 
         User the_user = this.user_factory.createUser(user_jwt);
 

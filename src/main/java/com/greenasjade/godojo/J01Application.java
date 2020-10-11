@@ -29,8 +29,17 @@ public class J01Application {
     }
 
     public static void debug(String message, Logger logger) {
-        // breadcrumbs to Sentry for debug on issues
+        J01Application.addBreadcrumb(message);
+        logger.debug(message);
+    }
 
+    public static void info(String message, Logger logger) {
+        J01Application.addBreadcrumb(message);
+        logger.info(message);
+    }
+
+    public static void addBreadcrumb(String message) {
+        // breadcrumbs to Sentry for debug on issues
         Sentry.configureScope(scope -> {
             Breadcrumb breadcrumb = new Breadcrumb();
             breadcrumb.setCategory("debug");
@@ -38,8 +47,6 @@ public class J01Application {
             breadcrumb.setLevel(SentryLevel.DEBUG);
             scope.addBreadcrumb(breadcrumb);
         });
-
-        logger.debug(message);
     }
 
     private BoardPositionsNative native_bp_access;
@@ -92,11 +99,11 @@ public class J01Application {
             Integer db_schema = app_info.getSchema_id();
 
             if (db_schema < target_schema) {
-                log.info("Migrating from " + db_schema.toString() + " to " + target_schema.toString());
+                J01Application.info("Migrating from " + db_schema.toString() + " to " + target_schema.toString(), log);
                 migrateToSchema(target_schema, db_schema);
             }
             else {
-                log.info("Currently on schema version " + target_schema.toString());
+                J01Application.info("Currently on schema version " + target_schema.toString(), log);
             }
 
             BoardPosition rootNode = bp_access.findActiveByPlay(".root");
@@ -181,7 +188,7 @@ public class J01Application {
                 break;
 
             case 6:
-                log.info("Migrating to schema 6");
+                J01Application.info("Migrating to schema 6", log);
                 this.fixVariationLabelZeros();
                 break;
 
@@ -190,7 +197,7 @@ public class J01Application {
                     this.migrateToSchema(6, previous_schema);
                 }
                 // nothing to do now for schema 7
-                log.info("Migrating to schema 7");
+                J01Application.info("Migrating to schema 7", log);
                 J01Application.debug("No migration to run for schema 7", log);
                 break;
 
@@ -199,7 +206,7 @@ public class J01Application {
                     this.migrateToSchema(7, previous_schema);
                 }
 
-                log.info("Migrating to schema 8");
+                J01Application.info("Migrating to schema 8", log);
                 if (environment.equals("production")) {
                     this.migrateUsersToProductionIds();
                 }
@@ -213,7 +220,7 @@ public class J01Application {
                     this.migrateToSchema(8, previous_schema);
                 }
 
-                log.info("Migrating to schema 9");
+                J01Application.info("Migrating to schema 9", log);
                 if (environment.equals("production")) {
                     this.migrateAuditsToProductionUserIds();
                 }
@@ -227,7 +234,7 @@ public class J01Application {
                     this.migrateToSchema(9, previous_schema);
                 }
 
-                log.info("Migrating to schema 10");
+                J01Application.info("Migrating to schema 10", log);
                 app_info = this.app_info_access.getAppInfo();
                 app_info.setPageVisits(0L);
                 app_info.setDailyPageVisits(new TreeSet<>());
@@ -239,7 +246,7 @@ public class J01Application {
                 if (previous_schema != 10) {
                     this.migrateToSchema(10, previous_schema);
                 }
-                log.info("Migrating to schema 11");
+                J01Application.info("Migrating to schema 11", log);
                 app_info = this.app_info_access.getAppInfo();
                 app_info.setLockedDown(false);
                 app_info_access.save(app_info);
@@ -592,7 +599,7 @@ public class J01Application {
             }
         };
 
-        log.info("Doing Audit ID updates...");
+        J01Application.info("Doing Audit ID updates...", log);
         audit_access.streamAllAudits().forEach( a -> {
             Long newId = userIdMap.get(a.getUserId());
 
