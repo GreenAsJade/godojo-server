@@ -40,6 +40,7 @@ dependencies {
             'org.springframework.boot:spring-boot-starter-web',
             'org.springframework.boot:spring-boot-starter-logging',
             'io.sentry:sentry-logback:3.0.0',
+            'de.siegmar:logback-gelf:3.0.0',
             'org.springframework.boot:spring-boot-starter-data-neo4j',
             'org.springframework.boot:spring-boot-starter-thymeleaf',
             'org.springframework.boot:spring-boot-starter-security',

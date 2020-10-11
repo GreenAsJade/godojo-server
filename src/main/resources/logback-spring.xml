@@ -1,7 +1,7 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
-    <!-- Configure the Sentry appender -->
+    <!-- Configure the Sentry appender : WARN or higher only -->
     <appender name="Sentry" class="io.sentry.logback.SentryAppender">
     <!-- debug <appender name="Sentry" class="ch.qos.logback.core.ConsoleAppender">
             <layout>
@@ -9,31 +9,47 @@
         </layout> -->
 
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+    </appender>
+
+    <!-- Configure the Greylog appender : INFO or higher, not debug -->
+    <appender name="GELF" class="de.siegmar.logbackgelf.GelfUdpAppender">
+        <graylogHost>graylog.online-go.com </graylogHost>
+        <graylogPort>39283</graylogPort>
+        <encoder class="de.siegmar.logbackgelf.GelfEncoder">
+            <staticField>server:godojo</staticField>
+        </encoder>
+
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>
     </appender>
 
-    <!-- Debug our stuff to the console, (default WARN for everything else) -->
-    <logger name="com.greenasjade.godojo" level="DEBUG" additivity="false">
+    <!-- Turn on Debug for our stuff (appenders have to filter this if they don't want it, above) -->
+    <logger name="com.greenasjade.godojo" level="DEBUG" additivity="FALSE">
         <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="Sentry"/>   <!-- This will get filtered down to INFO for Sentry by it's filter -->
+        <appender-ref ref="GELF"/>
+        <appender-ref ref="Sentry"/>
     </logger>
 
-    <!-- and get rid of Neo warnings to Sentry for now, until we can fix them - have them only in the console -->
-
+    <!-- direct Neo INFO to the Console only for now, because they contain irrelevant warnings that should not be logged -->
     <logger name="org.springframework.data.neo4j" level="INFO" additivity="false">
         <appender-ref ref="CONSOLE"/>
     </logger>
 
-    <!-- Get rid of annoying Spring DEBUG embedded in Auth -->
+    <!-- Get rid of annoying Spring DEBUG embedded in Auth in our stuff -->
     <logger name="com.greenasjade.godojo.APIKeyAuthFilter" level="WARN" additivity="false">
         <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="GELF"/>
         <appender-ref ref="Sentry"/>
     </logger>
 
-    <!-- Enable the Console and Sentry appenders, default WARN (so Sentry doesn't get all that Spring INFO)-->
+    <!-- Enable the appenders, default WARN for the entire codebase-->
     <root level="WARN">
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="Sentry" />
+        <appender-ref ref="GELF" />
     </root>
+
 </configuration>
