@@ -51,7 +51,7 @@ public class BoardPositionController {
 
         User the_user = this.user_factory.createUser(user_jwt);
 
-        J01Application.debug("User " + the_user.username +  " position request for: " + id, log);
+        J01Application.info("User " + the_user.username +  " position request for: " + id, log);
 
         if (client_mode != null) {
             J01Application.debug("mode " + client_mode, log);
@@ -174,7 +174,7 @@ public class BoardPositionController {
 
         User the_user = this.user_factory.createUser(user_jwt);
 
-        J01Application.debug("User " + the_user.username +  " positions request for: " + id, log);
+        J01Application.info("User " + the_user.username +  " positions request for: " + id, log);
 
         if (client_mode != null) {
             J01Application.debug("mode " + client_mode, log);
